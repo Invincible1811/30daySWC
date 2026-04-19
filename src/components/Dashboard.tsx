@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import type { Page } from "./Navigation";
 import ShareInvite from "./ShareInvite";
+import { useAuth } from "@/lib/auth-context";
 
 interface DashboardProps {
   onNavigate: (page: Page) => void;
@@ -16,7 +17,9 @@ interface DashboardProps {
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
   const { souls, currentDay, completedDays, globalSoulCount, userName, testimonies, communityPosts } = useApp();
+  const { profile } = useAuth();
   const [showChallenge, setShowChallenge] = useState(false);
+  const displayName = profile?.full_name || profile?.username || userName;
 
   const mySoulCount = souls.length;
   const todayChallenge = challengeCards[Math.min(currentDay - 1, 29)];
@@ -29,7 +32,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
         <p className="text-primary-light/80 text-sm">Welcome back,</p>
-        <h2 className="text-2xl font-bold mt-1">{userName} 🔥</h2>
+        <h2 className="text-2xl font-bold mt-1">{displayName} 🔥</h2>
         <p className="text-blue-200 text-sm mt-2">Day {Math.min(currentDay, 30)} of 30 — Keep winning souls!</p>
         <div className="mt-4 flex gap-3">
           <button

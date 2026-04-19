@@ -3,9 +3,10 @@
 import {
   Home, Map, CalendarDays, Users, MoreHorizontal,
   BookOpen, Heart, MessageCircle, Globe, Award,
-  UserPlus, HandHeart, ChevronLeft, Menu, X, Wrench
+  UserPlus, HandHeart, ChevronLeft, Menu, X, Wrench, LogOut, User
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 export type Page =
   | "dashboard"
@@ -50,6 +51,7 @@ const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = 
 export default function Navigation({ currentPage, onNavigate }: NavigationProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { profile, signOut } = useAuth();
 
   return (
     <>
@@ -81,12 +83,23 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
             );
           })}
         </nav>
-        <div className="p-4 border-t border-dark-light">
-          <div className="bg-primary/20 rounded-lg p-3 text-center">
-            <Award size={24} className="text-warning mx-auto mb-1" />
-            <p className="text-xs text-grey-medium">Bible School Scholarship</p>
-            <p className="text-[10px] text-primary-light">COMING SOON</p>
+        <div className="p-4 border-t border-dark-light space-y-3">
+          <div className="flex items-center gap-3 px-2">
+            <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center">
+              <User size={16} className="text-primary-light" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">{profile?.full_name || profile?.username || "Soul Winner"}</p>
+              <p className="text-[10px] text-grey-medium truncate">{profile?.username}</p>
+            </div>
           </div>
+          <button
+            onClick={signOut}
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-grey-medium hover:text-white hover:bg-dark-light rounded-lg transition-all"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </button>
         </div>
       </aside>
 
@@ -132,6 +145,21 @@ export default function Navigation({ currentPage, onNavigate }: NavigationProps)
                 );
               })}
             </nav>
+            <div className="mt-auto p-4 border-t border-dark-light">
+              <div className="flex items-center gap-3 px-2 mb-3">
+                <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center">
+                  <User size={16} className="text-primary-light" />
+                </div>
+                <p className="text-sm text-white truncate">{profile?.full_name || profile?.username || "Soul Winner"}</p>
+              </div>
+              <button
+                onClick={signOut}
+                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-grey-medium hover:text-white hover:bg-dark-light rounded-lg transition-all"
+              >
+                <LogOut size={16} />
+                Sign Out
+              </button>
+            </div>
           </div>
         </div>
       )}
