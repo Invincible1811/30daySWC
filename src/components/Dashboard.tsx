@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { Page } from "./Navigation";
+import ShareInvite from "./ShareInvite";
 
 interface DashboardProps {
   onNavigate: (page: Page) => void;
@@ -45,6 +46,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </button>
         </div>
       </div>
+
+      {/* Floating share button */}
+      <ShareInvite variant="floating" />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

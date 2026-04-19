@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import {
   BookOpen, Heart, Users, MapPin, Sparkles, Gift,
   ChevronRight, ArrowRight, Star, Flame,
-  CheckCircle2, MessageCircle, Globe, Calendar
+  CheckCircle2, MessageCircle, Globe, Calendar, Share2
 } from "lucide-react";
+import ShareInvite from "./ShareInvite";
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -356,14 +357,17 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           <p style={{ color: "#BFDBFE", fontSize: 18, marginBottom: 40, maxWidth: 500, margin: "0 auto 40px" }}>
             Join the movement. Start your 30-day soul-winning challenge today and watch God use you to change lives for eternity.
           </p>
-          <button
-            onClick={onEnterApp}
-            className="group inline-flex items-center gap-3"
-            style={{ background: "#fff", color: "#1E3A8A", fontWeight: 700, fontSize: 18, padding: "20px 40px", borderRadius: 16, boxShadow: "0 10px 40px rgba(0,0,0,0.2)", border: "none", cursor: "pointer", transition: "all 0.3s" }}
-          >
-            Enter the App
-            <ArrowRight size={22} />
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <button
+              onClick={onEnterApp}
+              className="group inline-flex items-center gap-3"
+              style={{ background: "#fff", color: "#1E3A8A", fontWeight: 700, fontSize: 18, padding: "20px 40px", borderRadius: 16, boxShadow: "0 10px 40px rgba(0,0,0,0.2)", border: "none", cursor: "pointer", transition: "all 0.3s" }}
+            >
+              Enter the App
+              <ArrowRight size={22} />
+            </button>
+            <ShareInvite />
+          </div>
         </div>
       </section>
 
