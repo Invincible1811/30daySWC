@@ -1,10 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import {
   Soul, Testimony, PrayerRequest, Event, Group, CommunityPost, DailyRecord, DailyShare,
   sampleSouls, sampleTestimonies, samplePrayers, sampleEvents, sampleGroups, sampleCommunityPosts
 } from "./data";
+import { useAuth } from "./auth-context";
+import { isSupabaseConfigured } from "./supabase";
+import * as db from "./supabase-data";
 
 interface AppState {
   currentDay: number;
@@ -92,6 +95,8 @@ const defaultState: AppState = {
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const userId = user?.id;
   const [state, setState] = useState<AppState>(() => {
     if (typeof window !== "undefined") {
       const saved = loadState();
@@ -100,10 +105,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return defaultState;
   });
   const [mounted, setMounted] = useState(false);
+  const hasSynced = useRef(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Sync from Supabase when user logs in
+  useEffect(() => {
+    if (!userId || !isSupabaseConfigured || hasSynced.current) return;
+    hasSynced.current = true;
+
+    (async () => {
+      const [souls, testimonies, prayers, events, groups, communityPosts, globalSoulCount] = await Promise.all([
+        db.fetchSouls(userId),
+        db.fetchTestimonies(),
+        db.fetchPrayers(),
+        db.fetchEvents(),
+        db.fetchGroups(),
+        db.fetchCommunityPosts(),
+        db.fetchGlobalSoulCount(),
+      ]);
+
+      setState(prev => ({
+        ...prev,
+        souls: souls.length > 0 ? souls : prev.souls,
+        testimonies: testimonies.length > 0 ? testimonies : prev.testimonies,
+        prayers: prayers.length > 0 ? prayers : prev.prayers,
+        events: events.length > 0 ? events : prev.events,
+        groups: groups.length > 0 ? groups : prev.groups,
+        communityPosts: communityPosts.length > 0 ? communityPosts : prev.communityPosts,
+        globalSoulCount: globalSoulCount > 0 ? globalSoulCount : prev.globalSoulCount,
+        userName: user?.user_metadata?.full_name || prev.userName,
+      }));
+    })();
+  }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (mounted) {
@@ -112,18 +148,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [state, mounted]);
 
   const addSoul = useCallback((soul: Omit<Soul, "id">) => {
+    const localId = generateId();
     setState(prev => ({
       ...prev,
-      souls: [...prev.souls, { ...soul, id: generateId() }],
+      souls: [...prev.souls, { ...soul, id: localId }],
       globalSoulCount: prev.globalSoulCount + 1,
     }));
-  }, []);
+    if (userId && isSupabaseConfigured) {
+      db.insertSoul(userId, soul).then(dbSoul => {
+        if (dbSoul) {
+          setState(prev => ({
+            ...prev,
+            souls: prev.souls.map(s => s.id === localId ? { ...s, id: dbSoul.id } : s),
+          }));
+        }
+      });
+    }
+  }, [userId]);
 
   const updateSoul = useCallback((id: string, updates: Partial<Soul>) => {
     setState(prev => ({
       ...prev,
       souls: prev.souls.map(s => s.id === id ? { ...s, ...updates } : s),
     }));
+    if (isSupabaseConfigured) db.updateSoulDb(id, updates);
   }, []);
 
   const deleteSoul = useCallback((id: string) => {
@@ -131,36 +179,73 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       souls: prev.souls.filter(s => s.id !== id),
     }));
+    if (isSupabaseConfigured) db.deleteSoulDb(id);
   }, []);
 
   const addTestimony = useCallback((testimony: Omit<Testimony, "id" | "likes" | "comments">) => {
+    const localId = generateId();
     setState(prev => ({
       ...prev,
-      testimonies: [{ ...testimony, id: generateId(), likes: 0, comments: [] }, ...prev.testimonies],
+      testimonies: [{ ...testimony, id: localId, likes: 0, comments: [] }, ...prev.testimonies],
     }));
-  }, []);
+    if (userId && isSupabaseConfigured) {
+      db.insertTestimony(userId, testimony).then(data => {
+        if (data) {
+          setState(prev => ({
+            ...prev,
+            testimonies: prev.testimonies.map(t => t.id === localId ? { ...t, id: data.id } : t),
+          }));
+        }
+      });
+    }
+  }, [userId]);
 
   const addPrayer = useCallback((prayer: Omit<PrayerRequest, "id" | "likes" | "prayerCount" | "comments">) => {
+    const localId = generateId();
     setState(prev => ({
       ...prev,
-      prayers: [{ ...prayer, id: generateId(), likes: 0, prayerCount: 0, comments: [] }, ...prev.prayers],
+      prayers: [{ ...prayer, id: localId, likes: 0, prayerCount: 0, comments: [] }, ...prev.prayers],
     }));
-  }, []);
+    if (userId && isSupabaseConfigured) {
+      db.insertPrayer(userId, prayer).then(data => {
+        if (data) {
+          setState(prev => ({
+            ...prev,
+            prayers: prev.prayers.map(p => p.id === localId ? { ...p, id: data.id } : p),
+          }));
+        }
+      });
+    }
+  }, [userId]);
 
   const addEvent = useCallback((event: Omit<Event, "id" | "attendees">) => {
+    const localId = generateId();
     setState(prev => ({
       ...prev,
-      events: [...prev.events, { ...event, id: generateId(), attendees: 0 }],
+      events: [...prev.events, { ...event, id: localId, attendees: 0 }],
     }));
-  }, []);
+    if (userId && isSupabaseConfigured) {
+      db.insertEvent(userId, event).then(data => {
+        if (data) {
+          setState(prev => ({
+            ...prev,
+            events: prev.events.map(e => e.id === localId ? { ...e, id: data.id } : e),
+          }));
+        }
+      });
+    }
+  }, [userId]);
 
   const completeDay = useCallback((day: number) => {
-    setState(prev => ({
-      ...prev,
-      completedDays: prev.completedDays.includes(day) ? prev.completedDays : [...prev.completedDays, day],
-      currentDay: Math.max(prev.currentDay, day + 1),
-    }));
-  }, []);
+    setState(prev => {
+      const newCompleted = prev.completedDays.includes(day) ? prev.completedDays : [...prev.completedDays, day];
+      const newDay = Math.max(prev.currentDay, day + 1);
+      if (userId && isSupabaseConfigured) {
+        db.updateProfile(userId, { current_day: newDay, completed_days: newCompleted });
+      }
+      return { ...prev, completedDays: newCompleted, currentDay: newDay };
+    });
+  }, [userId]);
 
   const setUserName = useCallback((name: string) => {
     setState(prev => ({ ...prev, userName: name }));
@@ -171,6 +256,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       testimonies: prev.testimonies.map(t => t.id === id ? { ...t, likes: t.likes + 1 } : t),
     }));
+    if (isSupabaseConfigured) db.likeTestimonyDb(id);
   }, []);
 
   const likePrayer = useCallback((id: string) => {
@@ -178,6 +264,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       prayers: prev.prayers.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p),
     }));
+    if (isSupabaseConfigured) db.likePrayerDb(id);
   }, []);
 
   const prayForRequest = useCallback((id: string) => {
@@ -185,6 +272,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       prayers: prev.prayers.map(p => p.id === id ? { ...p, prayerCount: p.prayerCount + 1 } : p),
     }));
+    if (isSupabaseConfigured) db.prayForRequestDb(id);
   }, []);
 
   const addCommentToTestimony = useCallback((testimonyId: string, comment: Omit<Comment, "id">) => {
@@ -221,6 +309,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       groups: prev.groups.map(g => g.id === id ? { ...g, members: g.members + 1 } : g),
     }));
+    if (isSupabaseConfigured) db.joinGroupDb(id);
   }, []);
 
   const rsvpEvent = useCallback((id: string) => {
@@ -228,6 +317,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       ...prev,
       events: prev.events.map(e => e.id === id ? { ...e, attendees: e.attendees + 1 } : e),
     }));
+    if (isSupabaseConfigured) db.rsvpEventDb(id);
   }, []);
 
   const saveDailyRecord = useCallback((record: DailyRecord) => {
