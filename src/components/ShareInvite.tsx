@@ -3,8 +3,12 @@
 import { useState } from "react";
 import { Share2, X, Copy, Check, MessageCircle } from "lucide-react";
 
-const APP_URL = "https://30dayswc.vercel.app";
 const INVITE_TEXT = "Join me on the 30-Day Soul-Winning Challenge! Daily scriptures, prayer tools, and a community of soul winners. Let's win souls together!";
+
+function getAppUrl() {
+  if (typeof window !== "undefined") return window.location.origin;
+  return "https://30dayswc.vercel.app";
+}
 
 function WhatsAppIcon({ size = 20 }: { size?: number }) {
   return (
@@ -38,7 +42,7 @@ export default function ShareInvite({ variant = "button" }: ShareInviteProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = APP_URL;
+  const shareUrl = getAppUrl();
   const shareText = INVITE_TEXT;
 
   const handleCopy = async () => {
