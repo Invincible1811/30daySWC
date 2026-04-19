@@ -40,3 +40,36 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request).then((cached) => cached || caches.match(OFFLINE_URL)))
   );
 });
+
+// Push notifications
+self.addEventListener("push", (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || "Winning Souls";
+  const options = {
+    body: data.body || "Time to win souls today!",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    vibrate: [100, 50, 100],
+    data: { url: data.url || "/" },
+    actions: [
+      { action: "open", title: "Open App" },
+    ],
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Notification click: open the app
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
+});

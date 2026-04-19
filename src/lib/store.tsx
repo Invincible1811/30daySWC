@@ -8,6 +8,7 @@ import {
 import { useAuth } from "./auth-context";
 import { isSupabaseConfigured } from "./supabase";
 import * as db from "./supabase-data";
+import { subscribeToRealtime } from "./realtime";
 
 interface AppState {
   currentDay: number;
@@ -140,6 +141,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }));
     })();
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Realtime: re-fetch shared data when other users make changes
+  useEffect(() => {
+    if (!userId || !isSupabaseConfigured) return;
+
+    const refreshSharedData = async () => {
+      const [testimonies, prayers, communityPosts, globalSoulCount] = await Promise.all([
+        db.fetchTestimonies(),
+        db.fetchPrayers(),
+        db.fetchCommunityPosts(),
+        db.fetchGlobalSoulCount(),
+      ]);
+      setState(prev => ({
+        ...prev,
+        testimonies: testimonies.length > 0 ? testimonies : prev.testimonies,
+        prayers: prayers.length > 0 ? prayers : prev.prayers,
+        communityPosts: communityPosts.length > 0 ? communityPosts : prev.communityPosts,
+        globalSoulCount: globalSoulCount > 0 ? globalSoulCount : prev.globalSoulCount,
+      }));
+    };
+
+    const unsubscribe = subscribeToRealtime(refreshSharedData);
+    return () => unsubscribe();
+  }, [userId]);
 
   useEffect(() => {
     if (mounted) {

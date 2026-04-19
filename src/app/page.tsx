@@ -15,6 +15,7 @@ import ComingSoon from "@/components/ComingSoon";
 import Toolkit from "@/components/Toolkit";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
+import NotificationPrompt from "@/components/NotificationPrompt";
 import { useAuth } from "@/lib/auth-context";
 import { Loader2 } from "lucide-react";
 
@@ -97,6 +98,7 @@ export default function Home() {
           {renderPage()}
         </div>
       </main>
+      <NotificationPrompt />
     </div>
   );
 }
