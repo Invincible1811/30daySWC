@@ -320,38 +320,81 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                 </div>
               </div>
 
-              {/* Mockup side */}
+              {/* iPhone Mockup */}
               <div className="flex-1 flex justify-center">
-                <div className="w-full max-w-[320px] rounded-[28px] overflow-hidden" style={{ background: section.mockupBg, boxShadow: "0 25px 60px rgba(0,0,0,0.2)", padding: "32px 24px" }}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="flex items-center justify-center" style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.2)" }}>
-                      <section.icon size={22} style={{ color: "#fff" }} />
-                    </div>
-                    <div>
-                      <p style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>{section.tag}</p>
-                      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>Winning Souls</p>
-                    </div>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {section.mockupItems.map((item, i) => (
-                      <div key={i} className="flex items-center gap-3" style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                        {item.done ? (
-                          <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                            <CheckCircle2 size={16} style={{ color: "#fff" }} />
+                <div style={{ width: 280, position: "relative" }}>
+                  {/* iPhone outer shell */}
+                  <div style={{
+                    background: "#1a1a1a",
+                    borderRadius: 44,
+                    padding: "14px 12px",
+                    boxShadow: "0 30px 70px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 0 1px rgba(255,255,255,0.05)",
+                  }}>
+                    {/* Notch / Dynamic Island */}
+                    <div style={{
+                      width: 100,
+                      height: 28,
+                      background: "#1a1a1a",
+                      borderRadius: 20,
+                      margin: "0 auto 0",
+                      position: "relative",
+                      zIndex: 2,
+                      top: 2,
+                    }} />
+                    {/* Screen */}
+                    <div style={{
+                      borderRadius: 32,
+                      overflow: "hidden",
+                      background: section.mockupBg,
+                      marginTop: -14,
+                    }}>
+                      {/* Status bar */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 24px 0", fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)" }}>
+                        <span>9:41</span>
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          <div style={{ width: 16, height: 10, border: "1.5px solid rgba(255,255,255,0.6)", borderRadius: 2, position: "relative" }}>
+                            <div style={{ position: "absolute", inset: 2, background: "rgba(255,255,255,0.6)", borderRadius: 1 }} />
                           </div>
-                        ) : (
-                          <div style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", flexShrink: 0 }} />
-                        )}
-                        <div>
-                          <p style={{ color: "#fff", fontWeight: 600, fontSize: 14 }}>{item.label}</p>
-                          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>{item.sub}</p>
                         </div>
                       </div>
-                    ))}
+                      {/* App content */}
+                      <div style={{ padding: "20px 20px 28px" }}>
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className="flex items-center justify-center" style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.2)" }}>
+                            <section.icon size={20} style={{ color: "#fff" }} />
+                          </div>
+                          <div>
+                            <p style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{section.tag}</p>
+                            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Winning Souls</p>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                          {section.mockupItems.map((item, i) => (
+                            <div key={i} className="flex items-center gap-3" style={{ background: "rgba(255,255,255,0.1)", borderRadius: 14, padding: "12px 14px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                              {item.done ? (
+                                <div style={{ width: 26, height: 26, borderRadius: 8, background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                  <CheckCircle2 size={14} style={{ color: "#fff" }} />
+                                </div>
+                              ) : (
+                                <div style={{ width: 26, height: 26, borderRadius: 8, border: "2px solid rgba(255,255,255,0.25)", flexShrink: 0 }} />
+                              )}
+                              <div>
+                                <p style={{ color: "#fff", fontWeight: 600, fontSize: 13 }}>{item.label}</p>
+                                <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 10 }}>{item.sub}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ width: "100%", marginTop: 14, padding: "10px", borderRadius: 12, background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.12)", color: "#fff", fontWeight: 600, fontSize: 12, textAlign: "center" }}>
+                          Open in App →
+                        </div>
+                      </div>
+                      {/* Home indicator */}
+                      <div style={{ display: "flex", justifyContent: "center", paddingBottom: 10 }}>
+                        <div style={{ width: 120, height: 4, borderRadius: 4, background: "rgba(255,255,255,0.3)" }} />
+                      </div>
+                    </div>
                   </div>
-                  <button style={{ width: "100%", marginTop: 16, padding: "12px", borderRadius: 12, background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 600, fontSize: 13, cursor: "default" }}>
-                    Open in App →
-                  </button>
                 </div>
               </div>
             </div>
