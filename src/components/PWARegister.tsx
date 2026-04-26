@@ -17,7 +17,25 @@ export default function PWARegister() {
       sessionStorage.removeItem("ws-entered");
     }
 
-    if (!("serviceWorker" in navigator)) return;
+    // Check version.json for updates (works even with old service worker)
+    const checkVersion = async () => {
+      try {
+        const res = await fetch("/version.json?t=" + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          const lastKnown = localStorage.getItem("ws-server-version");
+          if (lastKnown && lastKnown !== data.version) {
+            setUpdateAvailable(true);
+          }
+          localStorage.setItem("ws-server-version", data.version);
+        }
+      } catch { /* offline, ignore */ }
+    };
+    checkVersion();
+    // Re-check every 2 minutes
+    const versionInterval = setInterval(checkVersion, 2 * 60 * 1000);
+
+    if (!("serviceWorker" in navigator)) return () => clearInterval(versionInterval);
 
     // Register service worker
     navigator.serviceWorker
@@ -47,6 +65,8 @@ export default function PWARegister() {
         setUpdateAvailable(true);
       }
     });
+
+    return () => clearInterval(versionInterval);
   }, []);
 
   const handleUpdate = () => {
