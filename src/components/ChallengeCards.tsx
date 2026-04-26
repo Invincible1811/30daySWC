@@ -275,7 +275,7 @@ export default function ChallengeCards() {
               </div>
 
               {/* Record Your Day Button */}
-              {selected.day <= currentDay && (
+              {(isAdmin || selected.day <= currentDay) && (
                 <button
                   onClick={() => setShowRecordForm(!showRecordForm)}
                   className="w-full bg-primary/10 text-primary py-3 rounded-xl font-semibold hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
@@ -389,7 +389,7 @@ export default function ChallengeCards() {
                 </div>
               )}
 
-              {!completedDays.includes(selected.day) && selected.day <= currentDay && (
+              {!completedDays.includes(selected.day) && (isAdmin || selected.day <= currentDay) && (
                 <button
                   onClick={() => { completeDay(selected.day); setSelectedCard(null); }}
                   className="w-full bg-success text-white py-3 rounded-xl font-semibold hover:bg-success/90 transition-colors flex items-center justify-center gap-2"
