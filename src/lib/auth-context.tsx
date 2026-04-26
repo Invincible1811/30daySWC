@@ -19,6 +19,12 @@ export interface UserProfile {
   username: string;
   full_name: string;
   avatar_url: string | null;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  bio: string;
+  church: string;
   role: "user" | "admin";
   current_day: number;
   completed_days: number[];

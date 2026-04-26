@@ -1,12 +1,15 @@
 "use client";
 
 import { useApp } from "@/lib/store";
+import { useAuth } from "@/lib/auth-context";
 import { challengeCards as challengeCardsData } from "@/lib/data";
 import { BookOpen, Check, Lock, ChevronRight, Printer, Share2, X, Save, Users, Heart, ClipboardList } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function ChallengeCards() {
   const { currentDay, completedDays, completeDay, dailyRecords, saveDailyRecord, shareDailyRecord } = useApp();
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === "admin";
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [showRecordForm, setShowRecordForm] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -141,7 +144,7 @@ export default function ChallengeCards() {
         {challengeCards.map((card, idx) => {
           const isCompleted = completedDays.includes(card.day);
           const isCurrent = card.day === Math.min(currentDay, 30);
-          const isLocked = card.day > currentDay && !isCompleted;
+          const isLocked = !isAdmin && card.day > currentDay && !isCompleted;
 
           return (
             <button

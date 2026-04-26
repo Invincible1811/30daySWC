@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle } from "lucide-react";
+import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle, Lock, Phone, MapPin, Church, FileText, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApp } from "@/lib/store";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -12,10 +12,24 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(profile?.full_name || "");
   const [username, setUsername] = useState(profile?.username || "");
+  const [phone, setPhone] = useState(profile?.phone || "");
+  const [address, setAddress] = useState(profile?.address || "");
+  const [city, setCity] = useState(profile?.city || "");
+  const [country, setCountry] = useState(profile?.country || "");
+  const [bio, setBio] = useState(profile?.bio || "");
+  const [church, setChurch] = useState(profile?.church || "");
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  // Password change
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwMessage, setPwMessage] = useState("");
+  const [pwError, setPwError] = useState("");
 
   const stats = [
     { icon: <Trophy className="text-warning" size={20} />, label: "Souls Won", value: souls.length, bg: "bg-warning/10" },
@@ -43,11 +57,29 @@ export default function ProfilePage() {
     await supabase.from("profiles").update({
       full_name: fullName.trim(),
       username: username.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      city: city.trim(),
+      country: country.trim(),
+      bio: bio.trim(),
+      church: church.trim(),
       updated_at: new Date().toISOString(),
     }).eq("id", user.id);
     await refreshProfile();
     setSaving(false);
     setEditing(false);
+  };
+
+  const handlePasswordChange = async () => {
+    setPwError("");
+    setPwMessage("");
+    if (newPassword.length < 6) { setPwError("Password must be at least 6 characters"); return; }
+    if (newPassword !== confirmPassword) { setPwError("Passwords do not match"); return; }
+    setPwLoading(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) { setPwError(error.message); }
+    else { setPwMessage("Password updated successfully!"); setNewPassword(""); setConfirmPassword(""); }
+    setPwLoading(false);
   };
 
   const joinDate = user?.created_at
@@ -102,7 +134,7 @@ export default function ProfilePage() {
             )}
           </div>
           {!editing && (
-            <button onClick={() => { setFullName(profile?.full_name || ""); setUsername(profile?.username || ""); setEditing(true); }} className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+            <button onClick={() => { setFullName(profile?.full_name || ""); setUsername(profile?.username || ""); setPhone(profile?.phone || ""); setAddress(profile?.address || ""); setCity(profile?.city || ""); setCountry(profile?.country || ""); setBio(profile?.bio || ""); setChurch(profile?.church || ""); setEditing(true); }} className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
               <Edit3 size={16} />
             </button>
           )}
@@ -158,6 +190,121 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Personal Details */}
+      {editing && (
+        <div className="bg-card rounded-2xl p-6 shadow-sm border border-primary/20">
+          <h3 className="font-bold text-dark mb-4 flex items-center gap-2">
+            <Edit3 size={18} className="text-primary" /> Edit Profile
+          </h3>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Full Name</label>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <User size={16} className="text-grey" />
+                  <input value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Your full name" className="w-full bg-transparent text-sm outline-none text-dark" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Username</label>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <span className="text-grey text-sm font-semibold">@</span>
+                  <input value={username} onChange={e => setUsername(e.target.value)} placeholder="username" className="w-full bg-transparent text-sm outline-none text-dark" />
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-grey-dark block mb-1">Bio</label>
+              <div className="flex items-start gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                <FileText size={16} className="text-grey mt-0.5" />
+                <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell others about yourself..." rows={2} className="w-full bg-transparent text-sm outline-none text-dark resize-none" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Phone Number</label>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <Phone size={16} className="text-grey" />
+                  <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 234 567 8900" className="w-full bg-transparent text-sm outline-none text-dark" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Church</label>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <Church size={16} className="text-grey" />
+                  <input value={church} onChange={e => setChurch(e.target.value)} placeholder="Your local church" className="w-full bg-transparent text-sm outline-none text-dark" />
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Address</label>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <MapPin size={16} className="text-grey" />
+                  <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Street address" className="w-full bg-transparent text-sm outline-none text-dark" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">City</label>
+                <input value={city} onChange={e => setCity(e.target.value)} placeholder="City" className="w-full bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Country</label>
+                <input value={country} onChange={e => setCountry(e.target.value)} placeholder="Country" className="w-full bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary" />
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary-dark transition-colors">
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+              <button onClick={() => setEditing(false)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-grey-light text-grey-dark hover:bg-grey-light/80 transition-colors">
+                <X size={16} /> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Personal Info (read-only) */}
+      {!editing && (profile?.phone || profile?.church || profile?.city || profile?.bio) && (
+        <div className="bg-card rounded-2xl p-6 shadow-sm border border-grey-light">
+          <h3 className="font-bold text-dark mb-4">Personal Details</h3>
+          <div className="space-y-3">
+            {profile?.bio && (
+              <div className="py-2">
+                <span className="text-xs text-grey-dark block mb-1">Bio</span>
+                <p className="text-sm text-dark">{profile.bio}</p>
+              </div>
+            )}
+            {profile?.phone && (
+              <div className="flex items-center justify-between py-2 border-t border-grey-light">
+                <span className="text-sm text-grey-dark flex items-center gap-2"><Phone size={14} /> Phone</span>
+                <span className="text-sm font-medium text-dark">{profile.phone}</span>
+              </div>
+            )}
+            {profile?.church && (
+              <div className="flex items-center justify-between py-2 border-t border-grey-light">
+                <span className="text-sm text-grey-dark flex items-center gap-2"><Church size={14} /> Church</span>
+                <span className="text-sm font-medium text-dark">{profile.church}</span>
+              </div>
+            )}
+            {(profile?.city || profile?.country) && (
+              <div className="flex items-center justify-between py-2 border-t border-grey-light">
+                <span className="text-sm text-grey-dark flex items-center gap-2"><MapPin size={14} /> Location</span>
+                <span className="text-sm font-medium text-dark">{[profile?.city, profile?.country].filter(Boolean).join(", ")}</span>
+              </div>
+            )}
+            {profile?.address && (
+              <div className="flex items-center justify-between py-2 border-t border-grey-light">
+                <span className="text-sm text-grey-dark flex items-center gap-2"><MapPin size={14} /> Address</span>
+                <span className="text-sm font-medium text-dark">{profile.address}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Account */}
       <div className="bg-card rounded-2xl p-6 shadow-sm border border-grey-light">
         <h3 className="font-bold text-dark mb-4">Account</h3>
@@ -168,8 +315,61 @@ export default function ProfilePage() {
           </div>
           <div className="flex items-center justify-between py-2">
             <span className="text-sm text-grey-dark">Account Type</span>
-            <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full">Free</span>
+            <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full">
+              {profile?.role === "admin" ? "Admin" : "Free"}
+            </span>
           </div>
+
+          {/* Change Password */}
+          <div className="pt-2 border-t border-grey-light">
+            {!showPasswordChange ? (
+              <button
+                onClick={() => setShowPasswordChange(true)}
+                className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
+              >
+                <Lock size={14} /> Change Password
+              </button>
+            ) : (
+              <div className="space-y-3 pt-2">
+                <p className="text-sm font-semibold text-dark">Change Password</p>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <Lock size={16} className="text-grey" />
+                  <input
+                    type={showNewPw ? "text" : "password"}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="New password (min 6 chars)"
+                    className="w-full bg-transparent text-sm outline-none text-dark"
+                  />
+                  <button onClick={() => setShowNewPw(!showNewPw)} className="text-grey">
+                    {showNewPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 bg-grey-light/50 rounded-xl px-3 py-2.5 border border-grey-light focus-within:border-primary">
+                  <Lock size={16} className="text-grey" />
+                  <input
+                    type={showNewPw ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="w-full bg-transparent text-sm outline-none text-dark"
+                  />
+                </div>
+                {pwError && <p className="text-xs text-danger font-medium">{pwError}</p>}
+                {pwMessage && <p className="text-xs text-success font-medium">{pwMessage}</p>}
+                <div className="flex gap-2">
+                  <button onClick={handlePasswordChange} disabled={pwLoading} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold bg-primary text-white">
+                    {pwLoading ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                    {pwLoading ? "Updating..." : "Update Password"}
+                  </button>
+                  <button onClick={() => { setShowPasswordChange(false); setNewPassword(""); setConfirmPassword(""); setPwError(""); setPwMessage(""); }} className="px-4 py-2 rounded-xl text-sm font-semibold bg-grey-light text-grey-dark">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={signOut}
             className="w-full flex items-center justify-center gap-2 mt-4 py-3 rounded-xl text-sm font-semibold text-danger bg-danger/10 hover:bg-danger/20 transition-colors"
