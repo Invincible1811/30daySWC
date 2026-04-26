@@ -104,6 +104,8 @@ export interface Event {
   date: string;
   time: string;
   location: string;
+  address: string;
+  locationNotes: string;
   type: "outreach" | "prayer" | "study" | "crusade";
   attendees: number;
 }

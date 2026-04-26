@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { CalendarDays, MapPin, Clock, Users, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, MapPin, Clock, Users, Plus, X, ChevronLeft, ChevronRight, Navigation, ExternalLink } from "lucide-react";
 import { useState } from "react";
 
 const eventTypeColors: Record<string, { bg: string; text: string; label: string }> = {
@@ -16,7 +16,7 @@ export default function Events() {
   const [showForm, setShowForm] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [form, setForm] = useState({
-    title: "", description: "", date: "", time: "", location: "", type: "outreach" as "outreach" | "prayer" | "study" | "crusade",
+    title: "", description: "", date: "", time: "", location: "", address: "", locationNotes: "", type: "outreach" as "outreach" | "prayer" | "study" | "crusade",
   });
 
   const year = currentMonth.getFullYear();
@@ -41,7 +41,7 @@ export default function Events() {
     e.preventDefault();
     if (!form.title.trim()) return;
     addEvent(form);
-    setForm({ title: "", description: "", date: "", time: "", location: "", type: "outreach" });
+    setForm({ title: "", description: "", date: "", time: "", location: "", address: "", locationNotes: "", type: "outreach" });
     setShowForm(false);
   };
 
@@ -118,6 +118,23 @@ export default function Events() {
                       <span className="flex items-center gap-1"><MapPin size={12} /> {event.location}</span>
                       <span className="flex items-center gap-1"><Users size={12} /> {event.attendees}</span>
                     </div>
+                    {event.address && (
+                      <div className="mt-3 bg-grey-light/50 rounded-xl p-3">
+                        <p className="text-xs font-semibold text-grey-dark mb-1">📍 Full Address:</p>
+                        <p className="text-sm text-dark">{event.address}</p>
+                        {event.locationNotes && (
+                          <p className="text-xs text-grey mt-1">Note: {event.locationNotes}</p>
+                        )}
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}&travelmode=transit`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-flex items-center gap-1.5 bg-primary text-white text-xs font-semibold px-3.5 py-2 rounded-lg hover:bg-primary-dark transition-colors shadow-sm"
+                        >
+                          <Navigation size={13} /> Get Directions <ExternalLink size={11} />
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <button
@@ -154,7 +171,9 @@ export default function Events() {
                 <input type="date" required value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary" />
                 <input type="time" required value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))} className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary" />
               </div>
-              <input type="text" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Location" className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary" />
+              <input type="text" value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} placeholder="Venue name (e.g. City Hall)" className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary" />
+              <input type="text" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Full address (e.g. 123 Main St, Harare)" className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary" />
+              <input type="text" value={form.locationNotes} onChange={e => setForm(f => ({ ...f, locationNotes: e.target.value }))} placeholder="Notes (e.g. Gate B entrance, parking available)" className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary" />
               <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as typeof form.type }))} className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary bg-white">
                 <option value="outreach">Outreach</option>
                 <option value="prayer">Prayer</option>

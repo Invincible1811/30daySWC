@@ -178,6 +178,8 @@ export async function fetchEvents(): Promise<Event[]> {
     date: e.date,
     time: e.time,
     location: e.location,
+    address: e.address || "",
+    locationNotes: e.location_notes || "",
     type: e.type as Event["type"],
     attendees: e.attendees,
   }));
@@ -194,6 +196,8 @@ export async function insertEvent(userId: string, event: Omit<Event, "id" | "att
       date: event.date,
       time: event.time,
       location: event.location || "",
+      address: event.address || "",
+      location_notes: event.locationNotes || "",
       type: event.type,
     })
     .select()
