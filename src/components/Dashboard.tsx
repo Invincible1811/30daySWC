@@ -5,7 +5,8 @@ import { challengeCards } from "@/lib/data";
 import {
   Users, UserPlus, Globe, BookOpen, Trophy,
   Heart, ArrowRight, Flame, Target,
-  HandHeart, MessageCircle, CalendarDays, Wrench, Award, Shield
+  HandHeart, MessageCircle, CalendarDays, Wrench, Award, Shield,
+  User, LogOut, Bell, Settings
 } from "lucide-react";
 import { useState } from "react";
 import type { Page } from "./Navigation";
@@ -16,101 +17,215 @@ interface DashboardProps {
   onNavigate: (page: Page) => void;
 }
 
-const featureCards: { icon: React.ElementType; label: string; desc: string; page: Page; gradient: string; iconBg: string }[] = [
-  { icon: BookOpen, label: "30-Day Challenge", desc: "Complete daily challenges", page: "challenges", gradient: "from-blue-500 to-blue-700", iconBg: "bg-white/20" },
-  { icon: UserPlus, label: "Log Souls", desc: "Record souls you've won", page: "souls", gradient: "from-emerald-500 to-emerald-700", iconBg: "bg-white/20" },
-  { icon: Heart, label: "Prayer Wall", desc: "Share & pray together", page: "prayer", gradient: "from-purple-500 to-purple-700", iconBg: "bg-white/20" },
-  { icon: MessageCircle, label: "Testimonies", desc: "Share your stories", page: "testimonies", gradient: "from-amber-500 to-amber-700", iconBg: "bg-white/20" },
-  { icon: Globe, label: "Community", desc: "Connect with others", page: "community", gradient: "from-teal-500 to-teal-700", iconBg: "bg-white/20" },
-  { icon: Wrench, label: "Evangelism Toolkit", desc: "Resources & cards", page: "toolkit", gradient: "from-indigo-500 to-indigo-700", iconBg: "bg-white/20" },
-  { icon: Users, label: "Groups & Teams", desc: "Outreach communities", page: "groups", gradient: "from-orange-500 to-orange-700", iconBg: "bg-white/20" },
-  { icon: CalendarDays, label: "Events", desc: "Outreach schedule", page: "events", gradient: "from-rose-500 to-rose-700", iconBg: "bg-white/20" },
-  { icon: HandHeart, label: "Follow Up", desc: "Track new converts", page: "followup", gradient: "from-cyan-500 to-cyan-700", iconBg: "bg-white/20" },
-  { icon: Trophy, label: "Leaderboard", desc: "See top soul winners", page: "leaderboard", gradient: "from-yellow-500 to-yellow-700", iconBg: "bg-white/20" },
-  { icon: Award, label: "Coming Soon", desc: "Scholarships & more", page: "comingsoon", gradient: "from-slate-500 to-slate-700", iconBg: "bg-white/20" },
+const featureCards: { icon: React.ElementType; label: string; desc: string; page: Page; gradient: string }[] = [
+  { icon: BookOpen, label: "30-Day Challenge", desc: "Daily evangelism challenges", page: "challenges", gradient: "from-blue-500 to-blue-600" },
+  { icon: UserPlus, label: "Log Souls", desc: "Record souls won for Christ", page: "souls", gradient: "from-emerald-500 to-emerald-600" },
+  { icon: Heart, label: "Prayer Wall", desc: "Share & pray together", page: "prayer", gradient: "from-purple-500 to-purple-600" },
+  { icon: MessageCircle, label: "Testimonies", desc: "Share your stories", page: "testimonies", gradient: "from-amber-500 to-amber-600" },
+  { icon: Globe, label: "Community", desc: "Connect with believers", page: "community", gradient: "from-teal-500 to-teal-600" },
+  { icon: Wrench, label: "Evangelism Toolkit", desc: "Resources & materials", page: "toolkit", gradient: "from-indigo-500 to-indigo-600" },
+  { icon: Users, label: "Groups & Teams", desc: "Outreach communities", page: "groups", gradient: "from-orange-500 to-orange-600" },
+  { icon: CalendarDays, label: "Events", desc: "Upcoming outreach", page: "events", gradient: "from-rose-500 to-rose-600" },
+  { icon: HandHeart, label: "Follow Up", desc: "Track new converts", page: "followup", gradient: "from-cyan-500 to-cyan-600" },
+  { icon: Trophy, label: "Leaderboard", desc: "Top soul winners", page: "leaderboard", gradient: "from-yellow-500 to-yellow-600" },
+  { icon: Award, label: "Coming Soon", desc: "Scholarships & more", page: "comingsoon", gradient: "from-slate-500 to-slate-600" },
 ];
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
   const { souls, currentDay, completedDays, globalSoulCount, userName, communityPosts } = useApp();
-  const { profile, isAdmin } = useAuth();
+  const { profile, isAdmin, signOut } = useAuth();
   const [showChallenge, setShowChallenge] = useState(false);
   const displayName = profile?.full_name || profile?.username || userName;
+  const initials = (displayName || "U").split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   const mySoulCount = souls.length;
   const todayChallenge = challengeCards[Math.min(currentDay - 1, 29)];
   const progress = (completedDays.length / 30) * 100;
 
   const allFeatures = isAdmin
-    ? [...featureCards, { icon: Shield, label: "Admin", desc: "Manage app & users", page: "admin" as Page, gradient: "from-red-600 to-red-800", iconBg: "bg-white/20" }]
+    ? [...featureCards, { icon: Shield, label: "Admin", desc: "Manage app & users", page: "admin" as Page, gradient: "from-red-600 to-red-700" }]
     : featureCards;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Welcome */}
-      <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 text-white relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-        <p className="text-primary-light/80 text-sm">Welcome back,</p>
-        <h2 className="text-2xl font-bold mt-1">{displayName} 🔥</h2>
-        <p className="text-blue-200 text-sm mt-2">Day {Math.min(currentDay, 30)} of 30 — Keep winning souls!</p>
-        <div className="mt-4 flex gap-3">
+    <div className="space-y-5 animate-fade-in">
+      {/* Top Bar */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-dark">Dashboard</h1>
+          <p className="text-grey text-sm">Plan, prioritize, and win souls for Christ.</p>
+        </div>
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setShowChallenge(true)}
-            className="bg-white text-primary font-semibold px-4 py-2 rounded-lg text-sm hover:bg-blue-50 transition-colors"
+            className="hidden sm:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors shadow-sm"
           >
-            Today&apos;s Challenge
+            + Today&apos;s Challenge
           </button>
           <button
             onClick={() => onNavigate("souls")}
-            className="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg text-sm hover:bg-white/30 transition-colors"
+            className="hidden sm:flex items-center gap-2 border border-grey-light text-dark px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-grey-light/50 transition-colors"
           >
             Log a Soul
           </button>
+          <button onClick={() => onNavigate("profile")} className="relative">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover border-2 border-grey-light" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow">
+                {initials}
+              </div>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Hero Welcome + User Card Row */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        {/* Welcome Card — takes 2 cols on desktop */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-primary via-primary to-primary-dark rounded-2xl p-6 text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/3 translate-x-1/3" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="relative z-10">
+            <p className="text-blue-200 text-sm font-medium">Welcome back,</p>
+            <h2 className="text-2xl font-bold mt-1">{displayName} 🔥</h2>
+            <p className="text-blue-200/80 text-sm mt-2">Day {Math.min(currentDay, 30)} of 30 — Keep winning souls!</p>
+            <div className="mt-5 flex gap-3 sm:hidden">
+              <button
+                onClick={() => setShowChallenge(true)}
+                className="bg-white text-primary font-semibold px-4 py-2 rounded-lg text-sm"
+              >
+                Today&apos;s Challenge
+              </button>
+              <button
+                onClick={() => onNavigate("souls")}
+                className="bg-white/20 text-white font-semibold px-4 py-2 rounded-lg text-sm"
+              >
+                Log a Soul
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* User Profile Card */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light flex flex-col items-center justify-center text-center">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="w-16 h-16 rounded-full object-cover border-3 border-primary/20 mb-3" />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center text-white font-bold text-xl mb-3 shadow-lg">
+              {initials}
+            </div>
+          )}
+          <h3 className="font-bold text-dark text-base">{displayName}</h3>
+          <p className="text-grey text-xs mt-0.5">@{profile?.username || "user"}</p>
+          <span className="mt-2 text-[10px] font-bold px-3 py-1 rounded-full bg-primary/10 text-primary">
+            {profile?.role === "admin" ? "Admin" : profile?.role === "assistant_admin" ? "Assistant" : "Soul Winner"}
+          </span>
+          <div className="flex gap-2 mt-3">
+            <button onClick={() => onNavigate("profile")} className="p-2 rounded-lg bg-grey-light/70 text-grey-dark hover:bg-grey-light transition-colors" title="Profile">
+              <Settings size={16} />
+            </button>
+            <button onClick={signOut} className="p-2 rounded-lg bg-grey-light/70 text-grey-dark hover:bg-red-50 hover:text-red-500 transition-colors" title="Sign Out">
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Floating share button */}
       <ShareInvite variant="floating" />
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-4 gap-3">
-        <MiniStat icon={<UserPlus size={18} />} value={mySoulCount} label="Souls" color="text-primary" bg="bg-primary/10" />
-        <MiniStat icon={<Globe size={18} />} value={globalSoulCount} label="Global" color="text-emerald-600" bg="bg-emerald-50" />
-        <MiniStat icon={<Target size={18} />} value={`${completedDays.length}/30`} label="Days" color="text-amber-600" bg="bg-amber-50" />
-        <MiniStat icon={<Flame size={18} />} value={completedDays.length} label="Streak" color="text-red-500" bg="bg-red-50" />
+      {/* Stats Grid — Donezo style */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-5 text-white relative overflow-hidden">
+          <div className="absolute top-2 right-2 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center">
+            <ArrowRight size={14} />
+          </div>
+          <UserPlus size={20} className="mb-2 opacity-80" />
+          <p className="text-3xl font-bold">{mySoulCount}</p>
+          <p className="text-blue-200 text-xs mt-1">My Souls Won</p>
+        </div>
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
+          <div className="absolute top-2 right-2 w-8 h-8 rounded-full" />
+          <Globe size={20} className="text-emerald-500 mb-2" />
+          <p className="text-3xl font-bold text-dark">{globalSoulCount}</p>
+          <p className="text-grey text-xs mt-1">Global Souls</p>
+        </div>
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
+          <Target size={20} className="text-amber-500 mb-2" />
+          <p className="text-3xl font-bold text-dark">{completedDays.length}/30</p>
+          <p className="text-grey text-xs mt-1">Days Completed</p>
+        </div>
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
+          <Flame size={20} className="text-red-500 mb-2" />
+          <p className="text-3xl font-bold text-dark">{completedDays.length}<span className="text-sm font-normal text-grey ml-1">days</span></p>
+          <p className="text-grey text-xs mt-1">Current Streak</p>
+        </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="bg-card rounded-2xl p-4 shadow-sm border border-grey-light">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-dark text-sm">Challenge Progress</h3>
-          <span className="text-sm text-primary font-bold">{Math.round(progress)}%</span>
+      {/* Bento Row: Progress + Today's Challenge */}
+      <div className="grid lg:grid-cols-2 gap-4">
+        {/* Challenge Progress */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
+          <h3 className="font-bold text-dark mb-4">Challenge Progress</h3>
+          <div className="flex items-center justify-center mb-4">
+            <div className="relative w-32 h-32">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#E5E7EB" strokeWidth="10" />
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#1E40AF" strokeWidth="10" strokeLinecap="round"
+                  strokeDasharray={`${progress * 3.267} ${326.7 - progress * 3.267}`} />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl font-bold text-dark">{Math.round(progress)}%</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs text-grey">
+            <span>Day 1</span>
+            <span className="font-semibold text-primary">{completedDays.length} of 30 days</span>
+            <span>Day 30</span>
+          </div>
         </div>
-        <div className="w-full h-2.5 bg-grey-light rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-primary to-primary-light rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
+
+        {/* Today's Challenge Preview */}
+        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
+          <h3 className="font-bold text-dark mb-3">Today&apos;s Challenge</h3>
+          {todayChallenge && (
+            <>
+              <div className="bg-primary/5 rounded-xl p-4 mb-3">
+                <p className="text-xs text-primary font-semibold uppercase tracking-wide mb-1">Day {todayChallenge.day} — {todayChallenge.theme}</p>
+                <h4 className="font-bold text-dark">{todayChallenge.title}</h4>
+                <p className="text-sm text-grey-dark mt-2 line-clamp-2">{todayChallenge.challenge}</p>
+              </div>
+              <button
+                onClick={() => setShowChallenge(true)}
+                className="w-full bg-primary text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors"
+              >
+                View Full Challenge
+              </button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Feature Grid */}
       <div>
-        <h3 className="font-bold text-dark text-lg mb-3">Explore</h3>
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-          {allFeatures.map((feat, i) => {
+        <h3 className="font-bold text-dark text-lg mb-3">Explore Features</h3>
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+          {allFeatures.map((feat) => {
             const Icon = feat.icon;
             return (
               <button
                 key={feat.page}
                 onClick={() => onNavigate(feat.page)}
-                className="group flex flex-col items-center text-center gap-2 p-3 rounded-2xl bg-card border border-grey-light shadow-sm hover:shadow-lg hover:scale-[1.04] hover:-translate-y-0.5 transition-all duration-200"
-                style={{ animationDelay: `${i * 30}ms` }}
+                className="group flex flex-col items-center text-center gap-2.5 p-4 rounded-2xl bg-card border border-grey-light shadow-sm hover:shadow-lg hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-200"
               >
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.gradient} flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform duration-200`}>
                   <Icon size={22} />
                 </div>
-                <span className="text-[11px] font-semibold text-dark leading-tight">{feat.label}</span>
+                <div>
+                  <span className="text-[11px] font-semibold text-dark leading-tight block">{feat.label}</span>
+                  <span className="text-[9px] text-grey hidden sm:block mt-0.5">{feat.desc}</span>
+                </div>
               </button>
             );
           })}
@@ -122,13 +237,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         {/* Recent Souls */}
         <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-dark">Recent Souls Won</h3>
-            <button onClick={() => onNavigate("souls")} className="text-primary text-sm flex items-center gap-1 hover:underline">
+            <h3 className="font-bold text-dark">Recent Souls Won</h3>
+            <button onClick={() => onNavigate("souls")} className="text-primary text-sm flex items-center gap-1 hover:underline font-medium">
               View All <ArrowRight size={14} />
             </button>
           </div>
           {souls.slice(0, 3).map(soul => (
-            <div key={soul.id} className="flex items-center gap-3 py-2 border-b border-grey-light last:border-0">
+            <div key={soul.id} className="flex items-center gap-3 py-2.5 border-b border-grey-light last:border-0">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                 {soul.name.charAt(0)}
               </div>
@@ -146,20 +261,20 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             </div>
           ))}
           {souls.length === 0 && (
-            <p className="text-grey text-sm text-center py-4">No souls logged yet. Start winning!</p>
+            <p className="text-grey text-sm text-center py-6">No souls logged yet. Start winning!</p>
           )}
         </div>
 
         {/* Community Highlights */}
         <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-dark">Community Highlights</h3>
-            <button onClick={() => onNavigate("community")} className="text-primary text-sm flex items-center gap-1 hover:underline">
+            <h3 className="font-bold text-dark">Community Highlights</h3>
+            <button onClick={() => onNavigate("community")} className="text-primary text-sm flex items-center gap-1 hover:underline font-medium">
               View All <ArrowRight size={14} />
             </button>
           </div>
           {communityPosts.slice(0, 3).map(post => (
-            <div key={post.id} className="py-2 border-b border-grey-light last:border-0">
+            <div key={post.id} className="py-2.5 border-b border-grey-light last:border-0">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-xs">
                   {post.author.charAt(0)}
@@ -215,18 +330,6 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function MiniStat({ icon, value, label, color, bg }: {
-  icon: React.ReactNode; value: number | string; label: string; color: string; bg: string;
-}) {
-  return (
-    <div className={`${bg} rounded-xl p-3 text-center`}>
-      <div className={`${color} flex justify-center mb-1`}>{icon}</div>
-      <p className="text-lg font-bold text-dark leading-tight">{value}</p>
-      <p className="text-[10px] text-grey-dark">{label}</p>
     </div>
   );
 }

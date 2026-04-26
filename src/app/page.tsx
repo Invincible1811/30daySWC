@@ -115,12 +115,16 @@ export default function Home() {
     return <UsernameSetup onComplete={() => setUsernameSet(true)} />;
   }
 
+  const isDashboard = currentPage === "dashboard";
+
   return (
     <div className="min-h-screen bg-background">
-      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} onShowAuth={handleShowAuth} />
+      {!isDashboard && (
+        <Navigation currentPage={currentPage} onNavigate={setCurrentPage} onShowAuth={handleShowAuth} />
+      )}
       {/* Main content area */}
-      <main className="lg:ml-64 pt-16 lg:pt-0 pb-20 lg:pb-8">
-        <div className="max-w-5xl mx-auto px-4 py-6">
+      <main className={isDashboard ? "pb-4" : "lg:ml-64 pt-16 lg:pt-0 pb-20 lg:pb-8"}>
+        <div className={isDashboard ? "max-w-6xl mx-auto px-4 py-4" : "max-w-5xl mx-auto px-4 py-6"}>
           {renderPage()}
         </div>
       </main>
