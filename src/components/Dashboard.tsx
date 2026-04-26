@@ -56,14 +56,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setShowChallenge(true)}
-            className="hidden sm:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors shadow-sm"
-          >
-            + Today&apos;s Challenge
-          </button>
-          <button
             onClick={() => onNavigate("souls")}
-            className="hidden sm:flex items-center gap-2 border border-grey-light text-dark px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-grey-light/50 transition-colors"
+            className="hidden sm:flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors shadow-sm"
           >
             Log a Soul
           </button>
