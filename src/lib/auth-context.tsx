@@ -10,6 +10,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   isAdmin: boolean;
+  isAssistantAdmin: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -25,7 +26,7 @@ export interface UserProfile {
   country: string;
   bio: string;
   church: string;
-  role: "user" | "admin";
+  role: "user" | "admin" | "assistant_admin";
   current_day: number;
   completed_days: number[];
 }
@@ -36,6 +37,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   isAdmin: false,
+  isAssistantAdmin: false,
   signOut: async () => {},
   refreshProfile: async () => {},
 });
@@ -102,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin: profile?.role === "admin", signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, isAdmin: profile?.role === "admin", isAssistantAdmin: profile?.role === "assistant_admin", signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

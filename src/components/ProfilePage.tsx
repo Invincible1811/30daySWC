@@ -318,7 +318,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between py-2">
             <span className="text-sm text-grey-dark">Account Type</span>
             <span className="text-xs font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full">
-              {profile?.role === "admin" ? "Admin" : "Free"}
+              {profile?.role === "admin" ? "Admin" : profile?.role === "assistant_admin" ? "Assistant Admin" : "Free"}
             </span>
           </div>
 

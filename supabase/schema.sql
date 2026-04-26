@@ -13,7 +13,7 @@ create table if not exists public.profiles (
   country text not null default '',
   bio text not null default '',
   church text not null default '',
-  role text not null default 'user' check (role in ('user', 'admin')),
+  role text not null default 'user' check (role in ('user', 'admin', 'assistant_admin')),
   current_day int not null default 1,
   completed_days int[] not null default '{}',
   created_at timestamptz not null default now(),

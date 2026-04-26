@@ -58,8 +58,7 @@ export default function AdminDashboard() {
     })();
   }, []);
 
-  const toggleRole = async (userId: string, currentRole: string) => {
-    const newRole = currentRole === "admin" ? "user" : "admin";
+  const setRole = async (userId: string, newRole: string) => {
     await supabase.from("profiles").update({ role: newRole }).eq("id", userId);
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
   };
@@ -150,9 +149,9 @@ export default function AdminDashboard() {
                     <p className="text-xs text-grey-dark">Day {u.current_day} • {u.completed_days?.length || 0} completed</p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    u.role === "admin" ? "bg-warning/20 text-warning" : "bg-grey-light text-grey-dark"
+                    u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : "bg-grey-light text-grey-dark"
                   }`}>
-                    {u.role}
+                    {u.role === "assistant_admin" ? "assistant" : u.role}
                   </span>
                 </div>
               ))}
@@ -182,9 +181,9 @@ export default function AdminDashboard() {
                     <p className="text-xs text-grey-dark">Joined {new Date(u.created_at).toLocaleDateString()}</p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    u.role === "admin" ? "bg-warning/20 text-warning" : "bg-grey-light text-grey-dark"
+                    u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : "bg-grey-light text-grey-dark"
                   }`}>
-                    {u.role}
+                    {u.role === "assistant_admin" ? "assistant" : u.role}
                   </span>
                   {expandedUser === u.id ? <ChevronUp size={16} className="text-grey" /> : <ChevronDown size={16} className="text-grey" />}
                 </button>
@@ -205,20 +204,44 @@ export default function AdminDashboard() {
                         <p className="text-[10px] text-grey-dark">Progress</p>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => toggleRole(u.id, u.role)}
-                        className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                      >
-                        <Shield size={14} />
-                        {u.role === "admin" ? "Remove Admin" : "Make Admin"}
-                      </button>
+                    <div className="flex gap-2 flex-wrap">
+                      {u.role === "user" && (
+                        <button
+                          onClick={() => setRole(u.id, "assistant_admin")}
+                          className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors"
+                        >
+                          <Shield size={14} /> Make Assistant
+                        </button>
+                      )}
+                      {u.role === "assistant_admin" && (
+                        <button
+                          onClick={() => setRole(u.id, "user")}
+                          className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-grey-light text-grey-dark hover:bg-grey-medium/30 transition-colors"
+                        >
+                          <Shield size={14} /> Remove Assistant
+                        </button>
+                      )}
+                      {u.role !== "admin" && (
+                        <button
+                          onClick={() => setRole(u.id, "admin")}
+                          className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          <Shield size={14} /> Make Admin
+                        </button>
+                      )}
+                      {u.role === "admin" && (
+                        <button
+                          onClick={() => setRole(u.id, "user")}
+                          className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-grey-light text-grey-dark hover:bg-grey-medium/30 transition-colors"
+                        >
+                          <Shield size={14} /> Remove Admin
+                        </button>
+                      )}
                       <button
                         onClick={() => deleteUser(u.id)}
                         className="flex items-center justify-center gap-1 px-4 py-2 rounded-lg text-xs font-semibold bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
                       >
-                        <Trash2 size={14} />
-                        Delete
+                        <Trash2 size={14} /> Delete
                       </button>
                     </div>
                   </div>

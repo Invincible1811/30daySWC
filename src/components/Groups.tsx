@@ -25,7 +25,8 @@ const groupTypeConfig: Record<string, { bg: string; text: string; icon: string; 
 };
 
 export default function Groups() {
-  const { user, profile, isAdmin } = useAuth();
+  const { user, profile, isAdmin, isAssistantAdmin } = useAuth();
+  const canCreate = isAdmin || isAssistantAdmin;
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -105,12 +106,14 @@ export default function Groups() {
           <h2 className="text-2xl font-bold text-dark">Groups & Outreach Teams</h2>
           <p className="text-grey mt-1">Join a team and win souls together</p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors"
-        >
-          <Plus size={16} /> Create Group
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors"
+          >
+            <Plus size={16} /> Create Group
+          </button>
+        )}
       </div>
 
       {/* Create Group Modal */}
@@ -127,7 +130,7 @@ export default function Groups() {
               {!isAdmin && (
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
                   <Clock size={16} className="text-amber-600 mt-0.5 shrink-0" />
-                  <p className="text-xs text-amber-700">Your group will be reviewed by an administrator before it becomes visible to others.</p>
+                  <p className="text-xs text-amber-700">Your group will be reviewed and approved by the administrator before it becomes visible to others.</p>
                 </div>
               )}
               <div>
