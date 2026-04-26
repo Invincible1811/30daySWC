@@ -34,10 +34,15 @@ export default function Home() {
   useEffect(() => {
     if (loading) return;
 
+    // Check if running as installed PWA (standalone mode)
+    const isPWA = window.matchMedia("(display-mode: standalone)").matches
+      || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+
     const seenLanding = sessionStorage.getItem("ws-seen-landing");
     if (user) {
       setScreen("app");
-    } else if (seenLanding) {
+    } else if (isPWA || seenLanding) {
+      // Installed app skips landing page, goes straight to login
       setScreen("auth");
     } else {
       setScreen("landing");
