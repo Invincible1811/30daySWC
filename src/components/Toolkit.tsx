@@ -158,15 +158,15 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
               </button>
             </>
           )}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 py-14 px-2" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0 overflow-y-auto flex flex-col items-center pt-14 pb-4 px-1" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[current]}
               alt={`${title} ${current + 1}`}
               width={1200}
               height={1600}
-              className="max-w-full max-h-[85vh] object-contain"
+              className="w-full h-auto"
             />
-            <span className="text-white text-xs font-semibold bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full">
+            <span className="text-white text-xs font-semibold bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full mt-3 shrink-0">
               {current + 1} / {images.length}
             </span>
           </div>
@@ -232,15 +232,15 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
           >
             <ChevronRight size={24} />
           </button>
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 py-14 px-2" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0 overflow-y-auto flex flex-col items-center pt-14 pb-4 px-1" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
               width={800}
               height={1000}
-              className="max-w-full max-h-[85vh] object-contain"
+              className="w-full h-auto"
             />
-            <span className="text-white text-xs font-semibold bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full">
+            <span className="text-white text-xs font-semibold bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full mt-3 shrink-0">
               {selectedIndex + 1} / {images.length}
             </span>
           </div>
@@ -291,13 +291,13 @@ function GospelToolSection() {
           >
             <Download size={16} /> Save
           </button>
-          <div className="absolute inset-0 flex flex-col items-center justify-center py-14 px-2" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0 overflow-y-auto flex flex-col items-center pt-14 pb-4 px-1" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
               width={800}
               height={1600}
-              className="max-w-full max-h-[85vh] object-contain"
+              className="w-full h-auto"
             />
           </div>
         </div>
