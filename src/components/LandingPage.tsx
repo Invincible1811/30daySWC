@@ -82,12 +82,14 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const { canInstall, install } = useInstallPrompt();
   const [showInstallGuide, setShowInstallGuide] = useState(false);
-  const [platform, setPlatform] = useState<"ios" | "android" | "desktop">("desktop");
+  const [platform, setPlatform] = useState<"ios" | "android" | "mac" | "windows">("mac");
 
   useEffect(() => {
-    if (/iphone|ipad|ipod/i.test(navigator.userAgent)) setPlatform("ios");
-    else if (/android/i.test(navigator.userAgent)) setPlatform("android");
-    else setPlatform("desktop");
+    const ua = navigator.userAgent;
+    if (/iphone|ipad|ipod/i.test(ua)) setPlatform("ios");
+    else if (/android/i.test(ua)) setPlatform("android");
+    else if (/windows/i.test(ua)) setPlatform("windows");
+    else setPlatform("mac");
   }, []);
 
   const handleInstallClick = async () => {
@@ -399,7 +401,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                 <Smartphone size={28} style={{ color: "#1E40AF" }} />
               </div>
               <h3 style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>
-                {platform === "ios" ? "Install on iPhone" : platform === "android" ? "Install on Android" : "Install on Desktop"}
+                {platform === "ios" ? "Install on iPhone" : platform === "android" ? "Install on Android" : platform === "windows" ? "Install on Windows" : "Install on Mac"}
               </h3>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -433,7 +435,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                     <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Tap <strong>&quot;Install app&quot;</strong> or <strong>&quot;Add to Home screen&quot;</strong></p>
                   </div>
                 </>
-              ) : (
+              ) : platform === "windows" ? (
                 <>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                     <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>1</span>
@@ -446,6 +448,21 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                     <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>3</span>
                     <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Click <strong>&quot;Install&quot;</strong> — the app will open in its own window!</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>1</span>
+                    <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Open this page in <strong>Google Chrome</strong> (Safari does not support app install)</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>2</span>
+                    <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Click the <strong>install icon</strong> ⬇ in the address bar (right side)</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                    <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>3</span>
+                    <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Click <strong>&quot;Install&quot;</strong> — the app opens in its own window, just like a native app!</p>
                   </div>
                 </>
               )}
