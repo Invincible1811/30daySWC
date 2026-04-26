@@ -15,6 +15,7 @@ import ComingSoon from "@/components/ComingSoon";
 import Toolkit from "@/components/Toolkit";
 import ProfilePage from "@/components/ProfilePage";
 import Leaderboard from "@/components/Leaderboard";
+import AdminDashboard from "@/components/AdminDashboard";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
 import NotificationPrompt from "@/components/NotificationPrompt";
@@ -31,21 +32,19 @@ export default function Home() {
   useEffect(() => {
     if (loading) return;
 
-    const entered = sessionStorage.getItem("ws-entered");
+    const seenLanding = sessionStorage.getItem("ws-seen-landing");
     if (user) {
-      sessionStorage.setItem("ws-entered", "true");
       setScreen("app");
-    } else if (entered) {
-      // Allow browsing the app without login
-      setScreen("app");
+    } else if (seenLanding) {
+      setScreen("auth");
     } else {
       setScreen("landing");
     }
   }, [user, loading]);
 
   const handleEnterApp = () => {
-    sessionStorage.setItem("ws-entered", "true");
-    setScreen("app");
+    sessionStorage.setItem("ws-seen-landing", "true");
+    setScreen("auth");
   };
 
   const handleAuthSuccess = () => {
@@ -70,6 +69,7 @@ export default function Home() {
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
       case "profile": return <ProfilePage />;
+      case "admin": return <AdminDashboard />;
       case "comingsoon": return <ComingSoon />;
       default: return <Dashboard onNavigate={setCurrentPage} />;
     }

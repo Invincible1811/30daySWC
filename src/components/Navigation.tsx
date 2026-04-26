@@ -3,7 +3,7 @@
 import {
   Home, CalendarDays, Users, MoreHorizontal,
   BookOpen, Heart, MessageCircle, Globe, Award,
-  UserPlus, HandHeart, Menu, X, Wrench, LogOut, User, Trophy, LogIn
+  UserPlus, HandHeart, Menu, X, Wrench, LogOut, User, Trophy, LogIn, Shield
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -21,7 +21,8 @@ export type Page =
   | "toolkit"
   | "comingsoon"
   | "leaderboard"
-  | "profile";
+  | "profile"
+  | "admin";
 
 interface NavigationProps {
   currentPage: Page;
@@ -55,7 +56,11 @@ const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = 
 export default function Navigation({ currentPage, onNavigate, onShowAuth }: NavigationProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isAdmin } = useAuth();
+
+  const navItems = isAdmin
+    ? [...moreMenuItems, { icon: Shield, label: "Admin", page: "admin" as Page }]
+    : moreMenuItems;
 
   return (
     <>
@@ -68,7 +73,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
           <p className="text-xs text-grey mt-1">30-Day Soul Winning Challenge</p>
         </div>
         <nav className="flex-1 overflow-y-auto py-4">
-          {moreMenuItems.map(item => {
+          {navItems.map(item => {
             const Icon = item.icon;
             const active = currentPage === item.page;
             return (
@@ -142,7 +147,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
               </button>
             </div>
             <nav className="py-4">
-              {moreMenuItems.map(item => {
+              {navItems.map(item => {
                 const Icon = item.icon;
                 const active = currentPage === item.page;
                 return (

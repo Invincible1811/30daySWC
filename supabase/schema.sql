@@ -7,6 +7,7 @@ create table if not exists public.profiles (
   username text not null default '',
   full_name text not null default '',
   avatar_url text,
+  role text not null default 'user' check (role in ('user', 'admin')),
   current_day int not null default 1,
   completed_days int[] not null default '{}',
   created_at timestamptz not null default now(),
