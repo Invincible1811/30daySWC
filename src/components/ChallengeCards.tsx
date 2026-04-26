@@ -191,23 +191,23 @@ export default function ChallengeCards() {
 
       {/* Selected Card Pop-up */}
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl max-w-lg w-full animate-pop-in shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-primary to-primary-dark p-6 text-white relative">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white sm:rounded-[20px] w-full sm:max-w-lg animate-pop-in shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+            <div className="bg-gradient-to-br from-[#1e3a8a] via-[#1e40af] to-[#3b82f6] p-6 text-white relative shrink-0">
               <button
                 onClick={() => setSelectedCard(null)}
-                className="absolute top-4 right-4 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30"
+                className="absolute top-4 right-4 w-9 h-9 bg-white/15 rounded-full flex items-center justify-center hover:bg-white/25 transition-colors"
               >
                 <X size={18} />
               </button>
-              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center mb-3">
+              <div className="w-14 h-14 bg-white/15 rounded-2xl flex items-center justify-center mb-3">
                 <BookOpen size={28} />
               </div>
-              <p className="text-blue-200 text-sm">Day {selected.day} of 30</p>
-              <h3 className="text-xl font-bold mt-1">{selected.title}</h3>
+              <p className="text-blue-200/80 text-sm font-medium">Day {selected.day} of 30</p>
+              <h3 className="text-xl font-extrabold mt-1">{selected.title}</h3>
             </div>
-            <div className="p-6 space-y-4">
-              <p className="text-xs text-primary font-semibold uppercase tracking-wide">{selected.theme}</p>
+            <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4">
+              <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{selected.theme}</p>
 
               <div className="bg-amber-50 rounded-xl p-4">
                 <h4 className="font-semibold text-amber-800 text-sm mb-1">🎵 Worship Note:</h4>
