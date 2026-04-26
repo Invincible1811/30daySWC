@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Shield, Users, Heart, BookOpen, UserPlus, Trash2, ChevronDown, ChevronUp, TrendingUp, Globe } from "lucide-react";
+import { Shield, Users, Heart, BookOpen, UserPlus, Trash2, ChevronDown, ChevronUp, TrendingUp, Globe, Bell, Send, RefreshCw, Loader2 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 interface UserRow {
@@ -27,7 +27,12 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalSouls: 0, totalTestimonies: 0, totalPrayers: 0, totalEvents: 0 });
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
-  const [tab, setTab] = useState<"overview" | "users" | "content">("overview");
+  const [tab, setTab] = useState<"overview" | "users" | "content" | "notifications">("overview");
+  const [notifTitle, setNotifTitle] = useState("");
+  const [notifBody, setNotifBody] = useState("");
+  const [sendingNotif, setSendingNotif] = useState(false);
+  const [notifSent, setNotifSent] = useState(false);
+  const [notifError, setNotifError] = useState("");
 
   useEffect(() => {
     if (!isSupabaseConfigured) { setLoading(false); return; }
@@ -100,7 +105,7 @@ export default function AdminDashboard() {
 
       {/* Tabs */}
       <div className="flex gap-2 bg-grey-light rounded-xl p-1">
-        {(["overview", "users", "content"] as const).map(t => (
+        {(["overview", "users", "content", "notifications"] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -252,6 +257,95 @@ export default function AdminDashboard() {
               </a>{" "}
               → Table Editor. You can edit, delete, or moderate any row directly.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Notifications Tab */}
+      {tab === "notifications" && (
+        <div className="space-y-4">
+          {/* Push Update Notification */}
+          <div className="bg-card rounded-2xl p-6 shadow-sm border border-grey-light">
+            <h3 className="font-bold text-dark mb-1 flex items-center gap-2">
+              <RefreshCw size={18} className="text-primary" /> Push App Update
+            </h3>
+            <p className="text-xs text-grey-dark mb-4">Notify all users to refresh the app for the latest version.</p>
+            <button
+              onClick={async () => {
+                if (!isSupabaseConfigured) return;
+                setSendingNotif(true);
+                setNotifError("");
+                const { error } = await supabase.from("notifications").insert({
+                  title: "App Update Available",
+                  body: "A new version of Winning Souls is available. Please refresh or reopen the app to get the latest features!",
+                  type: "update",
+                });
+                if (error) setNotifError(error.message);
+                else setNotifSent(true);
+                setSendingNotif(false);
+                setTimeout(() => setNotifSent(false), 3000);
+              }}
+              disabled={sendingNotif}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-primary text-white hover:bg-primary-dark transition-colors"
+            >
+              {sendingNotif ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+              {notifSent ? "Sent!" : "Push Update to All Users"}
+            </button>
+          </div>
+
+          {/* Custom Announcement */}
+          <div className="bg-card rounded-2xl p-6 shadow-sm border border-grey-light">
+            <h3 className="font-bold text-dark mb-1 flex items-center gap-2">
+              <Bell size={18} className="text-warning" /> Send Announcement
+            </h3>
+            <p className="text-xs text-grey-dark mb-4">Send a custom notification to all app users.</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Title</label>
+                <input
+                  value={notifTitle}
+                  onChange={e => setNotifTitle(e.target.value)}
+                  placeholder="e.g. New Feature Released!"
+                  className="w-full bg-grey-light/50 rounded-xl px-4 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Message</label>
+                <textarea
+                  value={notifBody}
+                  onChange={e => setNotifBody(e.target.value)}
+                  placeholder="Write your announcement..."
+                  rows={3}
+                  className="w-full bg-grey-light/50 rounded-xl px-4 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary resize-none"
+                />
+              </div>
+              {notifError && <p className="text-xs text-danger font-medium">{notifError}</p>}
+              <button
+                onClick={async () => {
+                  if (!notifTitle.trim() || !notifBody.trim() || !isSupabaseConfigured) return;
+                  setSendingNotif(true);
+                  setNotifError("");
+                  const { error } = await supabase.from("notifications").insert({
+                    title: notifTitle.trim(),
+                    body: notifBody.trim(),
+                    type: "announcement",
+                  });
+                  if (error) setNotifError(error.message);
+                  else {
+                    setNotifSent(true);
+                    setNotifTitle("");
+                    setNotifBody("");
+                  }
+                  setSendingNotif(false);
+                  setTimeout(() => setNotifSent(false), 3000);
+                }}
+                disabled={sendingNotif || !notifTitle.trim() || !notifBody.trim()}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-warning text-white hover:bg-warning/90 transition-colors disabled:opacity-50"
+              >
+                {sendingNotif ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                {notifSent ? "Sent!" : "Send Announcement"}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-const CACHE_NAME = "winning-souls-v1";
+const CACHE_NAME = "winning-souls-v2";
 const OFFLINE_URL = "/";
 
 const PRECACHE_URLS = [
@@ -16,12 +16,17 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean old caches
+// Activate: clean old caches and notify clients
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    )
+    ).then(() => {
+      // Notify all open tabs that a new version is active
+      self.clients.matchAll({ type: "window" }).then((clients) => {
+        clients.forEach((client) => client.postMessage({ type: "SW_UPDATED" }));
+      });
+    })
   );
   self.clients.claim();
 });
