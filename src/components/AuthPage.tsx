@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Flame, Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { Flame, Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Inbox } from "lucide-react";
 
-type AuthMode = "login" | "signup" | "forgot";
+type AuthMode = "login" | "signup" | "forgot" | "confirm";
 
 export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void }) {
   const [mode, setMode] = useState<AuthMode>("login");
@@ -15,6 +15,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,8 +53,8 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
     if (error) {
       setError(error.message);
     } else {
-      setMessage("Account created! Check your email to confirm, then log in.");
-      setMode("login");
+      setSignupEmail(email);
+      setMode("confirm");
     }
     setLoading(false);
   };
@@ -107,8 +108,51 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
 
         {/* Card */}
         <div className="rounded-3xl" style={{ background: "#fff", padding: "32px 28px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+          {/* Confirm Email Screen */}
+          {mode === "confirm" && (
+            <div className="text-center" style={{ padding: "16px 0" }}>
+              <div className="inline-flex items-center justify-center rounded-full" style={{ width: 64, height: 64, background: "#F0FDF4", marginBottom: 20 }}>
+                <Inbox size={32} style={{ color: "#16A34A" }} />
+              </div>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111827", marginBottom: 8 }}>Check Your Email</h2>
+              <p style={{ color: "#6B7280", fontSize: 14, lineHeight: 1.6, marginBottom: 8 }}>
+                We sent a confirmation link to
+              </p>
+              <p style={{ color: "#1E40AF", fontSize: 15, fontWeight: 700, marginBottom: 20 }}>
+                {signupEmail}
+              </p>
+              <div className="rounded-xl" style={{ background: "#F9FAFB", padding: 20, textAlign: "left", marginBottom: 24 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#374151", marginBottom: 12 }}>Next Steps:</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <CheckCircle2 size={18} style={{ color: "#16A34A", flexShrink: 0, marginTop: 1 }} />
+                    <p style={{ fontSize: 13, color: "#4B5563" }}>Open your email inbox</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <CheckCircle2 size={18} style={{ color: "#16A34A", flexShrink: 0, marginTop: 1 }} />
+                    <p style={{ fontSize: 13, color: "#4B5563" }}>Click the confirmation link from Supabase</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <CheckCircle2 size={18} style={{ color: "#16A34A", flexShrink: 0, marginTop: 1 }} />
+                    <p style={{ fontSize: 13, color: "#4B5563" }}>Come back here and log in to start winning souls!</p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => { setMode("login"); setError(""); setMessage(""); }}
+                className="w-full flex items-center justify-center gap-2 rounded-xl transition-all active:scale-[0.98]"
+                style={{ background: "#1E40AF", color: "#fff", fontWeight: 700, fontSize: 15, padding: "14px", border: "none", cursor: "pointer" }}
+              >
+                Go to Log In <ArrowRight size={18} />
+              </button>
+              <p style={{ color: "#9CA3AF", fontSize: 12, marginTop: 16 }}>
+                Didn&apos;t get the email? Check your spam folder.
+              </p>
+            </div>
+          )}
+
           {/* Tab toggle */}
-          {mode !== "forgot" && (
+          {mode !== "forgot" && mode !== "confirm" && (
             <div className="flex rounded-xl" style={{ background: "#F3F4F6", padding: 4, marginBottom: 24 }}>
               <button
                 onClick={() => { setMode("login"); setError(""); }}
@@ -127,6 +171,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
             </div>
           )}
 
+          {mode !== "confirm" && (<>
           {/* Messages */}
           {error && (
             <div className="rounded-xl" style={{ background: "#FEF2F2", padding: "12px 16px", marginBottom: 16, color: "#DC2626", fontSize: 13, fontWeight: 500 }}>
@@ -239,7 +284,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
           )}
 
           {/* Divider */}
-          {mode !== "forgot" && (
+          {(mode === "login" || mode === "signup") && (
             <>
               <div className="flex items-center gap-4" style={{ margin: "24px 0" }}>
                 <div style={{ flex: 1, height: 1, background: "#E5E7EB" }} />
@@ -264,6 +309,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
               </button>
             </>
           )}
+          </>)}
         </div>
 
         {/* Bottom text */}
