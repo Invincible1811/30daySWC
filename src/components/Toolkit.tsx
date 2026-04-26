@@ -158,18 +158,20 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
               </button>
             </>
           )}
-          <div className="absolute inset-0 overflow-y-auto flex flex-col items-center pt-14 pb-4 px-1" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={images[current]}
-              alt={`${title} ${current + 1}`}
-              width={1200}
-              height={1600}
-              className="w-full h-auto"
-            />
-            <span className="text-white text-xs font-semibold bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full mt-3 shrink-0">
-              {current + 1} / {images.length}
-            </span>
+          <div className="absolute inset-0 bg-black overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="pt-14 px-0">
+              <Image
+                src={images[current]}
+                alt={`${title} ${current + 1}`}
+                width={1200}
+                height={1600}
+                className="w-full h-auto"
+              />
+            </div>
           </div>
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-white text-xs font-semibold bg-black/60 backdrop-blur-sm px-4 py-1.5 rounded-full">
+            {current + 1} / {images.length}
+          </span>
         </div>
       )}
     </>
@@ -208,7 +210,7 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
 
       {selectedIndex !== null && (
         <div
-          className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in overflow-auto"
+          className="fixed inset-0 z-[60] bg-black animate-fade-in"
           onClick={() => setSelectedIndex(null)}
         >
           <button className="absolute top-4 right-4 z-10 w-11 h-11 bg-white/15 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors backdrop-blur-sm border border-white/20">
@@ -232,18 +234,20 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
           >
             <ChevronRight size={24} />
           </button>
-          <div className="absolute inset-0 overflow-y-auto flex flex-col items-center pt-14 pb-4 px-1" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={images[selectedIndex]}
-              alt={`${title} Card ${selectedIndex + 1}`}
-              width={800}
-              height={1000}
-              className="w-full h-auto"
-            />
-            <span className="text-white text-xs font-semibold bg-white/15 backdrop-blur-sm px-4 py-1.5 rounded-full mt-3 shrink-0">
-              {selectedIndex + 1} / {images.length}
-            </span>
+          <div className="absolute inset-0 bg-black overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="pt-14 px-0">
+              <Image
+                src={images[selectedIndex]}
+                alt={`${title} Card ${selectedIndex + 1}`}
+                width={800}
+                height={1000}
+                className="w-full h-auto"
+              />
+            </div>
           </div>
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-white text-xs font-semibold bg-black/60 backdrop-blur-sm px-4 py-1.5 rounded-full">
+            {selectedIndex + 1} / {images.length}
+          </span>
         </div>
       )}
     </>
@@ -291,14 +295,16 @@ function GospelToolSection() {
           >
             <Download size={16} /> Save
           </button>
-          <div className="absolute inset-0 overflow-y-auto flex flex-col items-center pt-14 pb-4 px-1" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={gospelImage}
-              alt="Gospel Soul-Winning Tool"
-              width={800}
-              height={1600}
-              className="w-full h-auto"
-            />
+          <div className="absolute inset-0 bg-black overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="pt-14 px-0">
+              <Image
+                src={gospelImage}
+                alt="Gospel Soul-Winning Tool"
+                width={800}
+                height={1600}
+                className="w-full h-auto"
+              />
+            </div>
           </div>
         </div>
       )}
