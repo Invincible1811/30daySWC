@@ -19,6 +19,7 @@ import AdminDashboard from "@/components/AdminDashboard";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
 import NotificationPrompt from "@/components/NotificationPrompt";
+import InstallPrompt from "@/components/InstallPrompt";
 import UsernameSetup from "@/components/UsernameSetup";
 import { useAuth } from "@/lib/auth-context";
 import { Loader2 } from "lucide-react";
@@ -122,6 +123,7 @@ export default function Home() {
         </div>
       </main>
       <NotificationPrompt />
+      <InstallPrompt />
     </div>
   );
 }
