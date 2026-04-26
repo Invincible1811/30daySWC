@@ -170,6 +170,19 @@ create policy "Users can view own records" on public.daily_records for select us
 create policy "Users can insert own records" on public.daily_records for insert with check (auth.uid() = user_id);
 create policy "Users can update own records" on public.daily_records for update using (auth.uid() = user_id);
 
+-- Admin overrides: full access to all data
+create policy "Admins can view all souls" on public.souls for select using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete any soul" on public.souls for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can view all records" on public.daily_records for select using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete any profile" on public.profiles for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can update any profile" on public.profiles for update using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete testimonies" on public.testimonies for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete prayers" on public.prayers for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete events" on public.events for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete groups" on public.groups for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete posts" on public.community_posts for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+create policy "Admins can delete comments" on public.comments for delete using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
 -- Auto-create profile on signup
 create or replace function public.handle_new_user()
 returns trigger as $$

@@ -103,8 +103,9 @@ export default function Home() {
     return <AuthPage onAuthSuccess={handleAuthSuccess} />;
   }
 
-  // Show username setup if user hasn't chosen a custom username yet
-  const needsUsername = user && profile && !usernameSet && (
+  // Show username setup if user hasn't chosen a custom username yet (admins skip)
+  const isAdmin = profile?.role === "admin";
+  const needsUsername = user && profile && !usernameSet && !isAdmin && (
     !profile.username ||
     profile.username === user.email?.split("@")[0]
   );
