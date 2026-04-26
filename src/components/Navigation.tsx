@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { LogoIcon } from "./Logo";
 
 export type Page =
   | "dashboard"
@@ -67,8 +68,8 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-dark text-white fixed left-0 top-0 h-full z-40">
         <div className="p-6 border-b border-dark-light">
-          <h1 className="text-xl font-bold text-primary-light flex items-center gap-2">
-            <span className="text-2xl">✝</span> Winning Souls
+          <h1 className="text-xl font-bold text-primary-light flex items-center gap-2.5">
+            <LogoIcon size={34} /> Winning Souls
           </h1>
           <p className="text-xs text-grey mt-1">30-Day Soul Winning Challenge</p>
         </div>

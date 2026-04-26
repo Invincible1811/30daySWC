@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import {
   BookOpen, Heart, Users, MapPin, Sparkles, Gift,
   ChevronRight, ArrowRight, Star, Flame,
-  CheckCircle2, MessageCircle, Globe, Calendar, Share2, Download, Smartphone
+  CheckCircle2, MessageCircle, Globe, Calendar, Share2, Download, Smartphone,
+  CalendarDays, Target, HandHeart, Trophy, Wrench, UserPlus
 } from "lucide-react";
 import ShareInvite from "./ShareInvite";
 import { useInstallPrompt } from "./InstallPrompt";
+import { LogoIcon } from "./Logo";
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -127,7 +129,10 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
             transform: visible ? "translateY(0)" : "translateY(30px)",
           }}
         >
-          {/* Badge */}
+          {/* Logo + Badge */}
+          <div className="flex justify-center mb-6">
+            <LogoIcon size={72} />
+          </div>
           <div className="inline-flex items-center gap-2 rounded-full px-5 py-2 mb-8" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", backdropFilter: "blur(10px)" }}>
             <Flame size={16} style={{ color: "#FBBF24" }} />
             <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, fontWeight: 500 }}>30-Day Soul-Winning Challenge</span>
@@ -218,6 +223,141 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           </div>
         </div>
       </section>
+
+      {/* ─── App Showcase Sections ─── */}
+      {[
+        {
+          tag: "Daily Growth",
+          tagBg: "#DBEAFE",
+          tagColor: "#1E40AF",
+          title: "30 Days of Bold Evangelism",
+          desc: "Each day unlocks a unique challenge with scripture, prayer, worship notes, encouragement, and a practical outreach task. Track your progress with a beautiful card grid and continue challenges the next day if you need more time.",
+          icon: CalendarDays,
+          iconBg: "#1E40AF",
+          features: ["Daily scripture & prayer", "Worship notes & encouragement", "Record your impact", "Share to community"],
+          align: "left" as const,
+          mockupBg: "linear-gradient(135deg, #1E3A8A, #2563EB)",
+          mockupItems: [
+            { label: "Day 1", sub: "Called to Go", done: true },
+            { label: "Day 2", sub: "The Heart of Compassion", done: true },
+            { label: "Day 3", sub: "Speaking Life", done: false },
+            { label: "Day 4", sub: "Love Your Neighbor", done: false },
+          ],
+        },
+        {
+          tag: "Track Impact",
+          tagBg: "#D1FAE5",
+          tagColor: "#059669",
+          title: "Every Soul Counts",
+          desc: "Log every person you lead to Christ with their name, location, and story. Follow up with them through the built-in follow-up system. Watch your impact grow on the dashboard.",
+          icon: Target,
+          iconBg: "#059669",
+          features: ["Log souls with details", "Follow-up reminders", "Personal dashboard stats", "Global soul counter"],
+          align: "right" as const,
+          mockupBg: "linear-gradient(135deg, #047857, #10B981)",
+          mockupItems: [
+            { label: "12", sub: "Souls Won This Month", done: true },
+            { label: "8", sub: "Following Up", done: true },
+            { label: "3", sub: "New This Week", done: false },
+          ],
+        },
+        {
+          tag: "Community",
+          tagBg: "#EDE9FE",
+          tagColor: "#7C3AED",
+          title: "You're Not Alone",
+          desc: "Share testimonies, post prayer requests, encourage fellow soul winners, and see what God is doing across the nation. Join groups, form outreach teams, and go out together.",
+          icon: Globe,
+          iconBg: "#7C3AED",
+          features: ["Testimony feed", "Prayer wall", "Outreach groups", "Leaderboard"],
+          align: "left" as const,
+          mockupBg: "linear-gradient(135deg, #5B21B6, #7C3AED)",
+          mockupItems: [
+            { label: "Prayer Wall", sub: "42 active requests", done: true },
+            { label: "Testimonies", sub: "Share what God did", done: true },
+            { label: "Groups", sub: "Join a team", done: false },
+          ],
+        },
+        {
+          tag: "Resources",
+          tagBg: "#FEF3C7",
+          tagColor: "#D97706",
+          title: "Everything You Need to Go Out",
+          desc: "Scripture declaration cards, conversation starters, the gospel tool, Acts of Kindness Bingo, gift ideas, and location suggestions — all at your fingertips. Events with Google Maps directions included.",
+          icon: Wrench,
+          iconBg: "#D97706",
+          features: ["30+ scripture cards", "34 conversation starters", "Gospel presentation tool", "Events with maps & directions"],
+          align: "right" as const,
+          mockupBg: "linear-gradient(135deg, #B45309, #F59E0B)",
+          mockupItems: [
+            { label: "Scripture Cards", sub: "Declare boldly", done: true },
+            { label: "Conversation Starters", sub: "Break the ice", done: true },
+            { label: "Gospel Tool", sub: "Lead them to Christ", done: true },
+          ],
+        },
+      ].map((section, sIdx) => (
+        <section key={sIdx} style={{ padding: "80px 24px", background: sIdx % 2 === 0 ? "#fff" : "#F9FAFB" }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+            <div className={`flex flex-col ${section.align === "right" ? "lg:flex-row-reverse" : "lg:flex-row"} gap-12 lg:gap-16 items-center`}>
+              {/* Text side */}
+              <div className="flex-1 text-center lg:text-left">
+                <span className="inline-block rounded-full" style={{ background: section.tagBg, color: section.tagColor, fontSize: 13, fontWeight: 600, padding: "5px 14px", marginBottom: 16 }}>
+                  {section.tag}
+                </span>
+                <h2 style={{ fontSize: "clamp(1.6rem, 3.5vw, 2.2rem)", fontWeight: 900, color: "#111827", marginBottom: 16, lineHeight: 1.2 }}>
+                  {section.title}
+                </h2>
+                <p style={{ color: "#6B7280", fontSize: 16, lineHeight: 1.7, marginBottom: 24 }}>
+                  {section.desc}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {section.features.map((f) => (
+                    <div key={f} className="flex items-center gap-2.5">
+                      <CheckCircle2 size={18} style={{ color: section.iconBg, flexShrink: 0 }} />
+                      <span style={{ color: "#374151", fontWeight: 500, fontSize: 14 }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mockup side */}
+              <div className="flex-1 flex justify-center">
+                <div className="w-full max-w-[320px] rounded-[28px] overflow-hidden" style={{ background: section.mockupBg, boxShadow: "0 25px 60px rgba(0,0,0,0.2)", padding: "32px 24px" }}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center justify-center" style={{ width: 44, height: 44, borderRadius: 12, background: "rgba(255,255,255,0.2)" }}>
+                      <section.icon size={22} style={{ color: "#fff" }} />
+                    </div>
+                    <div>
+                      <p style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>{section.tag}</p>
+                      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }}>Winning Souls</p>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {section.mockupItems.map((item, i) => (
+                      <div key={i} className="flex items-center gap-3" style={{ background: "rgba(255,255,255,0.12)", borderRadius: 14, padding: "14px 16px", border: "1px solid rgba(255,255,255,0.1)" }}>
+                        {item.done ? (
+                          <div style={{ width: 28, height: 28, borderRadius: 8, background: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                            <CheckCircle2 size={16} style={{ color: "#fff" }} />
+                          </div>
+                        ) : (
+                          <div style={{ width: 28, height: 28, borderRadius: 8, border: "2px solid rgba(255,255,255,0.3)", flexShrink: 0 }} />
+                        )}
+                        <div>
+                          <p style={{ color: "#fff", fontWeight: 600, fontSize: 14 }}>{item.label}</p>
+                          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>{item.sub}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <button style={{ width: "100%", marginTop: 16, padding: "12px", borderRadius: 12, background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 600, fontSize: 13, cursor: "default" }}>
+                    Open in App →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      ))}
 
       {/* How It Works */}
       <section style={{ padding: "96px 24px", background: "#fff" }}>
@@ -488,6 +628,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
       {/* Footer */}
       <footer style={{ background: "#111827", padding: "40px 24px" }}>
         <div className="text-center" style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div className="flex justify-center mb-3"><LogoIcon size={40} /></div>
           <h3 style={{ color: "#fff", fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Winning Souls</h3>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 16 }}>30-Day Soul-Winning Challenge Companion App</p>
           <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>&copy; {new Date().getFullYear()} Winning Souls. All rights reserved. Built with love for the Kingdom.</p>

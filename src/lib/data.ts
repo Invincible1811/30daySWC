@@ -132,10 +132,7 @@ export interface CommunityPost {
 
 export const sampleSouls: Soul[] = [];
 
-export const sampleTestimonies: Testimony[] = [
-  { id: "1", author: "Pastor James", title: "God Moved at the Bus Station", content: "Today I approached a man at the bus station who was visibly troubled. After sharing the Gospel, he broke down in tears and gave his life to Christ right there. God is faithful!", date: "2026-04-10", likes: 0, comments: [] },
-  { id: "2", author: "Blessing M.", title: "My Neighbor Finally Said Yes", content: "I've been inviting my neighbor to church for 2 years. This week during the 30-day challenge, I shared my testimony with her and she accepted Christ. Persistence pays off!", date: "2026-04-08", likes: 0, comments: [] },
-];
+export const sampleTestimonies: Testimony[] = [];
 
 export const samplePrayers: PrayerRequest[] = [];
 

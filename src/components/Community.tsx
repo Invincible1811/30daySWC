@@ -119,12 +119,12 @@ export default function Community() {
           </div>
           <div>
             <Users size={24} className="mx-auto mb-1 text-success" />
-            <p className="text-2xl font-bold">342</p>
+            <p className="text-2xl font-bold">0</p>
             <p className="text-xs text-grey-medium">Active Winners</p>
           </div>
           <div>
             <TrendingUp size={24} className="mx-auto mb-1 text-warning" />
-            <p className="text-2xl font-bold">89</p>
+            <p className="text-2xl font-bold">0</p>
             <p className="text-xs text-grey-medium">Cities Reached</p>
           </div>
         </div>
@@ -376,30 +376,9 @@ export default function Community() {
         <h3 className="font-bold text-dark mb-4 flex items-center gap-2">
           <Award className="text-warning" size={20} /> Top Soul Winners This Month
         </h3>
-        <div className="space-y-3">
-          {[
-            { rank: 1, name: "Evangelist Tapiwa", city: "Harare", souls: 47 },
-            { rank: 2, name: "Pastor Chipo", city: "Bulawayo", souls: 38 },
-            { rank: 3, name: "Brother Kudzi", city: "Mutare", souls: 31 },
-            { rank: 4, name: "Sister Nyasha", city: "Gweru", souls: 25 },
-            { rank: 5, name: "Deacon Samuel", city: "Masvingo", souls: 22 },
-          ].map(winner => (
-            <div key={winner.rank} className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                winner.rank === 1 ? "bg-warning/20 text-warning" :
-                winner.rank === 2 ? "bg-grey-medium/30 text-grey-dark" :
-                winner.rank === 3 ? "bg-orange-100 text-orange-600" :
-                "bg-grey-light text-grey"
-              }`}>
-                {winner.rank}
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-dark text-sm">{winner.name}</p>
-                <p className="text-xs text-grey">{winner.city}</p>
-              </div>
-              <p className="font-bold text-primary text-sm">{winner.souls} souls</p>
-            </div>
-          ))}
+        <div className="text-center py-6">
+          <Award size={40} className="text-grey-medium mx-auto mb-2 opacity-30" />
+          <p className="text-grey text-sm">No data yet. Start winning souls to appear on the leaderboard!</p>
         </div>
       </div>
     </div>
