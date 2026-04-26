@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import {
   BookOpen, Heart, Users, MapPin, Sparkles, Gift,
   ChevronRight, ArrowRight, Star, Flame,
-  CheckCircle2, MessageCircle, Globe, Calendar, Share2
+  CheckCircle2, MessageCircle, Globe, Calendar, Share2, Download, Smartphone
 } from "lucide-react";
 import ShareInvite from "./ShareInvite";
+import { useInstallPrompt } from "./InstallPrompt";
 
 interface LandingPageProps {
   onEnterApp: () => void;
@@ -79,6 +80,23 @@ const testimonials = [
 export default function LandingPage({ onEnterApp }: LandingPageProps) {
   const [visible, setVisible] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const { canInstall, install } = useInstallPrompt();
+  const [isIOS, setIsIOS] = useState(false);
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
+
+  useEffect(() => {
+    setIsIOS(/iphone|ipad|ipod/i.test(navigator.userAgent));
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (canInstall) {
+      await install();
+    } else if (isIOS) {
+      setShowIOSGuide(true);
+    } else {
+      onEnterApp();
+    }
+  };
 
   useEffect(() => {
     setVisible(true);
@@ -129,12 +147,11 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center" style={{ marginBottom: 48 }}>
             <button
-              onClick={onEnterApp}
+              onClick={handleInstallClick}
               className="group flex items-center gap-3"
               style={{ background: "#fff", color: "#1E3A8A", fontWeight: 700, fontSize: 18, padding: "16px 32px", borderRadius: 16, boxShadow: "0 10px 40px rgba(0,0,0,0.3)", transition: "all 0.3s", border: "none", cursor: "pointer" }}
             >
-              Start the Challenge
-              <ArrowRight size={20} />
+              {canInstall || isIOS ? (<><Download size={20} /> Install App</>) : (<>Start the Challenge <ArrowRight size={20} /></>)}
             </button>
             <a
               href="#features"
@@ -359,17 +376,61 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
             <button
-              onClick={onEnterApp}
+              onClick={handleInstallClick}
               className="group inline-flex items-center gap-3"
               style={{ background: "#fff", color: "#1E3A8A", fontWeight: 700, fontSize: 18, padding: "20px 40px", borderRadius: 16, boxShadow: "0 10px 40px rgba(0,0,0,0.2)", border: "none", cursor: "pointer", transition: "all 0.3s" }}
             >
-              Enter the App
-              <ArrowRight size={22} />
+              {canInstall || isIOS ? (<><Download size={22} /> Install App</>) : (<>Enter the App <ArrowRight size={22} /></>)}
             </button>
             <ShareInvite />
           </div>
         </div>
       </section>
+
+      {/* iOS Install Guide Modal */}
+      {showIOSGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-8 relative">
+            <button onClick={() => setShowIOSGuide(false)} className="absolute top-4 right-4 text-grey-dark hover:text-dark" style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20 }}>
+              ✕
+            </button>
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center rounded-full" style={{ width: 56, height: 56, background: "#EFF6FF", marginBottom: 12 }}>
+                <Smartphone size={28} style={{ color: "#1E40AF" }} />
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: 800, color: "#111827" }}>Install on iPhone</h3>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>1</span>
+                <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Tap the <strong>Share</strong> button <span style={{ display: "inline-block", background: "#F3F4F6", borderRadius: 4, padding: "0 4px", fontSize: 16 }}>⬆</span> at the bottom of Safari</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>2</span>
+                <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Scroll down and tap <strong>&quot;Add to Home Screen&quot;</strong></p>
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                <span style={{ width: 28, height: 28, borderRadius: "50%", background: "#1E40AF", color: "#fff", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>3</span>
+                <p style={{ fontSize: 14, color: "#4B5563", paddingTop: 2 }}>Tap <strong>&quot;Add&quot;</strong> — the app icon will appear on your home screen!</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 24 }}>
+              <button
+                onClick={() => setShowIOSGuide(false)}
+                style={{ flex: 1, padding: "14px", borderRadius: 12, background: "#1E40AF", color: "#fff", fontWeight: 700, fontSize: 15, border: "none", cursor: "pointer" }}
+              >
+                Got It
+              </button>
+              <button
+                onClick={() => { setShowIOSGuide(false); onEnterApp(); }}
+                style={{ flex: 1, padding: "14px", borderRadius: 12, background: "#F3F4F6", color: "#374151", fontWeight: 600, fontSize: 14, border: "none", cursor: "pointer" }}
+              >
+                Use in Browser
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer style={{ background: "#111827", padding: "40px 24px" }}>
