@@ -23,6 +23,7 @@ export type Page =
   | "comingsoon"
   | "leaderboard"
   | "profile"
+  | "members"
   | "admin";
 
 interface NavigationProps {
@@ -51,6 +52,7 @@ const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = 
   { icon: Globe, label: "Community", page: "community" },
   { icon: Wrench, label: "Evangelism Toolkit", page: "toolkit" },
   { icon: Trophy, label: "Leaderboard", page: "leaderboard" },
+  { icon: Users, label: "Members", page: "members" },
   { icon: Award, label: "Coming Soon", page: "comingsoon" },
 ];
 

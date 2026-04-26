@@ -208,8 +208,25 @@ create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
 
+-- Messages (direct messages between users)
+create table if not exists public.messages (
+  id uuid primary key default gen_random_uuid(),
+  sender_id uuid references public.profiles on delete cascade not null,
+  receiver_id uuid references public.profiles on delete cascade not null,
+  content text not null,
+  read boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.messages enable row level security;
+
+create policy "Users can view own messages" on public.messages for select using (auth.uid() = sender_id or auth.uid() = receiver_id);
+create policy "Users can send messages" on public.messages for insert with check (auth.uid() = sender_id);
+create policy "Users can update own received messages" on public.messages for update using (auth.uid() = receiver_id);
+
 -- Enable realtime for community features
 alter publication supabase_realtime add table public.testimonies;
 alter publication supabase_realtime add table public.prayers;
 alter publication supabase_realtime add table public.community_posts;
 alter publication supabase_realtime add table public.comments;
+alter publication supabase_realtime add table public.messages;

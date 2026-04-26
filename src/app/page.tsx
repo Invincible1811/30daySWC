@@ -15,6 +15,7 @@ import ComingSoon from "@/components/ComingSoon";
 import Toolkit from "@/components/Toolkit";
 import ProfilePage from "@/components/ProfilePage";
 import Leaderboard from "@/components/Leaderboard";
+import Members from "@/components/Members";
 import AdminDashboard from "@/components/AdminDashboard";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
@@ -77,6 +78,7 @@ export default function Home() {
       case "community": return <Community />;
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
+      case "members": return <Members />;
       case "profile": return <ProfilePage />;
       case "admin": return <AdminDashboard />;
       case "comingsoon": return <ComingSoon />;

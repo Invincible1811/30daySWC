@@ -12,6 +12,13 @@ interface UserRow {
   current_day: number;
   completed_days: number[];
   created_at: string;
+  avatar_url: string;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  bio: string;
+  church: string;
 }
 
 interface Stats {
@@ -189,8 +196,9 @@ export default function AdminDashboard() {
                 </button>
 
                 {expandedUser === u.id && (
-                  <div className="px-4 pb-4 bg-grey-light/30">
-                    <div className="grid grid-cols-3 gap-2 mb-3">
+                  <div className="px-4 pb-4 bg-grey-light/30 space-y-3">
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-2">
                       <div className="bg-white rounded-lg p-2 text-center">
                         <p className="text-lg font-bold text-dark">{u.current_day}</p>
                         <p className="text-[10px] text-grey-dark">Current Day</p>
@@ -202,6 +210,21 @@ export default function AdminDashboard() {
                       <div className="bg-white rounded-lg p-2 text-center">
                         <p className="text-lg font-bold text-dark">{Math.round(((u.completed_days?.length || 0) / 30) * 100)}%</p>
                         <p className="text-[10px] text-grey-dark">Progress</p>
+                      </div>
+                    </div>
+                    {/* Full Details */}
+                    <div className="bg-white rounded-xl p-3 space-y-2">
+                      <p className="text-[10px] font-bold text-grey uppercase tracking-wider">User Details</p>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                        {u.full_name && <div><span className="text-grey-dark text-xs">Name:</span> <span className="font-medium text-dark">{u.full_name}</span></div>}
+                        {u.username && <div><span className="text-grey-dark text-xs">Username:</span> <span className="font-medium text-dark">@{u.username}</span></div>}
+                        {u.phone && <div><span className="text-grey-dark text-xs">Phone:</span> <span className="font-medium text-dark">{u.phone}</span></div>}
+                        {u.church && <div><span className="text-grey-dark text-xs">Church:</span> <span className="font-medium text-dark">{u.church}</span></div>}
+                        {u.city && <div><span className="text-grey-dark text-xs">City:</span> <span className="font-medium text-dark">{u.city}</span></div>}
+                        {u.country && <div><span className="text-grey-dark text-xs">Country:</span> <span className="font-medium text-dark">{u.country}</span></div>}
+                        {u.address && <div className="col-span-2"><span className="text-grey-dark text-xs">Address:</span> <span className="font-medium text-dark">{u.address}</span></div>}
+                        {u.bio && <div className="col-span-2"><span className="text-grey-dark text-xs">Bio:</span> <span className="font-medium text-dark">{u.bio}</span></div>}
+                        <div className="col-span-2"><span className="text-grey-dark text-xs">User ID:</span> <span className="font-mono text-[11px] text-grey">{u.id}</span></div>
                       </div>
                     </div>
                     <div className="flex gap-2 flex-wrap">
