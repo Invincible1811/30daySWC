@@ -2,15 +2,17 @@
 
 import { useApp } from "@/lib/store";
 import { challengeCards } from "@/lib/data";
-import { Heart, MessageCircle, MapPin, Globe, TrendingUp, Users, Award, CalendarDays, Send } from "lucide-react";
+import { Heart, MessageCircle, MapPin, Globe, TrendingUp, Users, Award, CalendarDays, Send, Plus, X } from "lucide-react";
 import { useState } from "react";
 
 export default function Community() {
-  const { communityPosts, likeCommunityPost, globalSoulCount, dailyShares, likeDailyShare, addCommentToDailyShare, userName } = useApp();
+  const { communityPosts, likeCommunityPost, addCommunityPost, globalSoulCount, dailyShares, likeDailyShare, addCommentToDailyShare, userName } = useApp();
   const [filter, setFilter] = useState<"all" | "testimony" | "report" | "encouragement" | "milestone">("all");
   const [activeTab, setActiveTab] = useState<"feed" | "daily-shares">("feed");
   const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
+  const [showCreate, setShowCreate] = useState(false);
+  const [newPost, setNewPost] = useState({ content: "", type: "testimony" as "testimony" | "report" | "encouragement" | "milestone", location: "" });
 
   const filtered = filter === "all" ? communityPosts : communityPosts.filter(p => p.type === filter);
 
@@ -23,10 +25,89 @@ export default function Community() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-2xl font-bold text-dark">Global Community</h2>
-        <p className="text-grey mt-1">Connect with soul winners across the nation</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-dark">Global Community</h2>
+          <p className="text-grey mt-1">Connect with soul winners across the nation</p>
+        </div>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors shadow-md shadow-primary/20"
+        >
+          <Plus size={16} /> Write Post
+        </button>
       </div>
+
+      {/* Create Post Modal */}
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowCreate(false)}>
+          <div className="bg-white rounded-[20px] max-w-md w-full shadow-2xl animate-pop-in" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-grey-light">
+              <h3 className="font-bold text-dark text-lg">Write a Post</h3>
+              <button onClick={() => setShowCreate(false)} className="w-8 h-8 rounded-full bg-grey-light flex items-center justify-center text-grey-dark hover:bg-grey-medium/30">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1.5">Post Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["testimony", "report", "encouragement", "milestone"] as const).map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setNewPost(p => ({ ...p, type: t }))}
+                      className={`px-3 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
+                        newPost.type === t
+                          ? "bg-primary/10 text-primary border-primary"
+                          : "border-grey-light text-grey-dark hover:border-grey-medium"
+                      }`}
+                    >
+                      {t.charAt(0).toUpperCase() + t.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1.5">Location</label>
+                <input
+                  value={newPost.location}
+                  onChange={e => setNewPost(p => ({ ...p, location: e.target.value }))}
+                  placeholder="e.g. Harare, Zimbabwe"
+                  className="w-full bg-grey-light/50 rounded-xl px-4 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1.5">Your Message</label>
+                <textarea
+                  value={newPost.content}
+                  onChange={e => setNewPost(p => ({ ...p, content: e.target.value }))}
+                  placeholder="Share what God has done..."
+                  rows={4}
+                  className="w-full bg-grey-light/50 rounded-xl px-4 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary resize-none"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (!newPost.content.trim()) return;
+                  addCommunityPost({
+                    author: userName,
+                    location: newPost.location.trim() || "Unknown",
+                    content: newPost.content.trim(),
+                    date: new Date().toISOString().split("T")[0],
+                    type: newPost.type,
+                  });
+                  setNewPost({ content: "", type: "testimony", location: "" });
+                  setShowCreate(false);
+                }}
+                disabled={!newPost.content.trim()}
+                className="w-full bg-primary text-white py-3 rounded-xl text-sm font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 disabled:opacity-50"
+              >
+                Publish Post
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Global Stats Banner */}
       <div className="bg-gradient-to-r from-dark to-dark-light rounded-2xl p-5 text-white">

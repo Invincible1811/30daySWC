@@ -39,6 +39,7 @@ interface AppContextType extends AppState {
   prayForRequest: (id: string) => void;
   addCommentToTestimony: (testimonyId: string, comment: Omit<Comment, "id">) => void;
   addCommentToPrayer: (prayerId: string, comment: Omit<Comment, "id">) => void;
+  addCommunityPost: (post: Omit<CommunityPost, "id" | "likes" | "comments">) => void;
   likeCommunityPost: (id: string) => void;
   joinGroup: (id: string) => void;
   rsvpEvent: (id: string) => void;
@@ -322,6 +323,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const addCommunityPost = useCallback((post: Omit<CommunityPost, "id" | "likes" | "comments">) => {
+    const newPost: CommunityPost = { ...post, id: generateId(), likes: 0, comments: [] };
+    setState(prev => ({ ...prev, communityPosts: [newPost, ...prev.communityPosts] }));
+  }, []);
+
   const likeCommunityPost = useCallback((id: string) => {
     setState(prev => ({
       ...prev,
@@ -408,7 +414,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       completeDay, setUserName,
       likeTestimony, likePrayer, prayForRequest,
       addCommentToTestimony, addCommentToPrayer,
-      likeCommunityPost, joinGroup, rsvpEvent,
+      addCommunityPost, likeCommunityPost, joinGroup, rsvpEvent,
       saveDailyRecord, shareDailyRecord, likeDailyShare, addCommentToDailyShare,
     }}>
       {children}
