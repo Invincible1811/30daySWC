@@ -390,8 +390,14 @@ export default function Toolkit() {
             </div>
             <div className="h-8 w-px bg-grey-light flex-shrink-0" />
             <div className="flex gap-2">
-              {["Essentials", "Education", "Health", "Tech", "Community"].map((tag) => (
-                <span key={tag} className="bg-rose-50 text-rose-600 text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap border border-rose-100">
+              {[
+                { tag: "Essentials", cls: "bg-blue-50 text-blue-600 border-blue-100" },
+                { tag: "Education", cls: "bg-emerald-50 text-emerald-600 border-emerald-100" },
+                { tag: "Health", cls: "bg-purple-50 text-purple-600 border-purple-100" },
+                { tag: "Tech", cls: "bg-amber-50 text-amber-600 border-amber-100" },
+                { tag: "Community", cls: "bg-cyan-50 text-cyan-600 border-cyan-100" },
+              ].map(({ tag, cls }) => (
+                <span key={tag} className={`${cls} text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap border`}>
                   {tag}
                 </span>
               ))}
@@ -399,24 +405,35 @@ export default function Toolkit() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {giftIdeas.map((item, i) => (
-              <div
-                key={i}
-                className="group bg-card rounded-2xl overflow-hidden border-2 border-transparent hover:border-rose-300 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 cursor-default"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <div className="bg-gradient-to-r from-rose-50 to-rose-100/50 px-4 py-3 border-b border-rose-100 flex items-center gap-3">
-                  <span className="bg-gradient-to-br from-rose-500 to-rose-600 text-white w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                    {i + 1}
-                  </span>
-                  <h4 className="font-bold text-dark text-sm group-hover:text-rose-700 transition-colors duration-300">{item.title}</h4>
+            {giftIdeas.map((item, i) => {
+              const colors = [
+                { bg: "from-blue-50 to-blue-100/50", border: "border-blue-100", badge: "from-blue-500 to-blue-600", hover: "hover:border-blue-300", text: "group-hover:text-blue-700", bar: "from-blue-400 to-blue-600" },
+                { bg: "from-emerald-50 to-emerald-100/50", border: "border-emerald-100", badge: "from-emerald-500 to-emerald-600", hover: "hover:border-emerald-300", text: "group-hover:text-emerald-700", bar: "from-emerald-400 to-emerald-600" },
+                { bg: "from-purple-50 to-purple-100/50", border: "border-purple-100", badge: "from-purple-500 to-purple-600", hover: "hover:border-purple-300", text: "group-hover:text-purple-700", bar: "from-purple-400 to-purple-600" },
+                { bg: "from-amber-50 to-amber-100/50", border: "border-amber-100", badge: "from-amber-500 to-amber-600", hover: "hover:border-amber-300", text: "group-hover:text-amber-700", bar: "from-amber-400 to-amber-600" },
+                { bg: "from-rose-50 to-rose-100/50", border: "border-rose-100", badge: "from-rose-500 to-rose-600", hover: "hover:border-rose-300", text: "group-hover:text-rose-700", bar: "from-rose-400 to-rose-600" },
+                { bg: "from-cyan-50 to-cyan-100/50", border: "border-cyan-100", badge: "from-cyan-500 to-cyan-600", hover: "hover:border-cyan-300", text: "group-hover:text-cyan-700", bar: "from-cyan-400 to-cyan-600" },
+              ];
+              const c = colors[i % colors.length];
+              return (
+                <div
+                  key={i}
+                  className={`group bg-card rounded-2xl overflow-hidden border-2 border-transparent ${c.hover} shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 cursor-default`}
+                  style={{ animationDelay: `${i * 40}ms` }}
+                >
+                  <div className={`bg-gradient-to-r ${c.bg} px-4 py-3 ${c.border} border-b flex items-center gap-3`}>
+                    <span className={`bg-gradient-to-br ${c.badge} text-white w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shadow-md group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
+                      {i + 1}
+                    </span>
+                    <h4 className={`font-bold text-dark text-sm ${c.text} transition-colors duration-300`}>{item.title}</h4>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-grey-dark text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                  <div className={`h-1 w-0 group-hover:w-full bg-gradient-to-r ${c.bar} transition-all duration-500`} />
                 </div>
-                <div className="p-4">
-                  <p className="text-grey-dark text-sm leading-relaxed">{item.desc}</p>
-                </div>
-                <div className="h-1 w-0 group-hover:w-full bg-gradient-to-r from-rose-400 to-rose-600 transition-all duration-500" />
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
