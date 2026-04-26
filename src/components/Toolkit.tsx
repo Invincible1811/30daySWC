@@ -158,13 +158,12 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
               </button>
             </>
           )}
-          <div className="absolute inset-0 bg-white overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[current]}
               alt={`${title} ${current + 1}`}
-              width={1200}
-              height={1600}
-              className="w-full h-auto block"
+              fill
+              className="object-contain"
             />
           </div>
           <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-dark text-xs font-semibold bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow">
@@ -232,13 +231,12 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
           >
             <ChevronRight size={24} />
           </button>
-          <div className="absolute inset-0 bg-white overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
-              width={800}
-              height={1000}
-              className="w-full h-auto block"
+              fill
+              className="object-contain"
             />
           </div>
           <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-dark text-xs font-semibold bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow">
@@ -291,13 +289,12 @@ function GospelToolSection() {
           >
             <Download size={16} /> Save
           </button>
-          <div className="absolute inset-0 bg-white overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
-              width={800}
-              height={1600}
-              className="w-full h-auto block"
+              fill
+              className="object-contain"
             />
           </div>
         </div>
