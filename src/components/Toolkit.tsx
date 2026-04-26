@@ -374,15 +374,15 @@ export default function Toolkit() {
 
       {activeSection === "gifts" && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-rose-500 to-rose-700 rounded-2xl p-5 text-white">
+          <div className="bg-gradient-to-r from-indigo-600 to-violet-700 rounded-2xl p-5 text-white">
             <Gift size={32} className="mb-2 opacity-80" />
             <h3 className="text-lg font-bold">Gifts & Giveaway Ideas for Outreach</h3>
-            <p className="text-rose-200 text-sm mt-1">Creative ideas for gifts and giveaways to bless people during your outreach events.</p>
+            <p className="text-indigo-200 text-sm mt-1">Creative ideas for gifts and giveaways to bless people during your outreach events.</p>
           </div>
 
           <div className="bg-card rounded-2xl p-4 border border-grey-light flex items-center gap-4 overflow-x-auto">
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-10 h-10 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-sm">{giftIdeas.length}</div>
+              <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">{giftIdeas.length}</div>
               <div>
                 <p className="font-bold text-dark text-sm">Total Ideas</p>
                 <p className="text-grey text-xs">Tap any card to read more</p>
