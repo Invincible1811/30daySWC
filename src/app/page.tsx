@@ -13,6 +13,8 @@ import Groups from "@/components/Groups";
 import Community from "@/components/Community";
 import ComingSoon from "@/components/ComingSoon";
 import Toolkit from "@/components/Toolkit";
+import ProfilePage from "@/components/ProfilePage";
+import Leaderboard from "@/components/Leaderboard";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
 import NotificationPrompt from "@/components/NotificationPrompt";
@@ -31,25 +33,27 @@ export default function Home() {
 
     const entered = sessionStorage.getItem("ws-entered");
     if (user) {
-      // Logged in — go straight to app
       sessionStorage.setItem("ws-entered", "true");
       setScreen("app");
     } else if (entered) {
-      // Visited before this session but not logged in — show auth
-      setScreen("auth");
+      // Allow browsing the app without login
+      setScreen("app");
     } else {
-      // First visit — show landing
       setScreen("landing");
     }
   }, [user, loading]);
 
   const handleEnterApp = () => {
     sessionStorage.setItem("ws-entered", "true");
-    setScreen("auth");
+    setScreen("app");
   };
 
   const handleAuthSuccess = () => {
     setScreen("app");
+  };
+
+  const handleShowAuth = () => {
+    setScreen("auth");
   };
 
   const renderPage = () => {
@@ -64,6 +68,8 @@ export default function Home() {
       case "groups": return <Groups />;
       case "community": return <Community />;
       case "toolkit": return <Toolkit />;
+      case "leaderboard": return <Leaderboard />;
+      case "profile": return <ProfilePage />;
       case "comingsoon": return <ComingSoon />;
       default: return <Dashboard onNavigate={setCurrentPage} />;
     }
@@ -91,7 +97,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} onShowAuth={handleShowAuth} />
       {/* Main content area */}
       <main className="lg:ml-64 pt-16 lg:pt-0 pb-20 lg:pb-8">
         <div className="max-w-5xl mx-auto px-4 py-6">
