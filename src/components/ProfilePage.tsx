@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle, Lock, Phone, MapPin, Church, FileText, Eye, EyeOff, Loader2 } from "lucide-react";
+import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle, Lock, Phone, MapPin, Church, FileText, Eye, EyeOff, Loader2, RefreshCw } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApp } from "@/lib/store";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -30,6 +30,8 @@ export default function ProfilePage() {
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMessage, setPwMessage] = useState("");
   const [pwError, setPwError] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<"" | "available" | "latest">("")
 
   const stats = [
     { icon: <Trophy className="text-warning" size={20} />, label: "Souls Won", value: souls.length, bg: "bg-warning/10" },
@@ -367,6 +369,48 @@ export default function ProfilePage() {
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Check for Updates */}
+          <div className="pt-2 border-t border-grey-light">
+            <button
+              onClick={async () => {
+                setChecking(true);
+                setUpdateStatus("");
+                try {
+                  const res = await fetch("/version.json?t=" + Date.now());
+                  if (res.ok) {
+                    const data = await res.json();
+                    const current = localStorage.getItem("ws-server-version");
+                    if (current && current !== data.version) {
+                      setUpdateStatus("available");
+                      localStorage.setItem("ws-server-version", data.version);
+                      setTimeout(() => window.location.reload(), 1500);
+                    } else {
+                      localStorage.setItem("ws-server-version", data.version);
+                      // Also force SW update check
+                      if ("serviceWorker" in navigator) {
+                        const reg = await navigator.serviceWorker.getRegistration();
+                        if (reg) await reg.update();
+                      }
+                      setUpdateStatus("latest");
+                    }
+                  }
+                } catch { setUpdateStatus("latest"); }
+                setChecking(false);
+              }}
+              disabled={checking}
+              className="flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition-colors"
+            >
+              <RefreshCw size={14} className={checking ? "animate-spin" : ""} />
+              {checking ? "Checking..." : "Check for Updates"}
+            </button>
+            {updateStatus === "available" && (
+              <p className="text-xs text-success font-medium mt-2">Update found! Refreshing...</p>
+            )}
+            {updateStatus === "latest" && (
+              <p className="text-xs text-grey-dark mt-2">You&apos;re on the latest version.</p>
             )}
           </div>
 
