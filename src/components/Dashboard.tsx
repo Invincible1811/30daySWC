@@ -4,7 +4,8 @@ import { useApp } from "@/lib/store";
 import { challengeCards } from "@/lib/data";
 import {
   Users, UserPlus, Globe, BookOpen, Trophy,
-  TrendingUp, Heart, ArrowRight, Flame, Target
+  Heart, ArrowRight, Flame, Target,
+  HandHeart, MessageCircle, CalendarDays, Wrench, Award, Shield
 } from "lucide-react";
 import { useState } from "react";
 import type { Page } from "./Navigation";
@@ -15,15 +16,33 @@ interface DashboardProps {
   onNavigate: (page: Page) => void;
 }
 
+const featureCards: { icon: React.ElementType; label: string; desc: string; page: Page; gradient: string; iconBg: string }[] = [
+  { icon: BookOpen, label: "30-Day Challenge", desc: "Complete daily challenges", page: "challenges", gradient: "from-blue-500 to-blue-700", iconBg: "bg-white/20" },
+  { icon: UserPlus, label: "Log Souls", desc: "Record souls you've won", page: "souls", gradient: "from-emerald-500 to-emerald-700", iconBg: "bg-white/20" },
+  { icon: Heart, label: "Prayer Wall", desc: "Share & pray together", page: "prayer", gradient: "from-purple-500 to-purple-700", iconBg: "bg-white/20" },
+  { icon: MessageCircle, label: "Testimonies", desc: "Share your stories", page: "testimonies", gradient: "from-amber-500 to-amber-700", iconBg: "bg-white/20" },
+  { icon: Globe, label: "Community", desc: "Connect with others", page: "community", gradient: "from-teal-500 to-teal-700", iconBg: "bg-white/20" },
+  { icon: Wrench, label: "Evangelism Toolkit", desc: "Resources & cards", page: "toolkit", gradient: "from-indigo-500 to-indigo-700", iconBg: "bg-white/20" },
+  { icon: Users, label: "Groups & Teams", desc: "Outreach communities", page: "groups", gradient: "from-orange-500 to-orange-700", iconBg: "bg-white/20" },
+  { icon: CalendarDays, label: "Events", desc: "Outreach schedule", page: "events", gradient: "from-rose-500 to-rose-700", iconBg: "bg-white/20" },
+  { icon: HandHeart, label: "Follow Up", desc: "Track new converts", page: "followup", gradient: "from-cyan-500 to-cyan-700", iconBg: "bg-white/20" },
+  { icon: Trophy, label: "Leaderboard", desc: "See top soul winners", page: "leaderboard", gradient: "from-yellow-500 to-yellow-700", iconBg: "bg-white/20" },
+  { icon: Award, label: "Coming Soon", desc: "Scholarships & more", page: "comingsoon", gradient: "from-slate-500 to-slate-700", iconBg: "bg-white/20" },
+];
+
 export default function Dashboard({ onNavigate }: DashboardProps) {
-  const { souls, currentDay, completedDays, globalSoulCount, userName, testimonies, communityPosts } = useApp();
-  const { profile } = useAuth();
+  const { souls, currentDay, completedDays, globalSoulCount, userName, communityPosts } = useApp();
+  const { profile, isAdmin } = useAuth();
   const [showChallenge, setShowChallenge] = useState(false);
   const displayName = profile?.full_name || profile?.username || userName;
 
   const mySoulCount = souls.length;
   const todayChallenge = challengeCards[Math.min(currentDay - 1, 29)];
   const progress = (completedDays.length / 30) * 100;
+
+  const allFeatures = isAdmin
+    ? [...featureCards, { icon: Shield, label: "Admin", desc: "Manage app & users", page: "admin" as Page, gradient: "from-red-600 to-red-800", iconBg: "bg-white/20" }]
+    : featureCards;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -53,59 +72,49 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* Floating share button */}
       <ShareInvite variant="floating" />
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={<UserPlus className="text-primary" size={24} />}
-          label="My Souls Won"
-          value={mySoulCount}
-          color="bg-primary/10"
-        />
-        <StatCard
-          icon={<Globe className="text-success" size={24} />}
-          label="Global Souls"
-          value={globalSoulCount}
-          color="bg-success/10"
-        />
-        <StatCard
-          icon={<Target className="text-warning" size={24} />}
-          label="Days Completed"
-          value={`${completedDays.length}/30`}
-          color="bg-warning/10"
-        />
-        <StatCard
-          icon={<Flame className="text-danger" size={24} />}
-          label="Current Streak"
-          value={completedDays.length}
-          color="bg-danger/10"
-          suffix="days"
-        />
+      {/* Stats Row */}
+      <div className="grid grid-cols-4 gap-3">
+        <MiniStat icon={<UserPlus size={18} />} value={mySoulCount} label="Souls" color="text-primary" bg="bg-primary/10" />
+        <MiniStat icon={<Globe size={18} />} value={globalSoulCount} label="Global" color="text-emerald-600" bg="bg-emerald-50" />
+        <MiniStat icon={<Target size={18} />} value={`${completedDays.length}/30`} label="Days" color="text-amber-600" bg="bg-amber-50" />
+        <MiniStat icon={<Flame size={18} />} value={completedDays.length} label="Streak" color="text-red-500" bg="bg-red-50" />
       </div>
 
       {/* Progress Bar */}
-      <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-dark">Challenge Progress</h3>
-          <span className="text-sm text-primary font-medium">{Math.round(progress)}%</span>
+      <div className="bg-card rounded-2xl p-4 shadow-sm border border-grey-light">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-semibold text-dark text-sm">Challenge Progress</h3>
+          <span className="text-sm text-primary font-bold">{Math.round(progress)}%</span>
         </div>
-        <div className="w-full h-3 bg-grey-light rounded-full overflow-hidden">
+        <div className="w-full h-2.5 bg-grey-light rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-primary to-primary-light rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex justify-between mt-2">
-          <span className="text-xs text-grey">Day 1</span>
-          <span className="text-xs text-grey">Day 30</span>
-        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <QuickAction icon={<BookOpen size={20} />} label="View Challenges" onClick={() => onNavigate("challenges")} />
-        <QuickAction icon={<Heart size={20} />} label="Prayer Wall" onClick={() => onNavigate("prayer")} />
-        <QuickAction icon={<Users size={20} />} label="My Groups" onClick={() => onNavigate("groups")} />
-        <QuickAction icon={<Trophy size={20} />} label="Scholarship" onClick={() => onNavigate("comingsoon")} />
+      {/* Feature Grid */}
+      <div>
+        <h3 className="font-bold text-dark text-lg mb-3">Explore</h3>
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          {allFeatures.map((feat, i) => {
+            const Icon = feat.icon;
+            return (
+              <button
+                key={feat.page}
+                onClick={() => onNavigate(feat.page)}
+                className="group flex flex-col items-center text-center gap-2 p-3 rounded-2xl bg-card border border-grey-light shadow-sm hover:shadow-lg hover:scale-[1.04] hover:-translate-y-0.5 transition-all duration-200"
+                style={{ animationDelay: `${i * 30}ms` }}
+              >
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feat.gradient} flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform duration-200`}>
+                  <Icon size={22} />
+                </div>
+                <span className="text-[11px] font-semibold text-dark leading-tight">{feat.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Recent Activity */}
@@ -189,7 +198,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 <p className="text-primary text-sm italic">&ldquo;{todayChallenge.keyScripture}&rdquo;</p>
               </div>
               <div className="bg-green-50 rounded-lg p-3">
-                <h4 className="font-semibold text-green-800 text-sm mb-1">� Encouragement:</h4>
+                <h4 className="font-semibold text-green-800 text-sm mb-1">💚 Encouragement:</h4>
                 <p className="text-green-700 text-sm italic">&ldquo;{todayChallenge.encouragement}&rdquo;</p>
               </div>
               <div className="flex gap-2 text-xs text-grey-dark">
@@ -210,30 +219,14 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   );
 }
 
-function StatCard({ icon, label, value, color, suffix }: {
-  icon: React.ReactNode; label: string; value: number | string; color: string; suffix?: string;
+function MiniStat({ icon, value, label, color, bg }: {
+  icon: React.ReactNode; value: number | string; label: string; color: string; bg: string;
 }) {
   return (
-    <div className="bg-card rounded-2xl p-4 shadow-sm border border-grey-light">
-      <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-3`}>
-        {icon}
-      </div>
-      <p className="text-2xl font-bold text-dark">
-        {value}{suffix && <span className="text-sm font-normal text-grey ml-1">{suffix}</span>}
-      </p>
-      <p className="text-xs text-grey mt-1">{label}</p>
+    <div className={`${bg} rounded-xl p-3 text-center`}>
+      <div className={`${color} flex justify-center mb-1`}>{icon}</div>
+      <p className="text-lg font-bold text-dark leading-tight">{value}</p>
+      <p className="text-[10px] text-grey-dark">{label}</p>
     </div>
-  );
-}
-
-function QuickAction({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="bg-card rounded-xl p-4 shadow-sm border border-grey-light flex flex-col items-center gap-2 hover:bg-primary/5 hover:border-primary/30 transition-all text-grey-dark hover:text-primary"
-    >
-      {icon}
-      <span className="text-xs font-medium">{label}</span>
-    </button>
   );
 }
