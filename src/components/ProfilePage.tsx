@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut } from "lucide-react";
+import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApp } from "@/lib/store";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -13,6 +13,9 @@ export default function ProfilePage() {
   const [fullName, setFullName] = useState(profile?.full_name || "");
   const [username, setUsername] = useState(profile?.username || "");
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   const stats = [
     { icon: <Trophy className="text-warning" size={20} />, label: "Souls Won", value: souls.length, bg: "bg-warning/10" },
@@ -175,6 +178,58 @@ export default function ProfilePage() {
             Sign Out
           </button>
         </div>
+      </div>
+
+      {/* Delete Account */}
+      <div className="bg-card rounded-2xl p-6 shadow-sm border border-danger/20">
+        <h3 className="font-bold text-danger mb-2 flex items-center gap-2">
+          <AlertTriangle size={18} /> Danger Zone
+        </h3>
+        <p className="text-xs text-grey-dark mb-4">
+          Deleting your account will permanently remove all your data — souls, testimonies, prayers, and progress. This cannot be undone.
+        </p>
+        {!showDeleteConfirm ? (
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-danger border border-danger/30 hover:bg-danger/10 transition-colors"
+          >
+            <Trash2 size={14} />
+            Delete My Account
+          </button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-danger font-semibold">Type DELETE to confirm:</p>
+            <input
+              value={deleteConfirmText}
+              onChange={e => setDeleteConfirmText(e.target.value)}
+              placeholder="Type DELETE"
+              className="w-full px-4 py-2.5 rounded-xl border border-danger/30 text-sm focus:outline-none focus:border-danger"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={async () => {
+                  if (deleteConfirmText !== "DELETE" || !user || !isSupabaseConfigured) return;
+                  setDeleting(true);
+                  // Delete profile (cascades to all user data via FK)
+                  await supabase.from("profiles").delete().eq("id", user.id);
+                  await signOut();
+                }}
+                disabled={deleteConfirmText !== "DELETE" || deleting}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors"
+                style={{ background: deleteConfirmText === "DELETE" ? "#DC2626" : "#D1D5DB", cursor: deleteConfirmText === "DELETE" ? "pointer" : "not-allowed" }}
+              >
+                <Trash2 size={14} />
+                {deleting ? "Deleting..." : "Permanently Delete"}
+              </button>
+              <button
+                onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                className="px-4 py-2.5 rounded-xl text-sm font-semibold text-grey-dark bg-grey-light hover:bg-grey-light/80 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

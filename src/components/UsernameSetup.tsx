@@ -13,7 +13,7 @@ export default function UsernameSetup({ onComplete }: { onComplete: () => void }
   const [error, setError] = useState("");
   const [available, setAvailable] = useState<boolean | null>(null);
 
-  const sanitize = (val: string) => val.toLowerCase().replace(/[^a-z0-9._-]/g, "");
+  const sanitize = (val: string) => val.replace(/[^a-zA-Z0-9._-]/g, "");
 
   const handleChange = (val: string) => {
     const clean = sanitize(val);
@@ -133,7 +133,7 @@ export default function UsernameSetup({ onComplete }: { onComplete: () => void }
                 <p style={{ fontSize: 12, color: "#16A34A", marginTop: 6, fontWeight: 500 }}>Username is available!</p>
               )}
               <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6 }}>
-                Lowercase letters, numbers, dots, hyphens. Min 3 characters.
+                Letters, numbers, dots, hyphens. Min 3 characters.
               </p>
             </div>
 
