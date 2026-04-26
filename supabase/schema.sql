@@ -78,6 +78,7 @@ create table if not exists public.groups (
   leader text not null,
   members int not null default 1,
   type text not null default 'outreach' check (type in ('outreach', 'prayer', 'campus', 'street')),
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
   created_at timestamptz not null default now()
 );
 
