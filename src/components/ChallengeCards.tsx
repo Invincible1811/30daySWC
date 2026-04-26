@@ -3,7 +3,7 @@
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { challengeCards as challengeCardsData } from "@/lib/data";
-import { BookOpen, Check, Lock, ChevronRight, Printer, Share2, X, Save, Users, Heart, ClipboardList } from "lucide-react";
+import { BookOpen, Check, Lock, ChevronRight, Printer, Share2, X, Save, Users, Heart, ClipboardList, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function ChallengeCards() {
@@ -14,6 +14,7 @@ export default function ChallengeCards() {
   const [showRecordForm, setShowRecordForm] = useState(false);
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
+  const [continued, setContinued] = useState(false);
 
   // Form state for daily record
   const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>({});
@@ -50,6 +51,7 @@ export default function ChallengeCards() {
         setSaved(false);
       }
       setShared(false);
+      setContinued(false);
       setShowRecordForm(false);
     }
   }, [selectedCard, dailyRecords, challengeCards]);
@@ -390,12 +392,26 @@ export default function ChallengeCards() {
               )}
 
               {!completedDays.includes(selected.day) && (isAdmin || selected.day <= currentDay) && (
-                <button
-                  onClick={() => { completeDay(selected.day); setSelectedCard(null); }}
-                  className="w-full bg-success text-white py-3 rounded-xl font-semibold hover:bg-success/90 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Check size={18} /> Mark as Completed
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { completeDay(selected.day); setSelectedCard(null); }}
+                    className="flex-1 bg-success text-white py-3 rounded-xl font-semibold hover:bg-success/90 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Check size={18} /> Mark as Completed
+                  </button>
+                  {!continued ? (
+                    <button
+                      onClick={() => setContinued(true)}
+                      className="flex-1 bg-amber-500 text-white py-3 rounded-xl font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <RefreshCw size={16} /> Continue Tomorrow
+                    </button>
+                  ) : (
+                    <div className="flex-1 bg-amber-50 border border-amber-200 text-amber-700 py-3 rounded-xl font-semibold text-center flex items-center justify-center gap-2 text-sm">
+                      <RefreshCw size={14} /> Continuing tomorrow
+                    </div>
+                  )}
+                </div>
               )}
               {completedDays.includes(selected.day) && (
                 <div className="w-full bg-success/10 text-success py-3 rounded-xl font-semibold text-center flex items-center justify-center gap-2">
