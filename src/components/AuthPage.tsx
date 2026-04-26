@@ -42,7 +42,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -52,6 +52,9 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
 
     if (error) {
       setError(error.message);
+    } else if (data.user && data.user.identities && data.user.identities.length === 0) {
+      // Email already exists — Supabase returns a fake success with no identities
+      setError("__duplicate__");
     } else {
       setSignupEmail(email);
       setMode("confirm");
@@ -173,7 +176,29 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
 
           {mode !== "confirm" && (<>
           {/* Messages */}
-          {error && (
+          {error && error === "__duplicate__" && (
+            <div className="rounded-xl" style={{ background: "#FEF2F2", padding: "16px", marginBottom: 16 }}>
+              <p style={{ color: "#DC2626", fontSize: 13, fontWeight: 600, marginBottom: 8 }}>
+                An account with this email already exists.
+              </p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => { setMode("login"); setError(""); }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#1E40AF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
+                >
+                  Log In instead
+                </button>
+                <span style={{ color: "#D1D5DB" }}>|</span>
+                <button
+                  onClick={() => { setMode("forgot"); setError(""); }}
+                  style={{ fontSize: 12, fontWeight: 700, color: "#1E40AF", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
+                >
+                  Forgot password?
+                </button>
+              </div>
+            </div>
+          )}
+          {error && error !== "__duplicate__" && (
             <div className="rounded-xl" style={{ background: "#FEF2F2", padding: "12px 16px", marginBottom: 16, color: "#DC2626", fontSize: 13, fontWeight: 500 }}>
               {error}
             </div>

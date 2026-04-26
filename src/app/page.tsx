@@ -19,15 +19,17 @@ import AdminDashboard from "@/components/AdminDashboard";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
 import NotificationPrompt from "@/components/NotificationPrompt";
+import UsernameSetup from "@/components/UsernameSetup";
 import { useAuth } from "@/lib/auth-context";
 import { Loader2 } from "lucide-react";
 
 type AppScreen = "landing" | "auth" | "app";
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [screen, setScreen] = useState<AppScreen>("landing");
+  const [usernameSet, setUsernameSet] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -93,6 +95,16 @@ export default function Home() {
 
   if (screen === "auth") {
     return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  // Show username setup if user hasn't chosen a custom username yet
+  const needsUsername = user && profile && !usernameSet && (
+    !profile.username ||
+    profile.username === user.email?.split("@")[0]
+  );
+
+  if (needsUsername) {
+    return <UsernameSetup onComplete={() => setUsernameSet(true)} />;
   }
 
   return (
