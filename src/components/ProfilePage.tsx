@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle, Lock, Phone, MapPin, Church, FileText, Eye, EyeOff, Loader2, RefreshCw } from "lucide-react";
+import { User, Trophy, Flame, Heart, BookOpen, Calendar, Edit3, Check, X, LogOut, Trash2, AlertTriangle, Lock, Phone, MapPin, Church, FileText, Eye, EyeOff, Loader2, RefreshCw, Camera } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useApp } from "@/lib/store";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const [pwError, setPwError] = useState("");
   const [checking, setChecking] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<"" | "available" | "latest">("")
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const stats = [
     { icon: <Trophy className="text-warning" size={20} />, label: "Souls Won", value: souls.length, bg: "bg-warning/10" },
@@ -52,6 +53,21 @@ export default function ProfilePage() {
   })();
 
   const progress = Math.round((completedDays.length / 30) * 100);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user || !isSupabaseConfigured) return;
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (uploadError) { setUploadingAvatar(false); return; }
+    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+    const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
+    await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", user.id);
+    await refreshProfile();
+    setUploadingAvatar(false);
+  };
 
   const handleSave = async () => {
     if (!user || !isSupabaseConfigured) return;
@@ -94,12 +110,18 @@ export default function ProfilePage() {
       <div className="bg-gradient-to-br from-dark via-dark-light to-primary-dark rounded-2xl p-6 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center border-2 border-primary-light/50 shrink-0">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
-            ) : (
-              <User size={28} className="text-primary-light" />
-            )}
+          <div className="relative shrink-0">
+            <div className="w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center border-2 border-primary-light/50 overflow-hidden">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <User size={28} className="text-primary-light" />
+              )}
+            </div>
+            <label className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center cursor-pointer border-2 border-white shadow-md hover:bg-primary-dark transition-colors">
+              {uploadingAvatar ? <Loader2 size={12} className="text-white animate-spin" /> : <Camera size={12} className="text-white" />}
+              <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+            </label>
           </div>
           <div className="flex-1 min-w-0">
             {editing ? (
