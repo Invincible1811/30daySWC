@@ -47,6 +47,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
       password,
       options: {
         data: { full_name: fullName, username: email.split("@")[0] },
+        emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
 
@@ -68,7 +69,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
     setError("");
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}`,
+      redirectTo: `${window.location.origin}/auth/reset-password`,
     });
 
     if (error) {

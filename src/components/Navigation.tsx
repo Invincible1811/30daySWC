@@ -3,7 +3,7 @@
 import {
   Home, CalendarDays, Users, MoreHorizontal,
   BookOpen, Heart, MessageCircle, Globe, Award,
-  UserPlus, HandHeart, Menu, X, Wrench, LogOut, User, Trophy, LogIn, Shield
+  UserPlus, HandHeart, Menu, X, Wrench, LogOut, User, Trophy, LogIn, Shield, Settings
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -24,6 +24,7 @@ export type Page =
   | "leaderboard"
   | "profile"
   | "members"
+  | "settings"
   | "admin";
 
 interface NavigationProps {
@@ -54,6 +55,7 @@ const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = 
   { icon: Trophy, label: "Leaderboard", page: "leaderboard" },
   { icon: Users, label: "Members", page: "members" },
   { icon: Award, label: "Coming Soon", page: "comingsoon" },
+  { icon: Settings, label: "Settings", page: "settings" },
 ];
 
 export default function Navigation({ currentPage, onNavigate, onShowAuth }: NavigationProps) {

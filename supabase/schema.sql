@@ -16,6 +16,9 @@ create table if not exists public.profiles (
   role text not null default 'user' check (role in ('user', 'admin', 'assistant_admin')),
   current_day int not null default 1,
   completed_days int[] not null default '{}',
+  trial_ends_at timestamptz not null default (now() + interval '12 days'),
+  subscription_status text not null default 'trial' check (subscription_status in ('trial', 'active', 'expired', 'cancelled')),
+  stripe_customer_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

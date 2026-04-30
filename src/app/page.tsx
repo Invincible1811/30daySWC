@@ -16,6 +16,8 @@ import Toolkit from "@/components/Toolkit";
 import ProfilePage from "@/components/ProfilePage";
 import Leaderboard from "@/components/Leaderboard";
 import Members from "@/components/Members";
+import SettingsPage from "@/components/SettingsPage";
+import Paywall, { useSubscriptionStatus } from "@/components/Paywall";
 import AdminDashboard from "@/components/AdminDashboard";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
@@ -79,6 +81,7 @@ export default function Home() {
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
       case "members": return <Members />;
+      case "settings": return <SettingsPage onNavigate={setCurrentPage} />;
       case "profile": return <ProfilePage />;
       case "admin": return <AdminDashboard />;
       case "comingsoon": return <ComingSoon />;
@@ -117,12 +120,25 @@ export default function Home() {
     return <UsernameSetup onComplete={() => setUsernameSet(true)} />;
   }
 
+  // Subscription check
+  const { hasAccess, status: subStatus, daysLeft } = useSubscriptionStatus();
+
+  if (!hasAccess && subStatus === "expired") {
+    return <Paywall />;
+  }
+
   const isDashboard = currentPage === "dashboard";
 
   return (
     <div className="min-h-screen bg-background">
       {!isDashboard && (
         <Navigation currentPage={currentPage} onNavigate={setCurrentPage} onShowAuth={handleShowAuth} />
+      )}
+      {/* Trial banner */}
+      {subStatus === "trial" && daysLeft <= 5 && (
+        <div className={`${isDashboard ? "" : "lg:ml-64"} bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm font-medium text-amber-800`}>
+          ⏳ Your free trial ends in <strong>{daysLeft} day{daysLeft !== 1 ? "s" : ""}</strong>. Subscribe to keep access.
+        </div>
       )}
       {/* Main content area */}
       <main className={isDashboard ? "pb-4" : "lg:ml-64 pt-16 lg:pt-0 pb-20 lg:pb-8"}>

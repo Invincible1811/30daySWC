@@ -29,6 +29,9 @@ export interface UserProfile {
   role: "user" | "admin" | "assistant_admin";
   current_day: number;
   completed_days: number[];
+  trial_ends_at: string;
+  subscription_status: "trial" | "active" | "expired" | "cancelled";
+  stripe_customer_id: string | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
