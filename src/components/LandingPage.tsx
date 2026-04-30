@@ -674,6 +674,10 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
           <div className="flex justify-center mb-3"><LogoIcon size={40} /></div>
           <h3 style={{ color: "#fff", fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Winning Souls</h3>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 16 }}>30-Day Soul-Winning Challenge Companion App</p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 12 }}>
+            <a href="/privacy" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, textDecoration: "none" }}>Privacy Policy</a>
+            <a href="/terms" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, textDecoration: "none" }}>Terms of Service</a>
+          </div>
           <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>&copy; {new Date().getFullYear()} Winning Souls. All rights reserved. Built with love for the Kingdom.</p>
         </div>
       </footer>
