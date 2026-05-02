@@ -227,6 +227,24 @@ create policy "Users can view own messages" on public.messages for select using 
 create policy "Users can send messages" on public.messages for insert with check (auth.uid() = sender_id);
 create policy "Users can update own received messages" on public.messages for update using (auth.uid() = receiver_id);
 
+-- Referrals
+create table if not exists public.referrals (
+  id uuid primary key default gen_random_uuid(),
+  referrer_id uuid references public.profiles on delete cascade not null,
+  referred_id uuid references public.profiles on delete cascade not null,
+  created_at timestamptz not null default now(),
+  unique(referred_id)
+);
+
+alter table public.referrals enable row level security;
+create policy "Users can view own referrals" on public.referrals for select using (auth.uid() = referrer_id);
+create policy "System can insert referrals" on public.referrals for insert with check (true);
+
+-- Add referral_code to profiles (run as ALTER if table already exists)
+-- alter table public.profiles add column if not exists referral_code text unique;
+-- alter table public.profiles add column if not exists referred_by uuid references public.profiles;
+-- alter table public.profiles add column if not exists referral_bonus_months int not null default 0;
+
 -- Enable realtime for community features
 alter publication supabase_realtime add table public.testimonies;
 alter publication supabase_realtime add table public.prayers;

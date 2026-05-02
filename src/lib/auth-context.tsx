@@ -64,6 +64,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Process referral: link new user to referrer and award bonus months when threshold is met
+  const processReferral = async (currentUser: User) => {
+    const refCode = currentUser.user_metadata?.referral_code;
+    if (!refCode) return;
+
+    // Check if this user was already recorded as a referral
+    const { data: existing } = await supabase
+      .from("referrals")
+      .select("id")
+      .eq("referred_id", currentUser.id)
+      .maybeSingle();
+    if (existing) return;
+
+    // Find the referrer by matching the first 8 chars of their id
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id")
+      .limit(100);
+
+    const referrer = profiles?.find((p: { id: string }) => p.id.startsWith(refCode));
+    if (!referrer || referrer.id === currentUser.id) return;
+
+    // Insert referral record
+    await supabase.from("referrals").insert({
+      referrer_id: referrer.id,
+      referred_id: currentUser.id,
+    });
+
+    // Check if referrer now has 8 referrals → award 2 months
+    const { count } = await supabase
+      .from("referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("referrer_id", referrer.id);
+
+    if (count && count >= 8 && count < 10) {
+      // Extend the referrer's trial/subscription by 2 months
+      const { data: referrerProfile } = await supabase
+        .from("profiles")
+        .select("trial_ends_at, subscription_status")
+        .eq("id", referrer.id)
+        .single();
+
+      if (referrerProfile) {
+        const baseDate = new Date(referrerProfile.trial_ends_at) > new Date()
+          ? new Date(referrerProfile.trial_ends_at)
+          : new Date();
+        baseDate.setMonth(baseDate.getMonth() + 2);
+        await supabase.from("profiles").update({
+          trial_ends_at: baseDate.toISOString(),
+          subscription_status: "trial",
+        }).eq("id", referrer.id);
+      }
+    }
+  };
+
   const refreshProfile = async () => {
     if (user) await fetchProfile(user.id);
   };
@@ -90,6 +145,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
+        // Process referral on first sign-in
+        processReferral(session.user);
       } else {
         setProfile(null);
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Inbox } from "lucide-react";
 
@@ -16,6 +16,14 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+
+  // Capture referral code from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) setReferralCode(ref);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,13 +54,17 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
       email,
       password,
       options: {
-        data: { full_name: fullName, username: email.split("@")[0] },
+        data: { full_name: fullName, username: email.split("@")[0], referral_code: referralCode || undefined },
         emailRedirectTo: `${window.location.origin}/auth/confirm`,
       },
     });
 
     if (error) {
-      setError(error.message);
+      if (error.message.toLowerCase().includes("already registered") || error.message.toLowerCase().includes("already been registered")) {
+        setError("__duplicate__");
+      } else {
+        setError(error.message);
+      }
     } else if (data.user && data.user.identities && data.user.identities.length === 0) {
       // Email already exists — Supabase returns a fake success with no identities
       setError("__duplicate__");

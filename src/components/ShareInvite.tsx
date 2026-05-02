@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Share2, X, Copy, Check, MessageCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Share2, X, Copy, Check, MessageCircle, Gift, Users } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/lib/supabase";
 
 const INVITE_TEXT = "Join me on the 30-Day Soul-Winning Challenge! Daily scriptures, prayer tools, and a community of soul winners. Let's win souls together!";
 
@@ -41,9 +43,24 @@ interface ShareInviteProps {
 export default function ShareInvite({ variant = "button" }: ShareInviteProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [referralCount, setReferralCount] = useState(0);
+  const { user } = useAuth();
 
-  const shareUrl = getAppUrl();
+  // Generate a short referral code from user ID
+  const referralCode = user?.id ? user.id.slice(0, 8) : "";
+  const baseUrl = getAppUrl();
+  const shareUrl = referralCode ? `${baseUrl}?ref=${referralCode}` : baseUrl;
   const shareText = INVITE_TEXT;
+
+  // Fetch referral count
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("referrals")
+      .select("id", { count: "exact", head: true })
+      .eq("referrer_id", user.id)
+      .then(({ count }) => setReferralCount(count || 0));
+  }, [user]);
 
   const handleCopy = async () => {
     try {
@@ -133,6 +150,28 @@ export default function ShareInvite({ variant = "button" }: ShareInviteProps) {
                 <X size={18} style={{ color: "#6B7280" }} />
               </button>
             </div>
+
+            {/* Referral Progress */}
+            {user && (
+              <div className="rounded-xl" style={{ background: "linear-gradient(135deg, #EEF2FF, #E0E7FF)", padding: 16, marginBottom: 16, border: "1px solid #C7D2FE" }}>
+                <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
+                  <Gift size={16} style={{ color: "#4F46E5" }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#312E81" }}>Referral Reward</span>
+                </div>
+                <p style={{ fontSize: 12, color: "#4338CA", marginBottom: 10, lineHeight: 1.5 }}>
+                  Invite 8 friends → Get <strong>2 months free!</strong>
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ flex: 1, height: 8, background: "#C7D2FE", borderRadius: 999, overflow: "hidden" }}>
+                    <div style={{ width: `${Math.min((referralCount / 8) * 100, 100)}%`, height: "100%", background: "linear-gradient(90deg, #4F46E5, #6366F1)", borderRadius: 999, transition: "width 0.5s" }} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#4338CA" }}>{referralCount}/8</span>
+                </div>
+                {referralCount >= 8 && (
+                  <p style={{ fontSize: 12, color: "#059669", fontWeight: 600, marginTop: 8 }}>🎉 Congratulations! You earned 2 free months!</p>
+                )}
+              </div>
+            )}
 
             {/* Invite message preview */}
             <div className="rounded-xl" style={{ background: "#F9FAFB", padding: 16, marginBottom: 20, border: "1px solid #F3F4F6" }}>
