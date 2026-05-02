@@ -6,7 +6,11 @@ import { challengeCards as challengeCardsData } from "@/lib/data";
 import { BookOpen, Check, Lock, ChevronRight, Printer, Share2, X, Save, Users, Heart, ClipboardList, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 
-export default function ChallengeCards() {
+interface ChallengeCardsProps {
+  autoOpenToday?: boolean;
+}
+
+export default function ChallengeCards({ autoOpenToday = false }: ChallengeCardsProps) {
   const { currentDay, completedDays, completeDay, dailyRecords, saveDailyRecord, shareDailyRecord } = useApp();
   const { profile } = useAuth();
   const isAdmin = profile?.role === "admin";
@@ -15,6 +19,7 @@ export default function ChallengeCards() {
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
   const [continued, setContinued] = useState(false);
+  const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   // Form state for daily record
   const [reflectionAnswers, setReflectionAnswers] = useState<Record<string, string>>({});
@@ -26,6 +31,20 @@ export default function ChallengeCards() {
 
   const challengeCards = challengeCardsData;
   const selected = selectedCard !== null ? challengeCards[selectedCard] : null;
+
+  // Auto-open current day's challenge when navigated from Dashboard
+  useEffect(() => {
+    if (autoOpenToday && !hasAutoOpened) {
+      const todayIdx = Math.min(currentDay - 1, 29);
+      setSelectedCard(todayIdx);
+      setHasAutoOpened(true);
+      // Scroll the grid to show the current day card
+      setTimeout(() => {
+        const el = document.getElementById(`challenge-day-${currentDay}`);
+        if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [autoOpenToday, hasAutoOpened, currentDay]);
 
   // Load existing record when selecting a card
   useEffect(() => {
@@ -151,6 +170,7 @@ export default function ChallengeCards() {
           return (
             <button
               key={card.day}
+              id={`challenge-day-${card.day}`}
               onClick={() => !isLocked && setSelectedCard(idx)}
               disabled={isLocked}
               className={`relative rounded-xl p-4 text-left transition-all border ${

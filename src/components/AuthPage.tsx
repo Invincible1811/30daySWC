@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Flame, Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Inbox } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Inbox } from "lucide-react";
 
 type AuthMode = "login" | "signup" | "forgot" | "confirm";
 
@@ -103,8 +103,8 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="text-center" style={{ marginBottom: 32 }}>
-          <div className="inline-flex items-center justify-center rounded-2xl" style={{ width: 56, height: 56, background: "rgba(255,255,255,0.1)", marginBottom: 16 }}>
-            <Flame size={28} style={{ color: "#FBBF24" }} />
+          <div className="inline-flex items-center justify-center rounded-2xl overflow-hidden" style={{ width: 64, height: 64, marginBottom: 16 }}>
+            <img src="/icons/logo.png" alt="30 Day SWC" width={64} height={64} style={{ objectFit: "cover", borderRadius: 16 }} />
           </div>
           <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Winning Souls</h1>
           <p style={{ color: "#93C5FD", fontSize: 14, marginTop: 4 }}>30-Day Soul-Winning Challenge</p>

@@ -35,6 +35,7 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [screen, setScreen] = useState<AppScreen>("landing");
   const [usernameSet, setUsernameSet] = useState(false);
+  const [autoOpenChallenge, setAutoOpenChallenge] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -67,10 +68,16 @@ export default function Home() {
     setScreen("auth");
   };
 
+  const handleNavigate = (page: Page) => {
+    // Track if navigating to challenges from dashboard (to auto-open today's challenge)
+    setAutoOpenChallenge(currentPage === "dashboard" && page === "challenges");
+    setCurrentPage(page);
+  };
+
   const renderPage = () => {
     switch (currentPage) {
-      case "dashboard": return <Dashboard onNavigate={setCurrentPage} />;
-      case "challenges": return <ChallengeCards />;
+      case "dashboard": return <Dashboard onNavigate={handleNavigate} />;
+      case "challenges": return <ChallengeCards autoOpenToday={autoOpenChallenge} />;
       case "souls": return <SoulTracker />;
       case "followup": return <FollowUp />;
       case "prayer": return <PrayerWall />;
@@ -81,11 +88,11 @@ export default function Home() {
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
       case "members": return <Members />;
-      case "settings": return <SettingsPage onNavigate={setCurrentPage} />;
+      case "settings": return <SettingsPage onNavigate={handleNavigate} />;
       case "profile": return <ProfilePage />;
       case "admin": return <AdminDashboard />;
       case "comingsoon": return <ComingSoon />;
-      default: return <Dashboard onNavigate={setCurrentPage} />;
+      default: return <Dashboard onNavigate={handleNavigate} />;
     }
   };
 
@@ -132,7 +139,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {!isDashboard && (
-        <Navigation currentPage={currentPage} onNavigate={setCurrentPage} onShowAuth={handleShowAuth} />
+        <Navigation currentPage={currentPage} onNavigate={handleNavigate} onShowAuth={handleShowAuth} />
       )}
       {/* Trial banner */}
       {subStatus === "trial" && daysLeft <= 5 && (

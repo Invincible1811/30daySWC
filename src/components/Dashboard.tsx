@@ -365,7 +365,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 <span className="bg-grey-light/70 px-3 py-1.5 rounded-xl font-medium">📍 {todayChallenge.locationSuggestions}</span>
               </div>
               <button
-                onClick={() => setShowChallenge(false)}
+                onClick={() => { setShowChallenge(false); onNavigate("challenges"); }}
                 className="w-full bg-primary text-white py-3.5 rounded-xl font-bold hover:bg-primary-dark transition-all shadow-md shadow-primary/20 text-sm"
               >
                 Accept Challenge
