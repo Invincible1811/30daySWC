@@ -113,19 +113,24 @@ export default function ChallengePartners() {
   const handleSearch = async () => {
     if (!search.trim() || !user) return;
     setSearching(true);
+    setSearchResults([]);
     const q = search.trim();
     // Fetch all members and filter client-side for reliable search
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("id, full_name, username, avatar_url, city, country")
       .neq("id", user.id)
-      .limit(200);
-    const lq = q.toLowerCase();
-    const filtered = (data || []).filter((m: MemberProfile) =>
-      m.full_name?.toLowerCase().includes(lq) ||
-      m.username?.toLowerCase().includes(lq)
-    );
-    setSearchResults(filtered as MemberProfile[]);
+      .limit(500);
+    console.log("Partner search — raw results:", data?.length, "error:", error?.message);
+    if (data && data.length > 0) {
+      const lq = q.toLowerCase();
+      const filtered = data.filter((m: MemberProfile) =>
+        (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
+        (m.username && m.username.toLowerCase().includes(lq))
+      );
+      console.log("Partner search — filtered:", filtered.length, "for query:", lq);
+      setSearchResults(filtered as MemberProfile[]);
+    }
     setSearching(false);
   };
 
