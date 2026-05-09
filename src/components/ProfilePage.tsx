@@ -58,14 +58,28 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !user || !isSupabaseConfigured) return;
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/avatar.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
-    if (uploadError) { setUploadingAvatar(false); return; }
-    const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-    const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
-    await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", user.id);
-    await refreshProfile();
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/avatar.${ext}`;
+      // Remove old file first (ignore errors)
+      await supabase.storage.from("avatars").remove([path]);
+      // Upload new file
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true,
+        contentType: file.type,
+      });
+      if (uploadError) {
+        console.error("Avatar upload error:", uploadError);
+        setUploadingAvatar(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+      const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
+      await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", user.id);
+      await refreshProfile();
+    } catch (err) {
+      console.error("Avatar upload failed:", err);
+    }
     setUploadingAvatar(false);
   };
 

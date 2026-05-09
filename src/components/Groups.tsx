@@ -48,6 +48,8 @@ export default function Groups() {
 
   const visibleGroups = groups.filter(g => {
     if (isAdmin) return true;
+    // Show user's own groups (even if pending) + all approved groups
+    if (g.user_id === user?.id) return true;
     return g.status === "approved";
   });
 

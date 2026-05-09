@@ -3,6 +3,7 @@
 import { useApp } from "@/lib/store";
 import { useAuth } from "@/lib/auth-context";
 import { challengeCards as challengeCardsData } from "@/lib/data";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { BookOpen, Check, Lock, ChevronRight, Printer, Share2, X, Save, Users, Heart, ClipboardList, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -12,7 +13,7 @@ interface ChallengeCardsProps {
 
 export default function ChallengeCards({ autoOpenToday = false }: ChallengeCardsProps) {
   const { currentDay, completedDays, completeDay, dailyRecords, saveDailyRecord, shareDailyRecord } = useApp();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const isAdmin = profile?.role === "admin";
   const [selectedCard, setSelectedCard] = useState<number | null>(null);
   const [showRecordForm, setShowRecordForm] = useState(false);
@@ -90,10 +91,21 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
     setSaved(true);
   };
 
-  const handleShareToCommunity = () => {
+  const handleShareToCommunity = async () => {
     if (!selected) return;
     handleSaveRecord();
     shareDailyRecord(selected.day);
+    // Also persist to Supabase community_posts
+    if (isSupabaseConfigured && user) {
+      const content = `📊 Day ${selected.day}: ${selected.title}\n\n🙏 Souls Saved: ${soulsSaved} | People Prayed For: ${peoplePrayedFor} | Church Invites: ${invitationsToChurch}${healingTestimonies ? `\n\n✨ Testimonies: ${healingTestimonies}` : ""}`;
+      await supabase.from("community_posts").insert({
+        user_id: user.id,
+        author: profile?.full_name || profile?.username || "Soul Winner",
+        location: profile?.city || "",
+        content,
+        type: "report",
+      });
+    }
     setShared(true);
   };
 
@@ -335,8 +347,10 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                         <input
                           type="number"
                           min={0}
-                          value={soulsSaved}
+                          value={soulsSaved || ""}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setSoulsSaved(Math.max(0, parseInt(e.target.value) || 0))}
+                          placeholder="0"
                           className="w-full border border-grey-light rounded-xl p-2.5 text-sm text-dark text-center focus:outline-none focus:ring-2 focus:ring-primary/30"
                         />
                       </div>
@@ -345,8 +359,10 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                         <input
                           type="number"
                           min={0}
-                          value={peoplePrayedFor}
+                          value={peoplePrayedFor || ""}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setPeoplePrayedFor(Math.max(0, parseInt(e.target.value) || 0))}
+                          placeholder="0"
                           className="w-full border border-grey-light rounded-xl p-2.5 text-sm text-dark text-center focus:outline-none focus:ring-2 focus:ring-primary/30"
                         />
                       </div>
@@ -355,8 +371,10 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                         <input
                           type="number"
                           min={0}
-                          value={invitationsToChurch}
+                          value={invitationsToChurch || ""}
+                          onFocus={(e) => e.target.select()}
                           onChange={(e) => setInvitationsToChurch(Math.max(0, parseInt(e.target.value) || 0))}
+                          placeholder="0"
                           className="w-full border border-grey-light rounded-xl p-2.5 text-sm text-dark text-center focus:outline-none focus:ring-2 focus:ring-primary/30"
                         />
                       </div>
@@ -419,18 +437,16 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                   >
                     <Check size={18} /> Mark as Completed
                   </button>
-                  {!continued ? (
-                    <button
-                      onClick={() => setContinued(true)}
-                      className="flex-1 bg-amber-500 text-white py-3 rounded-xl font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                  <button
+                      onClick={() => { setContinued(true); setTimeout(() => setSelectedCard(null), 800); }}
+                      className={`flex-1 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
+                        continued
+                          ? "bg-amber-50 border border-amber-200 text-amber-700 text-sm"
+                          : "bg-amber-500 text-white hover:bg-amber-600"
+                      }`}
                     >
-                      <RefreshCw size={16} /> Continue Tomorrow
+                      <RefreshCw size={16} /> {continued ? "Continuing tomorrow" : "Continue Tomorrow"}
                     </button>
-                  ) : (
-                    <div className="flex-1 bg-amber-50 border border-amber-200 text-amber-700 py-3 rounded-xl font-semibold text-center flex items-center justify-center gap-2 text-sm">
-                      <RefreshCw size={14} /> Continuing tomorrow
-                    </div>
-                  )}
                 </div>
               )}
               {completedDays.includes(selected.day) && (
