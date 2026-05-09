@@ -31,6 +31,7 @@ interface NavigationProps {
   currentPage: Page;
   onNavigate: (page: Page) => void;
   onShowAuth?: () => void;
+  challengeBadge?: number;
 }
 
 const bottomNavItems: { icon: React.ElementType; label: string; page: Page }[] = [
@@ -58,7 +59,7 @@ const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = 
   { icon: Settings, label: "Settings", page: "settings" },
 ];
 
-export default function Navigation({ currentPage, onNavigate, onShowAuth }: NavigationProps) {
+export default function Navigation({ currentPage, onNavigate, onShowAuth, challengeBadge = 0 }: NavigationProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, profile, signOut, isAdmin } = useAuth();
@@ -93,7 +94,12 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
                     : "text-grey-medium hover:bg-dark-light hover:text-white"
                 }`}
               >
-                <Icon size={20} />
+                <div className="relative">
+                  <Icon size={20} />
+                  {item.page === "challenges" && challengeBadge > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{challengeBadge}</span>
+                  )}
+                </div>
                 {item.label}
               </button>
             );
@@ -228,7 +234,12 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
                 active ? "text-primary" : "text-grey"
               }`}
             >
-              <Icon size={22} />
+              <div className="relative">
+                <Icon size={22} />
+                {item.page === "challenges" && challengeBadge > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{challengeBadge}</span>
+                )}
+              </div>
               <span className="mt-0.5">{item.label}</span>
             </button>
           );

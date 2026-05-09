@@ -26,7 +26,8 @@ import InstallPrompt from "@/components/InstallPrompt";
 import NotificationBanner from "@/components/NotificationBanner";
 import UsernameSetup from "@/components/UsernameSetup";
 import { useAuth } from "@/lib/auth-context";
-import { Loader2 } from "lucide-react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { Loader2, UserPlus } from "lucide-react";
 
 type AppScreen = "landing" | "auth" | "app";
 
@@ -36,6 +37,8 @@ export default function Home() {
   const [screen, setScreen] = useState<AppScreen>("landing");
   const [usernameSet, setUsernameSet] = useState(false);
   const [autoOpenChallenge, setAutoOpenChallenge] = useState(false);
+  const [pendingPartnerCount, setPendingPartnerCount] = useState(0);
+  const [showPartnerToast, setShowPartnerToast] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -54,6 +57,24 @@ export default function Home() {
       setScreen("landing");
     }
   }, [user, loading]);
+
+  // Check for pending partner requests
+  useEffect(() => {
+    if (!user || !isSupabaseConfigured) return;
+    const checkPending = async () => {
+      const { count } = await supabase
+        .from("challenge_partners")
+        .select("*", { count: "exact", head: true })
+        .eq("partner_id", user.id)
+        .eq("status", "pending");
+      const c = count || 0;
+      setPendingPartnerCount(c);
+      if (c > 0) setShowPartnerToast(true);
+    };
+    checkPending();
+    const interval = setInterval(checkPending, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const handleEnterApp = () => {
     sessionStorage.setItem("ws-seen-landing", "true");
@@ -139,7 +160,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {!isDashboard && (
-        <Navigation currentPage={currentPage} onNavigate={handleNavigate} onShowAuth={handleShowAuth} />
+        <Navigation currentPage={currentPage} onNavigate={handleNavigate} onShowAuth={handleShowAuth} challengeBadge={pendingPartnerCount} />
       )}
       {/* Trial banner */}
       {subStatus === "trial" && daysLeft <= 5 && (
@@ -153,6 +174,36 @@ export default function Home() {
           {renderPage()}
         </div>
       </main>
+      {/* Partner request toast */}
+      {showPartnerToast && pendingPartnerCount > 0 && currentPage !== "challenges" && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-white border border-primary/30 rounded-xl shadow-2xl p-4 max-w-sm w-[90%] animate-slide-up">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
+              <UserPlus size={20} className="text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold text-dark text-sm">Challenge Partner Request!</p>
+              <p className="text-grey text-xs mt-0.5">
+                {pendingPartnerCount === 1 ? "Someone wants" : `${pendingPartnerCount} people want`} to do the 30-day challenge with you!
+              </p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => { setShowPartnerToast(false); handleNavigate("challenges"); }}
+                  className="bg-primary text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-primary-dark"
+                >
+                  View Request{pendingPartnerCount > 1 ? "s" : ""}
+                </button>
+                <button
+                  onClick={() => setShowPartnerToast(false)}
+                  className="text-grey text-xs font-medium px-3 py-1.5 rounded-lg hover:bg-grey-light"
+                >
+                  Later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <NotificationPrompt />
       <InstallPrompt />
       <NotificationBanner />
