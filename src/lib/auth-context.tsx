@@ -26,7 +26,7 @@ export interface UserProfile {
   country: string;
   bio: string;
   church: string;
-  role: "user" | "admin" | "assistant_admin";
+  role: "user" | "admin" | "assistant_admin" | "leader";
   current_day: number;
   completed_days: number[];
   trial_ends_at: string;

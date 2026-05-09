@@ -245,6 +245,36 @@ create policy "System can insert referrals" on public.referrals for insert with 
 -- alter table public.profiles add column if not exists referred_by uuid references public.profiles;
 -- alter table public.profiles add column if not exists referral_bonus_months int not null default 0;
 
+-- Group Messages (chat within groups)
+create table if not exists public.group_messages (
+  id uuid primary key default gen_random_uuid(),
+  group_id uuid references public.groups on delete cascade not null,
+  user_id uuid references public.profiles on delete cascade not null,
+  content text not null,
+  author_name text not null default '',
+  created_at timestamptz not null default now()
+);
+
+alter table public.group_messages enable row level security;
+create policy "Members can view group messages" on public.group_messages for select using (true);
+create policy "Authenticated users can send messages" on public.group_messages for insert with check (auth.uid() = user_id);
+
+-- Challenge Partners (team up to do the challenge together)
+create table if not exists public.challenge_partners (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles on delete cascade not null,
+  partner_id uuid references public.profiles on delete cascade not null,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  created_at timestamptz not null default now(),
+  unique(user_id, partner_id)
+);
+
+alter table public.challenge_partners enable row level security;
+create policy "Users can view own partnerships" on public.challenge_partners for select using (auth.uid() = user_id or auth.uid() = partner_id);
+create policy "Users can send partner requests" on public.challenge_partners for insert with check (auth.uid() = user_id);
+create policy "Users can update own partner requests" on public.challenge_partners for update using (auth.uid() = user_id or auth.uid() = partner_id);
+create policy "Users can delete own partner requests" on public.challenge_partners for delete using (auth.uid() = user_id or auth.uid() = partner_id);
+
 -- Enable realtime for community features
 alter publication supabase_realtime add table public.testimonies;
 alter publication supabase_realtime add table public.prayers;

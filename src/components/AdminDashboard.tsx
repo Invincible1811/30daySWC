@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Shield, Users, Heart, BookOpen, UserPlus, Trash2, ChevronDown, ChevronUp, TrendingUp, Globe, Bell, Send, RefreshCw, Loader2 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 interface UserRow {
   id: string;
@@ -30,6 +31,9 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
+  const { profile } = useAuth();
+  const isFullAdmin = profile?.role === "admin";
+  const isLeaderOnly = profile?.role === "leader";
   const [users, setUsers] = useState<UserRow[]>([]);
   const [stats, setStats] = useState<Stats>({ totalUsers: 0, totalSouls: 0, totalTestimonies: 0, totalPrayers: 0, totalEvents: 0 });
   const [loading, setLoading] = useState(true);
@@ -103,15 +107,15 @@ export default function AdminDashboard() {
             <Shield size={24} className="text-warning" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Admin Dashboard</h2>
-            <p className="text-blue-200 text-sm">Manage users, content, and monitor activity</p>
+            <h2 className="text-xl font-bold">{isLeaderOnly ? "Leader Dashboard" : "Admin Dashboard"}</h2>
+            <p className="text-blue-200 text-sm">{isLeaderOnly ? "Oversee groups, encourage participants, and moderate activity" : "Manage users, content, and monitor activity"}</p>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 bg-grey-light rounded-xl p-1">
-        {(["overview", "users", "content", "notifications"] as const).map(t => (
+        {(isLeaderOnly ? ["overview", "content"] as const : ["overview", "users", "content", "notifications"] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -156,7 +160,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-grey-dark">Day {u.current_day} • {u.completed_days?.length || 0} completed</p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : "bg-grey-light text-grey-dark"
+                    u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : u.role === "leader" ? "bg-amber-100 text-amber-700" : "bg-grey-light text-grey-dark"
                   }`}>
                     {u.role === "assistant_admin" ? "assistant" : u.role}
                   </span>
@@ -188,7 +192,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-grey-dark">Joined {new Date(u.created_at).toLocaleDateString()}</p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : "bg-grey-light text-grey-dark"
+                    u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : u.role === "leader" ? "bg-amber-100 text-amber-700" : "bg-grey-light text-grey-dark"
                   }`}>
                     {u.role === "assistant_admin" ? "assistant" : u.role}
                   </span>
@@ -228,7 +232,23 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                      {u.role === "user" && (
+                      {(u.role === "user") && (
+                        <button
+                          onClick={() => setRole(u.id, "leader")}
+                          className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                        >
+                          <Shield size={14} /> Make Leader
+                        </button>
+                      )}
+                      {u.role === "leader" && (
+                        <button
+                          onClick={() => setRole(u.id, "user")}
+                          className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-grey-light text-grey-dark hover:bg-grey-medium/30 transition-colors"
+                        >
+                          <Shield size={14} /> Remove Leader
+                        </button>
+                      )}
+                      {(u.role === "user" || u.role === "leader") && (
                         <button
                           onClick={() => setRole(u.id, "assistant_admin")}
                           className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold bg-purple-100 text-purple-600 hover:bg-purple-200 transition-colors"

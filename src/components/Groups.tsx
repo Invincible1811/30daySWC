@@ -1,7 +1,7 @@
 "use client";
 
-import { Users, Search, UserPlus, Shield, Plus, X, Loader2, Clock, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Users, Search, UserPlus, Shield, Plus, X, Loader2, Clock, CheckCircle2, MessageCircle, MapPin, Send, ArrowLeft } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
@@ -14,6 +14,16 @@ interface Group {
   members: number;
   type: string;
   status: string;
+  location: string;
+  created_at: string;
+}
+
+interface GroupMessage {
+  id: string;
+  group_id: string;
+  user_id: string;
+  content: string;
+  author_name: string;
   created_at: string;
 }
 
@@ -26,16 +36,23 @@ const groupTypeConfig: Record<string, { bg: string; text: string; icon: string; 
 
 export default function Groups() {
   const { user, profile, isAdmin, isAssistantAdmin } = useAuth();
-  const canCreate = isAdmin || isAssistantAdmin;
+  const isLeader = profile?.role === "leader";
+  const canModerate = isAdmin || isAssistantAdmin || isLeader;
+  const canCreate = true; // All users can create groups
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [joinedGroups, setJoinedGroups] = useState<Set<string>>(new Set());
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [newGroup, setNewGroup] = useState({ name: "", description: "", type: "outreach" });
+  const [newGroup, setNewGroup] = useState({ name: "", description: "", type: "outreach", location: "" });
   const [createError, setCreateError] = useState("");
   const [createSuccess, setCreateSuccess] = useState(false);
+  const [chatGroup, setChatGroup] = useState<Group | null>(null);
+  const [messages, setMessages] = useState<GroupMessage[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [sendingMsg, setSendingMsg] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured) { setLoading(false); return; }
@@ -47,7 +64,7 @@ export default function Groups() {
   }, []);
 
   const visibleGroups = groups.filter(g => {
-    if (isAdmin) return true;
+    if (canModerate) return true;
     // Show user's own groups (even if pending) + all approved groups
     if (g.user_id === user?.id) return true;
     return g.status === "approved";
@@ -73,6 +90,7 @@ export default function Groups() {
       description: newGroup.description.trim(),
       leader: profile?.full_name || profile?.username || "Unknown",
       type: newGroup.type,
+      location: newGroup.location.trim(),
       status: isAdmin ? "approved" : "pending",
     }).select().single();
     if (error) {
@@ -80,10 +98,38 @@ export default function Groups() {
     } else {
       setGroups(prev => [data as Group, ...prev]);
       setCreateSuccess(true);
-      setNewGroup({ name: "", description: "", type: "outreach" });
+      setNewGroup({ name: "", description: "", type: "outreach", location: "" });
       setTimeout(() => { setCreateSuccess(false); setShowCreate(false); }, 2000);
     }
     setCreating(false);
+  };
+
+  const openGroupChat = async (group: Group) => {
+    setChatGroup(group);
+    // Load messages for this group
+    const { data } = await supabase
+      .from("group_messages")
+      .select("*")
+      .eq("group_id", group.id)
+      .order("created_at", { ascending: true })
+      .limit(100);
+    setMessages((data || []) as GroupMessage[]);
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !user || !chatGroup) return;
+    setSendingMsg(true);
+    const { data } = await supabase.from("group_messages").insert({
+      group_id: chatGroup.id,
+      user_id: user.id,
+      content: newMessage.trim(),
+      author_name: profile?.full_name || profile?.username || "Member",
+    }).select().single();
+    if (data) setMessages(prev => [...prev, data as GroupMessage]);
+    setNewMessage("");
+    setSendingMsg(false);
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
 
   const handleApprove = async (id: string) => {
@@ -100,6 +146,67 @@ export default function Groups() {
     await supabase.from("groups").delete().eq("id", id);
     setGroups(prev => prev.filter(g => g.id !== id));
   };
+
+  // Group Chat View
+  if (chatGroup) {
+    return (
+      <div className="space-y-0 animate-fade-in flex flex-col h-[calc(100vh-180px)]">
+        {/* Chat Header */}
+        <div className="flex items-center gap-3 pb-4 border-b border-grey-light">
+          <button onClick={() => setChatGroup(null)} className="p-2 hover:bg-grey-light rounded-xl transition-colors">
+            <ArrowLeft size={20} className="text-dark" />
+          </button>
+          <div className="flex-1">
+            <h3 className="font-bold text-dark text-sm">{chatGroup.name}</h3>
+            <p className="text-grey text-xs">{chatGroup.members} members{chatGroup.location ? ` • ${chatGroup.location}` : ""}</p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto py-4 space-y-3">
+          {messages.length === 0 && (
+            <div className="text-center py-12">
+              <MessageCircle size={32} className="text-grey-medium mx-auto mb-2" />
+              <p className="text-grey text-sm">No messages yet. Start the conversation!</p>
+            </div>
+          )}
+          {messages.map(msg => {
+            const isMe = msg.user_id === user?.id;
+            return (
+              <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${isMe ? "bg-primary text-white" : "bg-grey-light text-dark"}`}>
+                  {!isMe && <p className="text-xs font-semibold mb-0.5 opacity-70">{msg.author_name}</p>}
+                  <p className="text-sm">{msg.content}</p>
+                  <p className={`text-[10px] mt-1 ${isMe ? "text-white/60" : "text-grey"}`}>
+                    {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Message Input */}
+        <div className="flex gap-2 pt-3 border-t border-grey-light">
+          <input
+            value={newMessage}
+            onChange={e => setNewMessage(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
+            placeholder="Type a message..."
+            className="flex-1 bg-grey-light/50 border border-grey-light rounded-xl px-4 py-3 text-sm outline-none focus:border-primary"
+          />
+          <button
+            onClick={sendMessage}
+            disabled={sendingMsg || !newMessage.trim()}
+            className="bg-primary text-white px-4 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
+          >
+            <Send size={18} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -155,6 +262,15 @@ export default function Groups() {
                 />
               </div>
               <div>
+                <label className="text-xs font-semibold text-grey-dark block mb-1">Location</label>
+                <input
+                  value={newGroup.location}
+                  onChange={e => setNewGroup(p => ({ ...p, location: e.target.value }))}
+                  placeholder="e.g. Accra, Ghana"
+                  className="w-full bg-grey-light/50 rounded-xl px-4 py-2.5 border border-grey-light text-sm outline-none text-dark focus:border-primary"
+                />
+              </div>
+              <div>
                 <label className="text-xs font-semibold text-grey-dark block mb-1">Type</label>
                 <div className="grid grid-cols-2 gap-2">
                   {Object.entries(groupTypeConfig).map(([key, cfg]) => (
@@ -204,8 +320,8 @@ export default function Groups() {
         />
       </div>
 
-      {/* Pending Groups (Admin Only) */}
-      {isAdmin && groups.filter(g => g.status === "pending").length > 0 && (
+      {/* Pending Groups (Leaders & Admins) */}
+      {canModerate && groups.filter(g => g.status === "pending").length > 0 && (
         <div className="space-y-3">
           <h3 className="font-bold text-dark flex items-center gap-2">
             <Clock size={16} className="text-amber-500" /> Pending Approval ({groups.filter(g => g.status === "pending").length})
@@ -269,29 +385,44 @@ export default function Groups() {
                     {isRejected && <span className="text-xs bg-danger/10 text-danger px-2 py-1 rounded-full font-medium">Rejected</span>}
                   </div>
                   <p className="text-sm text-grey-dark mb-4">{group.description}</p>
-                  <div className="flex items-center gap-4 text-xs text-grey mb-4">
+                  <div className="flex items-center gap-4 text-xs text-grey mb-4 flex-wrap">
                     <span className="flex items-center gap-1">
                       <Shield size={12} /> {group.leader}
                     </span>
                     <span className="flex items-center gap-1">
                       <Users size={12} /> {group.members} members
                     </span>
+                    {group.location && (
+                      <span className="flex items-center gap-1">
+                        <MapPin size={12} /> {group.location}
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     {group.status === "approved" && (
-                      <button
-                        onClick={() => handleJoin(group.id)}
-                        disabled={joined}
-                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
-                          joined
-                            ? "bg-success/10 text-success cursor-default"
-                            : "bg-primary text-white hover:bg-primary-dark"
-                        }`}
-                      >
-                        {joined ? <>✓ Joined</> : <><UserPlus size={16} /> Join</>}
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleJoin(group.id)}
+                          disabled={joined}
+                          className={`flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
+                            joined
+                              ? "bg-success/10 text-success cursor-default"
+                              : "bg-primary text-white hover:bg-primary-dark"
+                          }`}
+                        >
+                          {joined ? <>✓ Joined</> : <><UserPlus size={16} /> Join</>}
+                        </button>
+                        {joined && (
+                          <button
+                            onClick={() => openGroupChat(group)}
+                            className="px-4 py-2.5 rounded-xl text-sm font-medium bg-grey-light text-dark flex items-center gap-1.5 hover:bg-grey-medium/30 transition-colors"
+                          >
+                            <MessageCircle size={16} /> Chat
+                          </button>
+                        )}
+                      </>
                     )}
-                    {isAdmin && (
+                    {canModerate && (
                       <button onClick={() => handleDelete(group.id)} className="px-4 py-2.5 rounded-xl text-sm font-medium text-danger border border-danger/30 hover:bg-danger/10 transition-colors">
                         Delete
                       </button>

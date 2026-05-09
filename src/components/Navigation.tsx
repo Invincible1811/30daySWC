@@ -62,9 +62,11 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
   const [moreOpen, setMoreOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, profile, signOut, isAdmin } = useAuth();
+  const isLeader = profile?.role === "leader";
+  const showAdminPanel = isAdmin || isLeader;
 
-  const navItems = isAdmin
-    ? [...moreMenuItems, { icon: Shield, label: "Admin", page: "admin" as Page }]
+  const navItems = showAdminPanel
+    ? [...moreMenuItems, { icon: Shield, label: isLeader ? "Leader" : "Admin", page: "admin" as Page }]
     : moreMenuItems;
 
   return (

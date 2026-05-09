@@ -6,6 +6,7 @@ import { challengeCards as challengeCardsData } from "@/lib/data";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { BookOpen, Check, Lock, ChevronRight, Printer, Share2, X, Save, Users, Heart, ClipboardList, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
+import ChallengePartners from "./ChallengePartners";
 
 interface ChallengeCardsProps {
   autoOpenToday?: boolean;
@@ -157,6 +158,9 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
         <h2 className="text-2xl font-bold text-dark">30-Day Challenge</h2>
         <p className="text-grey mt-1">Complete one challenge each day to grow as a soul winner</p>
       </div>
+
+      {/* Challenge Partners */}
+      <ChallengePartners />
 
       {/* Progress */}
       <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
