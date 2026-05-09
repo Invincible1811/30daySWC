@@ -114,13 +114,18 @@ export default function ChallengePartners() {
     if (!search.trim() || !user) return;
     setSearching(true);
     const q = search.trim();
+    // Fetch all members and filter client-side for reliable search
     const { data } = await supabase
       .from("profiles")
       .select("id, full_name, username, avatar_url, city, country")
-      .or(`full_name.ilike.%25${q}%25,username.ilike.%25${q}%25`)
       .neq("id", user.id)
-      .limit(20);
-    setSearchResults((data || []) as MemberProfile[]);
+      .limit(200);
+    const lq = q.toLowerCase();
+    const filtered = (data || []).filter((m: MemberProfile) =>
+      m.full_name?.toLowerCase().includes(lq) ||
+      m.username?.toLowerCase().includes(lq)
+    );
+    setSearchResults(filtered as MemberProfile[]);
     setSearching(false);
   };
 
