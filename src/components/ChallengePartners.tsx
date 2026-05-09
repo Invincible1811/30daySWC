@@ -38,8 +38,8 @@ interface MemberProfile {
   full_name: string;
   username: string;
   avatar_url: string | null;
-  city: string;
-  country: string;
+  city?: string;
+  country?: string;
 }
 
 export default function ChallengePartners() {
@@ -121,7 +121,7 @@ export default function ChallengePartners() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, username, avatar_url, city, country")
+        .select("id, full_name, username, avatar_url")
         .neq("id", user.id)
         .limit(500);
       if (error) {
@@ -132,12 +132,12 @@ export default function ChallengePartners() {
       setSearchDebug(`Found ${data?.length || 0} total profiles`);
       if (data && data.length > 0) {
         const lq = q.toLowerCase();
-        const filtered = data.filter((m: MemberProfile) =>
+        const filtered = data.filter((m: Record<string, string>) =>
           (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
           (m.username && m.username.toLowerCase().includes(lq))
         );
         setSearchDebug(`${data.length} profiles, ${filtered.length} match "${q}"`);
-        setSearchResults(filtered as MemberProfile[]);
+        setSearchResults(filtered as unknown as MemberProfile[]);
       } else {
         setSearchDebug(`0 profiles returned from DB`);
       }
