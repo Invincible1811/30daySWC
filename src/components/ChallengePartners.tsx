@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Users, UserPlus, Search, Check, X, Loader2, Heart, Trophy } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Users, UserPlus, Search, Check, X, Loader2, Heart, Trophy, Clock, Send } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
@@ -18,18 +18,12 @@ interface Partner {
     avatar_url: string | null;
     current_day: number;
     completed_days: number[];
-    city: string;
-    country: string;
   };
   requester_profile?: {
     id: string;
     full_name: string;
     username: string;
     avatar_url: string | null;
-    current_day: number;
-    completed_days: number[];
-    city: string;
-    country: string;
   };
 }
 
@@ -38,29 +32,69 @@ interface MemberProfile {
   full_name: string;
   username: string;
   avatar_url: string | null;
-  city?: string;
-  country?: string;
 }
 
 export default function ChallengePartners() {
   const { user } = useAuth();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [pendingRequests, setPendingRequests] = useState<Partner[]>([]);
+  const [sentRequests, setSentRequests] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState<MemberProfile[]>([]);
-  const [searching, setSearching] = useState(false);
+  const [allMembers, setAllMembers] = useState<MemberProfile[]>([]);
+  const [membersLoaded, setMembersLoaded] = useState(false);
   const [sending, setSending] = useState<string | null>(null);
+  const [sentSuccess, setSentSuccess] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !user) { setLoading(false); return; }
     loadPartners();
   }, [user]);
 
+  // Load all members once when search panel opens
+  useEffect(() => {
+    if (showSearch && !membersLoaded && user) {
+      loadAllMembers();
+    }
+    if (showSearch) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [showSearch]);
+
+  const loadAllMembers = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name, username, avatar_url")
+      .neq("id", user.id)
+      .limit(500);
+    if (data) {
+      setAllMembers(data as unknown as MemberProfile[]);
+      setMembersLoaded(true);
+    }
+  };
+
+  // Live filter as user types
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    if (!value.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const lq = value.trim().toLowerCase();
+    const filtered = allMembers.filter(m =>
+      (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
+      (m.username && m.username.toLowerCase().includes(lq))
+    );
+    setSearchResults(filtered.slice(0, 20));
+  }, [allMembers]);
+
   const loadPartners = async () => {
     if (!user) return;
-    // Load accepted partnerships (where I'm either user or partner)
+    // Load accepted partnerships
     const { data: myPartners } = await supabase
       .from("challenge_partners")
       .select("*")
@@ -74,27 +108,34 @@ export default function ChallengePartners() {
       .eq("partner_id", user.id)
       .eq("status", "pending");
 
-    // Fetch profiles for all partners
-    const partnerIds = new Set<string>();
+    // Load pending requests FROM me (sent invites)
+    const { data: outgoing } = await supabase
+      .from("challenge_partners")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "pending");
+
+    // Fetch profiles for all related users
+    const profileIds = new Set<string>();
     (myPartners || []).forEach(p => {
-      partnerIds.add(p.user_id === user.id ? p.partner_id : p.user_id);
+      profileIds.add(p.user_id === user.id ? p.partner_id : p.user_id);
     });
-    (incoming || []).forEach(p => partnerIds.add(p.user_id));
+    (incoming || []).forEach(p => profileIds.add(p.user_id));
+    (outgoing || []).forEach(p => profileIds.add(p.partner_id));
 
     let profiles: Record<string, MemberProfile> = {};
-    if (partnerIds.size > 0) {
+    if (profileIds.size > 0) {
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id, full_name, username, avatar_url, current_day, completed_days, city, country")
-        .in("id", Array.from(partnerIds));
+        .select("id, full_name, username, avatar_url, current_day, completed_days")
+        .in("id", Array.from(profileIds));
       if (profs) {
-        profs.forEach((p: MemberProfile & { current_day?: number; completed_days?: number[] }) => {
-          profiles[p.id] = p;
+        profs.forEach((p: Record<string, unknown>) => {
+          profiles[p.id as string] = p as unknown as MemberProfile;
         });
       }
     }
 
-    // Attach profiles
     const enrichedPartners = (myPartners || []).map(p => ({
       ...p,
       partner_profile: profiles[p.user_id === user.id ? p.partner_id : p.user_id] as Partner["partner_profile"],
@@ -105,41 +146,47 @@ export default function ChallengePartners() {
       requester_profile: profiles[p.user_id] as Partner["requester_profile"],
     }));
 
+    const enrichedSent = (outgoing || []).map(p => ({
+      ...p,
+      partner_profile: profiles[p.partner_id] as Partner["partner_profile"],
+    }));
+
     setPartners(enrichedPartners);
     setPendingRequests(enrichedPending);
+    setSentRequests(enrichedSent);
     setLoading(false);
-  };
-
-  const handleSearch = async () => {
-    if (!search.trim() || !user) return;
-    setSearching(true);
-    setSearchResults([]);
-    const q = search.trim();
-    const { data } = await supabase
-      .from("profiles")
-      .select("id, full_name, username, avatar_url")
-      .neq("id", user.id)
-      .limit(500);
-    if (data && data.length > 0) {
-      const lq = q.toLowerCase();
-      const filtered = data.filter((m: Record<string, string>) =>
-        (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
-        (m.username && m.username.toLowerCase().includes(lq))
-      );
-      setSearchResults(filtered as unknown as MemberProfile[]);
-    }
-    setSearching(false);
   };
 
   const sendRequest = async (partnerId: string) => {
     if (!user) return;
     setSending(partnerId);
-    await supabase.from("challenge_partners").insert({
+    const { error } = await supabase.from("challenge_partners").insert({
       user_id: user.id,
       partner_id: partnerId,
     });
     setSending(null);
-    setSearchResults(prev => prev.filter(m => m.id !== partnerId));
+    if (!error) {
+      setSentSuccess(partnerId);
+      setTimeout(() => setSentSuccess(null), 2000);
+      setSearchResults(prev => prev.filter(m => m.id !== partnerId));
+      // Add to sent requests
+      const member = allMembers.find(m => m.id === partnerId);
+      if (member) {
+        setSentRequests(prev => [...prev, {
+          id: `temp-${Date.now()}`,
+          user_id: user.id,
+          partner_id: partnerId,
+          status: "pending",
+          created_at: new Date().toISOString(),
+          partner_profile: member as unknown as Partner["partner_profile"],
+        }]);
+      }
+    }
+  };
+
+  const cancelRequest = async (id: string) => {
+    await supabase.from("challenge_partners").delete().eq("id", id);
+    setSentRequests(prev => prev.filter(p => p.id !== id));
   };
 
   const acceptRequest = async (id: string) => {
@@ -176,17 +223,19 @@ export default function ChallengePartners() {
           <p className="text-grey text-xs mt-0.5">Team up with friends to complete the challenge together</p>
         </div>
         <button
-          onClick={() => setShowSearch(!showSearch)}
+          onClick={() => { setShowSearch(!showSearch); setSearch(""); setSearchResults([]); }}
           className="flex items-center gap-1.5 bg-primary text-white px-3 py-2 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors"
         >
           <UserPlus size={16} /> Add Partner
         </button>
       </div>
 
-      {/* Pending Requests */}
+      {/* Pending Requests TO me */}
       {pendingRequests.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <h4 className="font-semibold text-amber-800 text-sm mb-3">Partner Requests</h4>
+          <h4 className="font-semibold text-amber-800 text-sm mb-3 flex items-center gap-2">
+            <Send size={14} /> Partner Requests
+          </h4>
           {pendingRequests.map(req => (
             <div key={req.id} className="flex items-center justify-between bg-white rounded-lg p-3 mb-2 last:mb-0">
               <div className="flex items-center gap-3">
@@ -199,7 +248,7 @@ export default function ChallengePartners() {
                 </div>
                 <div>
                   <p className="font-medium text-dark text-sm">{req.requester_profile?.full_name || req.requester_profile?.username}</p>
-                  <p className="text-grey text-xs">{req.requester_profile?.city}{req.requester_profile?.country ? `, ${req.requester_profile.country}` : ""}</p>
+                  <p className="text-amber-600 text-xs">Wants to be your challenge partner</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -215,24 +264,63 @@ export default function ChallengePartners() {
         </div>
       )}
 
-      {/* Search to add partner */}
+      {/* Sent Requests (Pending) */}
+      {sentRequests.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <h4 className="font-semibold text-blue-800 text-sm mb-3 flex items-center gap-2">
+            <Clock size={14} /> Pending Invites Sent
+          </h4>
+          {sentRequests.map(req => {
+            const prof = req.partner_profile;
+            return (
+              <div key={req.id} className="flex items-center justify-between bg-white rounded-lg p-3 mb-2 last:mb-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                    {prof?.avatar_url ? (
+                      <img src={prof.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Users size={16} className="text-blue-600" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-dark text-sm">{prof?.full_name || prof?.username || "User"}</p>
+                    <p className="text-blue-600 text-xs flex items-center gap-1"><Clock size={10} /> Waiting for response...</p>
+                  </div>
+                </div>
+                <button onClick={() => cancelRequest(req.id)} className="text-grey hover:text-danger text-xs font-medium px-2 py-1 rounded-lg hover:bg-red-50">
+                  Cancel
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Search to add partner — live autocomplete */}
       {showSearch && (
         <div className="bg-card border border-grey-light rounded-xl p-4 space-y-3">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-grey" />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleSearch()}
-                placeholder="Search by name or username..."
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-grey-light text-sm outline-none focus:border-primary"
-              />
-            </div>
-            <button onClick={handleSearch} disabled={searching} className="bg-primary text-white px-4 rounded-xl text-sm font-medium hover:bg-primary-dark">
-              {searching ? <Loader2 size={16} className="animate-spin" /> : "Search"}
-            </button>
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-grey" />
+            <input
+              ref={inputRef}
+              value={search}
+              onChange={e => handleSearchChange(e.target.value)}
+              placeholder="Start typing a name..."
+              className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-grey-light text-sm outline-none focus:border-primary"
+            />
           </div>
+          {!membersLoaded && (
+            <div className="flex items-center justify-center py-3">
+              <Loader2 size={16} className="animate-spin text-primary mr-2" />
+              <span className="text-grey text-xs">Loading members...</span>
+            </div>
+          )}
+          {sentSuccess && (
+            <div className="bg-success/10 border border-success/30 rounded-lg p-3 flex items-center gap-2">
+              <Check size={16} className="text-success" />
+              <p className="text-success text-sm font-medium">Invite sent! Waiting for their response.</p>
+            </div>
+          )}
           {searchResults.length > 0 && (
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {searchResults.map(member => (
@@ -245,10 +333,7 @@ export default function ChallengePartners() {
                         <Users size={16} className="text-primary" />
                       )}
                     </div>
-                    <div>
-                      <p className="font-medium text-dark text-sm">{member.full_name || member.username}</p>
-                      <p className="text-grey text-xs">{member.city}{member.country ? `, ${member.country}` : ""}</p>
-                    </div>
+                    <p className="font-medium text-dark text-sm">{member.full_name || member.username}</p>
                   </div>
                   <button
                     onClick={() => sendRequest(member.id)}
@@ -261,7 +346,7 @@ export default function ChallengePartners() {
               ))}
             </div>
           )}
-          {searchResults.length === 0 && search && !searching && (
+          {searchResults.length === 0 && search.length >= 1 && membersLoaded && (
             <p className="text-grey text-sm text-center py-2">No users found. Try a different name.</p>
           )}
         </div>
@@ -286,7 +371,7 @@ export default function ChallengePartners() {
                   </div>
                   <div className="flex-1">
                     <p className="font-bold text-dark text-sm">{prof.full_name || prof.username}</p>
-                    <p className="text-grey text-xs">{prof.city}{prof.country ? `, ${prof.country}` : ""}</p>
+                    <p className="text-success text-xs flex items-center gap-1"><Check size={10} /> Challenge Partner</p>
                   </div>
                   <button onClick={() => removePartner(p.id)} className="text-grey hover:text-danger p-1">
                     <X size={14} />
