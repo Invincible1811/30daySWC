@@ -113,11 +113,11 @@ export default function ChallengePartners() {
   const handleSearch = async () => {
     if (!search.trim() || !user) return;
     setSearching(true);
-    const q = search.trim().toLowerCase();
+    const q = search.trim();
     const { data } = await supabase
       .from("profiles")
       .select("id, full_name, username, avatar_url, city, country")
-      .or(`full_name.ilike.%${q}%,username.ilike.%${q}%`)
+      .or(`full_name.ilike.%25${q}%25,username.ilike.%25${q}%25`)
       .neq("id", user.id)
       .limit(20);
     setSearchResults((data || []) as MemberProfile[]);
