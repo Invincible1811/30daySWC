@@ -132,13 +132,13 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
       {/* Fullscreen overlay */}
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] bg-white" onClick={() => setFullscreen(false)}>
-          <button className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70">
+        <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center" onClick={() => setFullscreen(false)}>
+          <button className="absolute top-4 right-4 z-20 w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30">
             <X size={20} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); downloadImage(images[current], `${title}-${current + 1}.jpg`); }}
-            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/50 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-black/70 backdrop-blur-sm"
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/20 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-white/30 backdrop-blur-sm"
           >
             <Download size={16} /> Save
           </button>
@@ -146,27 +146,27 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
             <>
               <button
                 onClick={(e) => { e.stopPropagation(); prev(); }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white rounded-full flex items-center justify-center hover:bg-black/60 z-20"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 z-20"
               >
                 <ChevronLeft size={24} />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); next(); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white rounded-full flex items-center justify-center hover:bg-black/60 z-20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 z-20"
               >
                 <ChevronRight size={24} />
               </button>
             </>
           )}
-          <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-full p-2" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[current]}
               alt={`${title} ${current + 1}`}
               fill
-              className="object-contain"
+              className="object-contain p-1"
             />
           </div>
-          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-dark text-xs font-semibold bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow">
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-white text-xs font-semibold bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full">
             {current + 1} / {images.length}
           </span>
         </div>
@@ -207,39 +207,39 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
 
       {selectedIndex !== null && (
         <div
-          className="fixed inset-0 z-[60] bg-white animate-fade-in"
+          className="fixed inset-0 z-[60] bg-black flex items-center justify-center animate-fade-in"
           onClick={() => setSelectedIndex(null)}
         >
-          <button className="absolute top-4 right-4 z-20 w-11 h-11 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-colors">
+          <button className="absolute top-4 right-4 z-20 w-11 h-11 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
             <X size={22} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`); }}
-            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/50 text-white px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-black/70 transition-colors backdrop-blur-sm"
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/20 text-white px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-sm"
           >
             <Download size={16} /> Save
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null); }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-colors z-20"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors z-20"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/40 text-white rounded-full flex items-center justify-center hover:bg-black/60 transition-colors z-20"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors z-20"
           >
             <ChevronRight size={24} />
           </button>
-          <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-full p-2" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
               fill
-              className="object-contain"
+              className="object-contain p-1"
             />
           </div>
-          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-dark text-xs font-semibold bg-white/80 backdrop-blur-sm px-4 py-1.5 rounded-full shadow">
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-white text-xs font-semibold bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full">
             {selectedIndex + 1} / {images.length}
           </span>
         </div>
@@ -277,24 +277,24 @@ function GospelToolSection() {
 
       {fullscreen && (
         <div
-          className="fixed inset-0 z-[60] bg-white animate-fade-in overflow-auto"
+          className="fixed inset-0 z-[60] bg-black flex items-center justify-center animate-fade-in"
           onClick={() => setFullscreen(false)}
         >
-          <button className="absolute top-4 right-4 z-20 w-11 h-11 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-colors">
+          <button className="absolute top-4 right-4 z-20 w-11 h-11 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
             <X size={22} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); downloadImage(gospelImage, "Gospel-Soul-Winning-Tool.jpg"); }}
-            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/50 text-white px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-black/70 transition-colors backdrop-blur-sm"
+            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/20 text-white px-4 py-2.5 rounded-full text-sm font-semibold hover:bg-white/30 transition-colors backdrop-blur-sm"
           >
             <Download size={16} /> Save
           </button>
-          <div className="absolute inset-0" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full h-full p-2" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
               fill
-              className="object-contain"
+              className="object-contain p-1"
             />
           </div>
         </div>
