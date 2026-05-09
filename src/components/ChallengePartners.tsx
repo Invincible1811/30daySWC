@@ -110,26 +110,39 @@ export default function ChallengePartners() {
     setLoading(false);
   };
 
+  const [searchDebug, setSearchDebug] = useState("");
+
   const handleSearch = async () => {
     if (!search.trim() || !user) return;
     setSearching(true);
     setSearchResults([]);
+    setSearchDebug("");
     const q = search.trim();
-    // Fetch all members and filter client-side for reliable search
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, username, avatar_url, city, country")
-      .neq("id", user.id)
-      .limit(500);
-    console.log("Partner search — raw results:", data?.length, "error:", error?.message);
-    if (data && data.length > 0) {
-      const lq = q.toLowerCase();
-      const filtered = data.filter((m: MemberProfile) =>
-        (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
-        (m.username && m.username.toLowerCase().includes(lq))
-      );
-      console.log("Partner search — filtered:", filtered.length, "for query:", lq);
-      setSearchResults(filtered as MemberProfile[]);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, username, avatar_url, city, country")
+        .neq("id", user.id)
+        .limit(500);
+      if (error) {
+        setSearchDebug(`DB Error: ${error.message}`);
+        setSearching(false);
+        return;
+      }
+      setSearchDebug(`Found ${data?.length || 0} total profiles`);
+      if (data && data.length > 0) {
+        const lq = q.toLowerCase();
+        const filtered = data.filter((m: MemberProfile) =>
+          (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
+          (m.username && m.username.toLowerCase().includes(lq))
+        );
+        setSearchDebug(`${data.length} profiles, ${filtered.length} match "${q}"`);
+        setSearchResults(filtered as MemberProfile[]);
+      } else {
+        setSearchDebug(`0 profiles returned from DB`);
+      }
+    } catch (err: unknown) {
+      setSearchDebug(`Exception: ${err instanceof Error ? err.message : String(err)}`);
     }
     setSearching(false);
   };
@@ -264,7 +277,10 @@ export default function ChallengePartners() {
               ))}
             </div>
           )}
-          {searchResults.length === 0 && search && !searching && (
+          {searchDebug && (
+            <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 font-mono">{searchDebug}</p>
+          )}
+          {searchResults.length === 0 && search && !searching && !searchDebug.includes("profiles,") && (
             <p className="text-grey text-sm text-center py-2">No users found. Try a different name.</p>
           )}
         </div>
