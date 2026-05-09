@@ -110,39 +110,23 @@ export default function ChallengePartners() {
     setLoading(false);
   };
 
-  const [searchDebug, setSearchDebug] = useState("");
-
   const handleSearch = async () => {
     if (!search.trim() || !user) return;
     setSearching(true);
     setSearchResults([]);
-    setSearchDebug("");
     const q = search.trim();
-    try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, full_name, username, avatar_url")
-        .neq("id", user.id)
-        .limit(500);
-      if (error) {
-        setSearchDebug(`DB Error: ${error.message}`);
-        setSearching(false);
-        return;
-      }
-      setSearchDebug(`Found ${data?.length || 0} total profiles`);
-      if (data && data.length > 0) {
-        const lq = q.toLowerCase();
-        const filtered = data.filter((m: Record<string, string>) =>
-          (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
-          (m.username && m.username.toLowerCase().includes(lq))
-        );
-        setSearchDebug(`${data.length} profiles, ${filtered.length} match "${q}"`);
-        setSearchResults(filtered as unknown as MemberProfile[]);
-      } else {
-        setSearchDebug(`0 profiles returned from DB`);
-      }
-    } catch (err: unknown) {
-      setSearchDebug(`Exception: ${err instanceof Error ? err.message : String(err)}`);
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, full_name, username, avatar_url")
+      .neq("id", user.id)
+      .limit(500);
+    if (data && data.length > 0) {
+      const lq = q.toLowerCase();
+      const filtered = data.filter((m: Record<string, string>) =>
+        (m.full_name && m.full_name.toLowerCase().includes(lq)) ||
+        (m.username && m.username.toLowerCase().includes(lq))
+      );
+      setSearchResults(filtered as unknown as MemberProfile[]);
     }
     setSearching(false);
   };
@@ -277,10 +261,7 @@ export default function ChallengePartners() {
               ))}
             </div>
           )}
-          {searchDebug && (
-            <p className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2 font-mono">{searchDebug}</p>
-          )}
-          {searchResults.length === 0 && search && !searching && !searchDebug.includes("profiles,") && (
+          {searchResults.length === 0 && search && !searching && (
             <p className="text-grey text-sm text-center py-2">No users found. Try a different name.</p>
           )}
         </div>
