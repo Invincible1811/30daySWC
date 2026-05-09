@@ -137,7 +137,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
           <Menu size={24} />
         </button>
         <h1 className="text-lg font-bold text-primary-light flex items-center gap-2">
-          <span>✝</span> Winning Souls
+          <LogoIcon size={28} /> Winning Souls
         </h1>
         <div className="w-8" />
       </header>
@@ -148,7 +148,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth }: Navi
           <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-72 bg-dark text-white animate-slide-in">
             <div className="p-4 flex items-center justify-between border-b border-dark-light">
-              <h1 className="text-lg font-bold text-primary-light">✝ Winning Souls</h1>
+              <h1 className="text-lg font-bold text-primary-light flex items-center gap-2"><LogoIcon size={28} /> Winning Souls</h1>
               <button onClick={() => setSidebarOpen(false)}>
                 <X size={24} className="text-grey" />
               </button>

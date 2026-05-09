@@ -227,8 +227,8 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
 
       {/* Selected Card Pop-up */}
       {selected && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white sm:rounded-[20px] w-full sm:max-w-lg animate-pop-in shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white sm:rounded-[20px] w-full h-full sm:h-auto sm:max-w-lg animate-pop-in shadow-2xl overflow-hidden flex flex-col sm:max-h-[90vh]">
             <div className="bg-gradient-to-br from-[#1e3a8a] via-[#1e40af] to-[#3b82f6] p-6 text-white relative shrink-0">
               <button
                 onClick={() => setSelectedCard(null)}
