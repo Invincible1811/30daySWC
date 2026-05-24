@@ -21,6 +21,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
   const [saved, setSaved] = useState(false);
   const [shared, setShared] = useState(false);
   const [continued, setContinued] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   // Form state for daily record
@@ -416,7 +417,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                       <Save size={16} /> {saved ? "Update" : "Save"} Record
                     </button>
                     <button
-                      onClick={handleShareToCommunity}
+                      onClick={() => setShowShareOptions(true)}
                       disabled={shared}
                       className={`flex-1 py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 ${
                         shared
@@ -427,6 +428,59 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                       <Users size={16} /> {shared ? "Shared!" : "Share What God Did"}
                     </button>
                   </div>
+
+                  {/* Share Options Modal */}
+                  {showShareOptions && (
+                    <div className="bg-card border border-grey-light rounded-xl p-4 space-y-2">
+                      <h4 className="font-bold text-dark text-sm mb-2">Where would you like to share?</h4>
+                      <button
+                        onClick={() => { handleSaveRecord(); setShowShareOptions(false); setShared(true); }}
+                        className="w-full text-left px-4 py-3 rounded-xl border border-grey-light hover:border-primary/30 hover:bg-primary/5 transition-colors flex items-center gap-3"
+                      >
+                        <span className="text-lg">🔒</span>
+                        <div>
+                          <p className="font-semibold text-dark text-sm">Keep Private</p>
+                          <p className="text-grey text-xs">Saved only to your personal journal</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => { handleShareToCommunity(); setShowShareOptions(false); }}
+                        className="w-full text-left px-4 py-3 rounded-xl border border-grey-light hover:border-primary/30 hover:bg-primary/5 transition-colors flex items-center gap-3"
+                      >
+                        <span className="text-lg">🌍</span>
+                        <div>
+                          <p className="font-semibold text-dark text-sm">Share With Community</p>
+                          <p className="text-grey text-xs">Shared in the Faith in Action feed</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => { handleShareToCommunity(); setShowShareOptions(false); }}
+                        className="w-full text-left px-4 py-3 rounded-xl border border-grey-light hover:border-primary/30 hover:bg-primary/5 transition-colors flex items-center gap-3"
+                      >
+                        <span className="text-lg">👥</span>
+                        <div>
+                          <p className="font-semibold text-dark text-sm">Share With Group</p>
+                          <p className="text-grey text-xs">Shared with your church or outreach team</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => { handleShareToCommunity(); setShowShareOptions(false); }}
+                        className="w-full text-left px-4 py-3 rounded-xl border border-grey-light hover:border-primary/30 hover:bg-primary/5 transition-colors flex items-center gap-3"
+                      >
+                        <span className="text-lg">🙈</span>
+                        <div>
+                          <p className="font-semibold text-dark text-sm">Share Anonymously</p>
+                          <p className="text-grey text-xs">Shared without showing your identity</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setShowShareOptions(false)}
+                        className="w-full text-center py-2 text-grey text-xs hover:text-dark transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                   {saved && (
                     <p className="text-xs text-success text-center flex items-center justify-center gap-1">
                       <Check size={14} /> Record saved! Souls automatically counted.
