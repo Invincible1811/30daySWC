@@ -26,6 +26,7 @@ import InstallPrompt from "@/components/InstallPrompt";
 import NotificationBanner from "@/components/NotificationBanner";
 import UsernameSetup from "@/components/UsernameSetup";
 import Onboarding from "@/components/Onboarding";
+import GuidedTour from "@/components/GuidedTour";
 import { useAuth } from "@/lib/auth-context";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Loader2, UserPlus } from "lucide-react";
@@ -38,7 +39,14 @@ export default function Home() {
   const [screen, setScreen] = useState<AppScreen>("landing");
   const [usernameSet, setUsernameSet] = useState(false);
   const [autoOpenChallenge, setAutoOpenChallenge] = useState(false);
-  const [onboardingDone, setOnboardingDone] = useState(true);
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("ws-onboarding-v2") === "true";
+  });
+  const [showTour, setShowTour] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("ws-tour-done") !== "true";
+  });
   const [pendingPartnerCount, setPendingPartnerCount] = useState(0);
   const [showPartnerToast, setShowPartnerToast] = useState(false);
 
@@ -150,7 +158,7 @@ export default function Home() {
     return <UsernameSetup onComplete={() => {
       setUsernameSet(true);
       // Check if onboarding needed (first-time user)
-      const done = localStorage.getItem("ws-onboarding-done");
+      const done = localStorage.getItem("ws-onboarding-v2");
       if (!done) setOnboardingDone(false);
     }} />;
   }
@@ -158,7 +166,7 @@ export default function Home() {
   // Show onboarding for first-time users
   if (!onboardingDone) {
     return <Onboarding onComplete={() => {
-      localStorage.setItem("ws-onboarding-done", "true");
+      localStorage.setItem("ws-onboarding-v2", "true");
       setOnboardingDone(true);
       setCurrentPage("challenges");
     }} />;
@@ -219,6 +227,15 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+      {showTour && onboardingDone && (
+        <GuidedTour
+          onComplete={() => {
+            localStorage.setItem("ws-tour-done", "true");
+            setShowTour(false);
+          }}
+          onNavigate={(page) => setCurrentPage(page as Page)}
+        />
       )}
       <NotificationPrompt />
       <InstallPrompt />
