@@ -130,6 +130,33 @@ export default function Community() {
         </div>
       </div>
 
+      {/* Activity Feed */}
+      {(dailyShares.length > 0 || communityPosts.length > 0) && (
+        <div className="bg-card rounded-2xl p-4 border border-grey-light">
+          <h4 className="font-bold text-dark text-sm mb-3 flex items-center gap-2">
+            <TrendingUp size={14} className="text-primary" /> Recent Activity
+          </h4>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {dailyShares.slice(0, 5).map(share => (
+              <div key={share.id || share.day} className="flex items-center gap-2 text-xs text-grey-dark py-1.5 border-b border-grey-light/50 last:border-0">
+                <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
+                  {(share.author || "S")[0]}
+                </span>
+                <span><strong className="text-dark">{share.author || "Soul Winner"}</strong> completed Day {share.day}</span>
+              </div>
+            ))}
+            {communityPosts.slice(0, 3).map(post => (
+              <div key={post.id} className="flex items-center gap-2 text-xs text-grey-dark py-1.5 border-b border-grey-light/50 last:border-0">
+                <span className="w-6 h-6 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 text-[10px] font-bold shrink-0">
+                  {(post.author || "S")[0]}
+                </span>
+                <span><strong className="text-dark">{post.author}</strong> shared a {post.type}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Main Tabs: Feed vs Daily Shares */}
       <div className="flex gap-2 mb-4">
         <button
