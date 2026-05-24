@@ -294,13 +294,13 @@ function GospelToolSection() {
       <div className="flex justify-center px-4">
         <button
           onClick={() => setFullscreen(true)}
-          className="group relative max-w-md w-full rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] border-2 border-transparent hover:border-purple-400/50"
+          className="group relative max-w-md w-full rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] border-2 border-transparent hover:border-purple-400/50"
         >
           <Image
             src={gospelImage}
             alt="Gospel Soul-Winning Tool"
             width={600}
-            height={1200}
+            height={2400}
             className="w-full h-auto rounded-2xl"
             priority
           />
