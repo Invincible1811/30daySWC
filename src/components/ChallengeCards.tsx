@@ -242,65 +242,66 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
               <p className="text-blue-200/80 text-sm font-medium">Day {selected.day} of 30</p>
               <h3 className="text-xl font-extrabold mt-1">{selected.title}</h3>
             </div>
-            <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-5">
               <p className="text-[10px] text-primary font-bold uppercase tracking-widest">{selected.theme}</p>
 
-              <div className="bg-amber-50 rounded-xl p-4">
-                <h4 className="font-semibold text-amber-800 text-sm mb-1">🎵 Worship Note:</h4>
-                <p className="text-amber-700 text-sm italic">{selected.worshipNote}</p>
-                <p className="text-amber-600 text-xs mt-2 italic">{selected.praiseScripture}</p>
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-dark text-sm mb-2">🙏 Prayer:</h4>
-                <p className="text-grey-dark text-sm leading-relaxed">{selected.prayer}</p>
-              </div>
-
-              <div className="bg-primary/5 rounded-xl p-4">
-                <h4 className="font-semibold text-primary text-sm mb-1">📖 Key Scripture:</h4>
+              {/* 1. Scripture */}
+              <div className="bg-primary/5 border border-primary/10 rounded-xl p-4">
+                <h4 className="font-semibold text-primary text-sm mb-2 flex items-center gap-2">📖 Scripture</h4>
                 <p className="text-primary text-sm italic leading-relaxed">&ldquo;{selected.keyScripture}&rdquo;</p>
+                <p className="text-grey text-xs mt-2">{selected.dailyReading}</p>
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex-1 bg-grey-light rounded-xl p-3">
-                  <h4 className="font-semibold text-dark text-xs mb-1">📚 Daily Reading</h4>
-                  <p className="text-grey-dark text-sm">{selected.dailyReading}</p>
-                </div>
-                <div className="flex-1 bg-grey-light rounded-xl p-3">
-                  <h4 className="font-semibold text-dark text-xs mb-1">📍 Locations</h4>
-                  <p className="text-grey-dark text-sm">{selected.locationSuggestions}</p>
-                </div>
+              {/* 2. Prayer */}
+              <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
+                <h4 className="font-semibold text-purple-800 text-sm mb-2 flex items-center gap-2">🙏 Prayer</h4>
+                <p className="text-purple-700 text-sm leading-relaxed">{selected.prayer}</p>
               </div>
 
-              <div>
-                <h4 className="font-semibold text-dark text-sm mb-2">📋 Today&apos;s Challenge:</h4>
-                <p className="text-grey-dark text-sm leading-relaxed">{selected.challenge}</p>
-              </div>
-
-              <div className="bg-green-50 rounded-xl p-4">
-                <h4 className="font-semibold text-green-800 text-sm mb-1">� Encouragement:</h4>
+              {/* 3. Encouragement */}
+              <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                <h4 className="font-semibold text-green-800 text-sm mb-2 flex items-center gap-2">💚 Encouragement</h4>
                 <p className="text-green-700 text-sm italic leading-relaxed">&ldquo;{selected.encouragement}&rdquo;</p>
               </div>
 
-              <div>
-                <h4 className="font-semibold text-dark text-sm mb-2">👥 Group Activity:</h4>
+              {/* 4. Action Step */}
+              <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
+                <h4 className="font-semibold text-amber-800 text-sm mb-2 flex items-center gap-2">� Action Step</h4>
+                <p className="text-amber-700 text-sm leading-relaxed">{selected.challenge}</p>
+                <div className="flex gap-2 mt-3">
+                  <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg font-medium">📍 {selected.locationSuggestions}</span>
+                </div>
+              </div>
+
+              {/* Worship Note */}
+              <div className="bg-rose-50/50 border border-rose-100 rounded-xl p-4">
+                <h4 className="font-semibold text-rose-800 text-sm mb-1 flex items-center gap-2">🎵 Worship Note</h4>
+                <p className="text-rose-700 text-sm italic">{selected.worshipNote}</p>
+                <p className="text-rose-500 text-xs mt-2 italic">{selected.praiseScripture}</p>
+              </div>
+
+              {/* Praying for the Sick */}
+              <div className="bg-rose-50 border border-rose-100 rounded-xl p-4">
+                <h4 className="font-semibold text-rose-800 text-sm mb-1 flex items-center gap-2">🙌 Praying for the Sick</h4>
+                <p className="text-rose-700 text-sm leading-relaxed">{selected.prayingForSick}</p>
+              </div>
+
+              {/* Group Activity */}
+              <div className="bg-grey-light/50 rounded-xl p-4">
+                <h4 className="font-semibold text-dark text-sm mb-2 flex items-center gap-2">👥 Group Activity</h4>
                 <p className="text-grey-dark text-sm leading-relaxed">{selected.groupActivity}</p>
               </div>
 
+              {/* 5. Reflections */}
               <div>
-                <h4 className="font-semibold text-dark text-sm mb-2">🤔 Reflections:</h4>
-                <ul className="space-y-1">
+                <h4 className="font-semibold text-dark text-sm mb-2 flex items-center gap-2">🤔 Reflections</h4>
+                <ul className="space-y-1.5">
                   {selected.reflections.map((r, i) => (
                     <li key={i} className="text-grey-dark text-sm leading-relaxed flex gap-2">
-                      <span className="text-primary">•</span> {r}
+                      <span className="text-primary mt-0.5">•</span> {r}
                     </li>
                   ))}
                 </ul>
-              </div>
-
-              <div className="bg-rose-50 rounded-xl p-4">
-                <h4 className="font-semibold text-rose-800 text-sm mb-1">🙌 Praying for the Sick:</h4>
-                <p className="text-rose-700 text-sm leading-relaxed">{selected.prayingForSick}</p>
               </div>
 
               <div className="flex gap-2">
@@ -385,6 +386,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                     </div>
                     <div className="mb-3">
                       <label className="text-grey-dark text-xs font-medium block mb-1">Contact Info (Name/Phone/Email)</label>
+                      <p className="text-grey text-[10px] mb-1.5 italic">For follow-up and encouragement</p>
                       <textarea
                         value={contactInfo}
                         onChange={(e) => setContactInfo(e.target.value)}
