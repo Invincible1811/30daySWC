@@ -1,11 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
-  BookOpen, MapPin, Heart, Gift, Sparkles,
+  BookOpen, MapPin, Heart, Gift, Sparkles, Star,
   ChevronLeft, ChevronRight, X, Maximize2, Download
 } from "lucide-react";
+
+function useFavorites() {
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    const saved = localStorage.getItem("ws-favorite-cards");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggle = (url: string) => {
+    setFavorites(prev => {
+      const next = prev.includes(url) ? prev.filter(f => f !== url) : [...prev, url];
+      localStorage.setItem("ws-favorite-cards", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const isFav = (url: string) => favorites.includes(url);
+
+  return { favorites, toggle, isFav };
+}
 
 function downloadImage(url: string, name: string) {
   const a = document.createElement("a");
@@ -176,7 +196,7 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
   );
 }
 
-function CardGrid({ images, title }: { images: string[]; title: string }) {
+function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   return (
@@ -220,6 +240,16 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
           >
             <Download size={16} /> Save
           </button>
+          {favHook && (
+            <button
+              onClick={(e) => { e.stopPropagation(); favHook.toggle(images[selectedIndex]); }}
+              className={`absolute top-16 left-4 z-20 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors backdrop-blur-sm ${
+                favHook.isFav(images[selectedIndex]) ? "bg-amber-400 text-dark" : "bg-white/20 text-white hover:bg-white/30"
+              }`}
+            >
+              <Star size={16} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} /> {favHook.isFav(images[selectedIndex]) ? "Favorited" : "Favorite"}
+            </button>
+          )}
           <button
             onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null); }}
             className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/20 text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors z-20"
@@ -365,6 +395,7 @@ function BingoBoard() {
 
 export default function Toolkit() {
   const [activeSection, setActiveSection] = useState<Section>("scriptures");
+  const favHook = useFavorites();
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -372,6 +403,22 @@ export default function Toolkit() {
         <h2 className="text-2xl font-bold text-dark">Soul-Winning Toolkit</h2>
         <p className="text-grey mt-1">Use these as you step out today.</p>
       </div>
+
+      {/* Favorites Quick Access */}
+      {favHook.favorites.length > 0 && (
+        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200/50">
+          <h4 className="font-bold text-dark text-sm mb-3 flex items-center gap-2">
+            <Star size={14} className="text-amber-500" fill="currentColor" /> My Favorites ({favHook.favorites.length})
+          </h4>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {favHook.favorites.map((img, i) => (
+              <div key={i} className="shrink-0 w-20 h-28 rounded-xl overflow-hidden shadow-md border-2 border-amber-300">
+                <Image src={img} alt={`Favorite ${i + 1}`} width={80} height={112} className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Section Tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
@@ -402,7 +449,7 @@ export default function Toolkit() {
             <h3 className="text-lg font-bold">30 Scriptures & Declarations for Miracles and Healing</h3>
             <p className="text-blue-200 text-sm mt-1">Tap any card to view it full-size. Declare them boldly over the people you meet!</p>
           </div>
-          <CardGrid images={scriptureCards} title="Scripture Card" />
+          <CardGrid images={scriptureCards} title="Scripture Card" favHook={favHook} />
         </div>
       )}
 
@@ -413,7 +460,7 @@ export default function Toolkit() {
             <h3 className="text-lg font-bold">30 Location Ideas & Conversation Starters</h3>
             <p className="text-green-200 text-sm mt-1">Tap any card to view it full-size. Use these ideas to start meaningful conversations!</p>
           </div>
-          <CardGrid images={conversationCards} title="Conversation Starter" />
+          <CardGrid images={conversationCards} title="Conversation Starter" favHook={favHook} />
         </div>
       )}
 
