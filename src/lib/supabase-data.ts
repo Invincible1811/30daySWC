@@ -150,16 +150,18 @@ export async function insertPrayer(userId: string, prayer: { author: string; con
 
 export async function likePrayerDb(id: string) {
   if (!isSupabaseConfigured) return;
-  supabase.from("prayers").select("likes").eq("id", id).single().then(({ data }) => {
-    if (data) supabase.from("prayers").update({ likes: (data as { likes: number }).likes + 1 }).eq("id", id);
-  });
+  const { data } = await supabase.from("prayers").select("likes").eq("id", id).single();
+  if (data) {
+    await supabase.from("prayers").update({ likes: ((data as { likes: number }).likes || 0) + 1 }).eq("id", id);
+  }
 }
 
 export async function prayForRequestDb(id: string) {
   if (!isSupabaseConfigured) return;
-  supabase.from("prayers").select("prayer_count").eq("id", id).single().then(({ data }) => {
-    if (data) supabase.from("prayers").update({ prayer_count: (data as { prayer_count: number }).prayer_count + 1 }).eq("id", id);
-  });
+  const { data } = await supabase.from("prayers").select("prayer_count").eq("id", id).single();
+  if (data) {
+    await supabase.from("prayers").update({ prayer_count: ((data as { prayer_count: number }).prayer_count || 0) + 1 }).eq("id", id);
+  }
 }
 
 // ─── Events ───────────────────────────────────────────────

@@ -18,16 +18,16 @@ interface DashboardProps {
 }
 
 const featureCards: { icon: React.ElementType; label: string; desc: string; page: Page; color: string; bg: string; iconBg: string }[] = [
-  { icon: BookOpen, label: "30-Day Challenge", desc: "Daily evangelism challenges", page: "challenges", color: "text-blue-600", bg: "bg-blue-50", iconBg: "bg-blue-100" },
-  { icon: UserPlus, label: "Log Souls", desc: "Record souls won for Christ", page: "souls", color: "text-emerald-600", bg: "bg-emerald-50", iconBg: "bg-emerald-100" },
-  { icon: Heart, label: "Prayer Wall", desc: "Share & pray together", page: "prayer", color: "text-purple-600", bg: "bg-purple-50", iconBg: "bg-purple-100" },
-  { icon: MessageCircle, label: "Testimonies", desc: "Share your stories", page: "testimonies", color: "text-amber-600", bg: "bg-amber-50", iconBg: "bg-amber-100" },
-  { icon: Globe, label: "Community", desc: "Connect with believers", page: "community", color: "text-teal-600", bg: "bg-teal-50", iconBg: "bg-teal-100" },
-  { icon: Wrench, label: "Evangelism Toolkit", desc: "Resources & materials", page: "toolkit", color: "text-indigo-600", bg: "bg-indigo-50", iconBg: "bg-indigo-100" },
-  { icon: Users, label: "Groups & Teams", desc: "Outreach communities", page: "groups", color: "text-orange-600", bg: "bg-orange-50", iconBg: "bg-orange-100" },
-  { icon: CalendarDays, label: "Events", desc: "Upcoming outreach", page: "events", color: "text-rose-600", bg: "bg-rose-50", iconBg: "bg-rose-100" },
-  { icon: HandHeart, label: "Follow Up", desc: "Track new converts", page: "followup", color: "text-cyan-600", bg: "bg-cyan-50", iconBg: "bg-cyan-100" },
-  { icon: Trophy, label: "Leaderboard", desc: "Top soul winners", page: "leaderboard", color: "text-yellow-600", bg: "bg-yellow-50", iconBg: "bg-yellow-100" },
+  { icon: BookOpen, label: "30-Day Challenge", desc: "Grow in boldness as you step out each day.", page: "challenges", color: "text-blue-600", bg: "bg-blue-50", iconBg: "bg-blue-100" },
+  { icon: UserPlus, label: "Impact Tracker", desc: "Record souls won for Christ", page: "souls", color: "text-emerald-600", bg: "bg-emerald-50", iconBg: "bg-emerald-100" },
+  { icon: Heart, label: "Prayer Wall", desc: "Pray, intercede, and watch God move.", page: "prayer", color: "text-purple-600", bg: "bg-purple-50", iconBg: "bg-purple-100" },
+  { icon: MessageCircle, label: "Testimonies", desc: "Share what God has done.", page: "testimonies", color: "text-amber-600", bg: "bg-amber-50", iconBg: "bg-amber-100" },
+  { icon: Globe, label: "Community", desc: "Walk with others who are stepping out and sharing the Gospel.", page: "community", color: "text-teal-600", bg: "bg-teal-50", iconBg: "bg-teal-100" },
+  { icon: Wrench, label: "Soul-Winning Toolkit", desc: "Use these as you step out today.", page: "toolkit", color: "text-indigo-600", bg: "bg-indigo-50", iconBg: "bg-indigo-100" },
+  { icon: Users, label: "Groups & Outreach Teams", desc: "Outreach communities", page: "groups", color: "text-orange-600", bg: "bg-orange-50", iconBg: "bg-orange-100" },
+  { icon: CalendarDays, label: "Events", desc: "Gather, grow, and share the Gospel together.", page: "events", color: "text-rose-600", bg: "bg-rose-50", iconBg: "bg-rose-100" },
+  { icon: HandHeart, label: "Follow Up", desc: "Stay connected and encourage people you\u2019ve reached.", page: "followup", color: "text-cyan-600", bg: "bg-cyan-50", iconBg: "bg-cyan-100" },
+  { icon: Trophy, label: "Global Impact Board", desc: "Celebrating every step of faith.", page: "leaderboard", color: "text-yellow-600", bg: "bg-yellow-50", iconBg: "bg-yellow-100" },
   { icon: Award, label: "Coming Soon", desc: "Scholarships & more", page: "comingsoon", color: "text-slate-600", bg: "bg-slate-50", iconBg: "bg-slate-100" },
 ];
 
@@ -53,7 +53,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       <div className="flex items-center justify-between pt-2">
         <div>
           <h1 className="text-[28px] font-extrabold text-dark tracking-tight">Dashboard</h1>
-          <p className="text-grey text-[13px] mt-0.5">Plan, prioritize, and win souls for Christ.</p>
+          <p className="text-grey text-[13px] mt-0.5">Step out in faith. Share the Gospel. Win souls for Christ.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -89,7 +89,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <p className="text-blue-200/70 text-sm mt-2.5 leading-relaxed">Day {Math.min(currentDay, 30)} of 30 — Keep winning souls!</p>
             <div className="mt-6 flex gap-3 sm:hidden">
               <button onClick={() => setShowChallenge(true)} className="bg-white text-primary font-semibold px-5 py-2.5 rounded-xl text-sm shadow-md">
-                Today&apos;s Challenge
+                Start Today&apos;s Challenge
               </button>
               <button onClick={() => onNavigate("souls")} className="bg-white/15 backdrop-blur text-white font-semibold px-5 py-2.5 rounded-xl text-sm border border-white/20">
                 Log a Soul
@@ -149,7 +149,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
             <Globe size={18} className="text-emerald-600" />
           </div>
           <p className="text-[28px] font-extrabold text-dark leading-none">{globalSoulCount}</p>
-          <p className="text-grey text-[11px] font-medium mt-1.5 tracking-wide">Global Souls</p>
+          <p className="text-grey text-[11px] font-medium mt-1.5 tracking-wide">Global Soul Count</p>
         </button>
 
         <button onClick={() => onNavigate("challenges")} className="bg-white rounded-[20px] p-5 shadow-lg shadow-black/[0.04] border border-grey-light/80 text-left group hover:shadow-xl hover:border-amber-200 transition-all">
@@ -238,7 +238,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       {/* ─── Feature Grid ─── */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-dark text-lg">Explore Features</h3>
+          <h3 className="font-bold text-dark text-lg">Your Tools for the Mission</h3>
           <span className="text-[11px] text-grey font-medium">{allFeatures.length} features</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">

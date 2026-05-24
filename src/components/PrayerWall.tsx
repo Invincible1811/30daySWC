@@ -39,7 +39,7 @@ export default function PrayerWall() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-dark">Prayer Wall</h2>
-          <p className="text-grey mt-1">Lift each other up in prayer for evangelism</p>
+          <p className="text-grey mt-1">Stand with others in faith</p>
         </div>
         <button
           onClick={() => setShowForm(true)}

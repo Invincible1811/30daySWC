@@ -96,8 +96,8 @@ export default function Leaderboard() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
         <div className="relative z-10 text-center">
           <Trophy size={36} className="mx-auto mb-2" />
-          <h2 className="text-2xl font-bold">Leaderboard</h2>
-          <p className="text-amber-100 text-sm mt-1">See how the community is winning souls!</p>
+          <h2 className="text-2xl font-bold">Global Impact Board</h2>
+          <p className="text-amber-100 text-sm mt-1">Celebrating every step of faith.</p>
         </div>
       </div>
 

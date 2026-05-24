@@ -312,13 +312,13 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                 </button>
               </div>
 
-              {/* Record Your Day Button */}
+              {/* Record What God Did Button */}
               {(isAdmin || selected.day <= currentDay) && (
                 <button
                   onClick={() => setShowRecordForm(!showRecordForm)}
                   className="w-full bg-primary/10 text-primary py-3 rounded-xl font-semibold hover:bg-primary/20 transition-colors flex items-center justify-center gap-2"
                 >
-                  <ClipboardList size={18} /> {showRecordForm ? "Hide" : (saved ? "Edit" : "Record")} Your Day
+                  <ClipboardList size={18} /> {showRecordForm ? "Hide" : (saved ? "Edit" : "Record What God Did")}
                 </button>
               )}
 
@@ -344,7 +344,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
 
                   {/* Impact Record */}
                   <div>
-                    <h4 className="font-bold text-dark text-sm mb-3 flex items-center gap-2">📊 Impact Record</h4>
+                    <h4 className="font-bold text-dark text-sm mb-3 flex items-center gap-2">📊 Record What God Did</h4>
                     <div className="grid grid-cols-3 gap-3 mb-3">
                       <div>
                         <label className="text-grey-dark text-xs font-medium block mb-1">Souls Saved</label>
@@ -371,7 +371,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                         />
                       </div>
                       <div>
-                        <label className="text-grey-dark text-xs font-medium block mb-1">Church Invites</label>
+                        <label className="text-grey-dark text-xs font-medium block mb-1">Invitations to Church</label>
                         <input
                           type="number"
                           min={0}
@@ -422,7 +422,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                           : "bg-accent text-white hover:bg-accent/90"
                       }`}
                     >
-                      <Users size={16} /> {shared ? "Shared!" : "Share to Community"}
+                      <Users size={16} /> {shared ? "Shared!" : "Share What God Did"}
                     </button>
                   </div>
                   {saved && (
@@ -439,7 +439,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                     onClick={() => { completeDay(selected.day); setSelectedCard(null); }}
                     className="flex-1 bg-success text-white py-3 rounded-xl font-semibold hover:bg-success/90 transition-colors flex items-center justify-center gap-2"
                   >
-                    <Check size={18} /> Mark as Completed
+                    <Check size={18} /> Mark Day Complete
                   </button>
                   <button
                       onClick={() => { setContinued(true); setTimeout(() => setSelectedCard(null), 800); }}
@@ -449,7 +449,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
                           : "bg-amber-500 text-white hover:bg-amber-600"
                       }`}
                     >
-                      <RefreshCw size={16} /> {continued ? "Continuing tomorrow" : "Continue Tomorrow"}
+                      <RefreshCw size={16} /> {continued ? "See you tomorrow!" : "Continue Tomorrow"}
                     </button>
                 </div>
               )}

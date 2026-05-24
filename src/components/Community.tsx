@@ -27,14 +27,14 @@ export default function Community() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-dark">Global Community</h2>
-          <p className="text-grey mt-1">Connect with soul winners across the nation</p>
+          <h2 className="text-2xl font-bold text-dark">Faith in Action</h2>
+          <p className="text-grey mt-1">See what God is doing through others who are stepping out just like you.</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
           className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors shadow-md shadow-primary/20"
         >
-          <Plus size={16} /> Write Post
+          <Plus size={16} /> Share Testimony
         </button>
       </div>
 
@@ -138,7 +138,7 @@ export default function Community() {
             activeTab === "feed" ? "bg-primary text-white" : "bg-card text-grey border border-grey-light hover:border-primary/30"
           }`}
         >
-          <Globe size={16} /> Community Feed
+          <Globe size={16} /> Faith in Action Feed
         </button>
         <button
           onClick={() => setActiveTab("daily-shares")}
@@ -146,7 +146,7 @@ export default function Community() {
             activeTab === "daily-shares" ? "bg-primary text-white" : "bg-card text-grey border border-grey-light hover:border-primary/30"
           }`}
         >
-          <CalendarDays size={16} /> Daily Shares
+          <CalendarDays size={16} /> Today’s Wins
         </button>
       </div>
 
@@ -374,11 +374,11 @@ export default function Community() {
 
       <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light">
         <h3 className="font-bold text-dark mb-4 flex items-center gap-2">
-          <Award className="text-warning" size={20} /> Top Soul Winners This Month
+          <Award className="text-warning" size={20} /> Top Soul-Winners This Month
         </h3>
         <div className="text-center py-6">
           <Award size={40} className="text-grey-medium mx-auto mb-2 opacity-30" />
-          <p className="text-grey text-sm">No data yet. Start winning souls to appear on the leaderboard!</p>
+          <p className="text-grey text-sm">No activity yet. Every step of faith matters.</p>
         </div>
       </div>
     </div>

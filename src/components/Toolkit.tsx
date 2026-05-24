@@ -312,8 +312,8 @@ export default function Toolkit() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h2 className="text-2xl font-bold text-dark">Evangelism Toolkit</h2>
-        <p className="text-grey mt-1">Resources to guide you as you go out for evangelism</p>
+        <h2 className="text-2xl font-bold text-dark">Soul-Winning Toolkit</h2>
+        <p className="text-grey mt-1">Use these as you step out today.</p>
       </div>
 
       {/* Section Tabs */}
