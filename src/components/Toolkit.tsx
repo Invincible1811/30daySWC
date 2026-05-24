@@ -306,24 +306,26 @@ function GospelToolSection() {
       </div>
 
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center animate-fade-in overflow-y-auto" onClick={() => setFullscreen(false)}>
-          <button onClick={() => setFullscreen(false)} className="fixed top-4 right-4 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center">
-            <X size={18} className="text-dark" />
-          </button>
-          <button
-            onClick={() => downloadImage(gospelImage, "Gospel-Soul-Winning-Tool.jpg")}
-            className="fixed top-4 left-4 z-20 flex items-center gap-2 bg-white shadow-md text-primary px-3 py-2 rounded-xl text-sm font-semibold"
-          >
-            <Download size={16} /> Save
-          </button>
-          <div className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 overflow-y-auto" onClick={() => setFullscreen(false)}>
+          <div className="relative w-full max-w-lg mt-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
-              width={500}
-              height={2000}
-              className="max-w-[90vw] sm:max-w-md h-auto rounded-xl shadow-2xl mx-auto"
+              width={600}
+              height={2400}
+              className="w-full h-auto block"
             />
+            <div className="absolute top-2 left-0 right-0 z-20 flex items-center justify-between px-3">
+              <button
+                onClick={() => downloadImage(gospelImage, "Gospel-Soul-Winning-Tool.jpg")}
+                className="flex items-center gap-1 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full"
+              >
+                <Download size={12} /> Save
+              </button>
+              <button onClick={() => setFullscreen(false)} className="w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
+                <X size={14} className="text-white" />
+              </button>
+            </div>
           </div>
         </div>
       )}
