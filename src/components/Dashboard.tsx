@@ -32,7 +32,7 @@ const featureCards: { icon: React.ElementType; label: string; desc: string; page
 ];
 
 export default function Dashboard({ onNavigate }: DashboardProps) {
-  const { souls, currentDay, completedDays, globalSoulCount, userName, communityPosts } = useApp();
+  const { souls, currentDay, completedDays, globalSoulCount, userName, communityPosts, dailyRecords } = useApp();
   const { profile, isAdmin, signOut } = useAuth();
   const [showChallenge, setShowChallenge] = useState(false);
   const displayName = profile?.full_name || profile?.username || userName;
@@ -168,6 +168,28 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
           <p className="text-grey text-[11px] font-medium mt-1.5 tracking-wide">Current Streak</p>
         </div>
       </div>
+
+      {/* ─── Personal Impact ─── */}
+      {Object.keys(dailyRecords).length > 0 && (
+        <div className="bg-white rounded-[20px] p-5 shadow-lg shadow-black/[0.04] border border-grey-light/80">
+          <h3 className="font-bold text-dark text-[15px] mb-4">Personal Impact</h3>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center">
+              <p className="text-xl font-extrabold text-primary">{Object.values(dailyRecords).reduce((sum, r) => sum + (r.soulsSaved || 0), 0)}</p>
+              <p className="text-grey text-[10px] mt-0.5">Souls Won</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-extrabold text-purple-600">{Object.values(dailyRecords).reduce((sum, r) => sum + (r.peoplePrayedFor || 0), 0)}</p>
+              <p className="text-grey text-[10px] mt-0.5">Prayers Offered</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-extrabold text-amber-600">{Object.values(dailyRecords).reduce((sum, r) => sum + (r.invitationsToChurch || 0), 0)}</p>
+              <p className="text-grey text-[10px] mt-0.5">Church Invitations</p>
+            </div>
+          </div>
+          <p className="text-grey text-[10px] text-center mt-3 italic">Every step of faith matters.</p>
+        </div>
+      )}
 
       {/* ─── Bento: Progress + Challenge ─── */}
       <div className="grid lg:grid-cols-2 gap-5">
