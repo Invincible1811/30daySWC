@@ -158,15 +158,16 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
               </button>
             </>
           )}
-          <div className="w-full h-full p-2" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[current]}
               alt={`${title} ${current + 1}`}
               fill
-              className="object-contain p-1"
+              className="object-contain"
+              sizes="100vw"
             />
           </div>
-          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-white text-xs font-semibold bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full">
+          <span className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-white text-xs font-semibold bg-black/50 backdrop-blur-sm px-4 py-1.5 rounded-full">
             {current + 1} / {images.length}
           </span>
         </div>
@@ -231,15 +232,16 @@ function CardGrid({ images, title }: { images: string[]; title: string }) {
           >
             <ChevronRight size={24} />
           </button>
-          <div className="w-full h-full p-2" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
               fill
-              className="object-contain p-1"
+              className="object-contain"
+              sizes="100vw"
             />
           </div>
-          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 text-white text-xs font-semibold bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full">
+          <span className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-white text-xs font-semibold bg-black/50 backdrop-blur-sm px-4 py-1.5 rounded-full">
             {selectedIndex + 1} / {images.length}
           </span>
         </div>
@@ -289,12 +291,13 @@ function GospelToolSection() {
           >
             <Download size={16} /> Save
           </button>
-          <div className="w-full h-full p-2" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full h-full" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
               fill
-              className="object-contain p-1"
+              className="object-contain"
+              sizes="100vw"
             />
           </div>
         </div>
