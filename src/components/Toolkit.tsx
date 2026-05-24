@@ -152,45 +152,45 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
       {/* Fullscreen overlay */}
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] bg-white" onClick={() => setFullscreen(false)}>
-          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-2 bg-white/90 backdrop-blur-sm">
-            <button
-              onClick={(e) => { e.stopPropagation(); downloadImage(images[current], `${title}-${current + 1}.jpg`); }}
-              className="flex items-center gap-1 text-primary text-xs font-semibold"
-            >
-              <Download size={14} /> Save
-            </button>
-            <span className="text-dark text-xs font-bold">{current + 1} / {images.length}</span>
-            <button onClick={() => setFullscreen(false)} className="w-8 h-8 bg-grey-light rounded-full flex items-center justify-center">
-              <X size={16} className="text-dark" />
-            </button>
-          </div>
-          <div className="w-full h-full pt-10 flex items-start justify-center" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60" onClick={() => setFullscreen(false)}>
+          <div className="relative w-full max-w-lg mt-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[current]}
               alt={`${title} ${current + 1}`}
               width={600}
               height={900}
-              className="w-full h-auto"
+              className="w-full h-auto block"
               priority
             />
+            <div className="absolute top-2 left-0 right-0 z-20 flex items-center justify-between px-3">
+              <button
+                onClick={() => downloadImage(images[current], `${title}-${current + 1}.jpg`)}
+                className="flex items-center gap-1 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full"
+              >
+                <Download size={12} /> Save
+              </button>
+              <span className="bg-black/50 text-white text-xs font-bold px-3 py-1.5 rounded-full">{current + 1} / {images.length}</span>
+              <button onClick={() => setFullscreen(false)} className="w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
+                <X size={14} className="text-white" />
+              </button>
+            </div>
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={prev}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center"
+                >
+                  <ChevronLeft size={20} className="text-white" />
+                </button>
+                <button
+                  onClick={next}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center"
+                >
+                  <ChevronRight size={20} className="text-white" />
+                </button>
+              </>
+            )}
           </div>
-          {images.length > 1 && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); prev(); }}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
-              >
-                <ChevronLeft size={20} className="text-dark" />
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); next(); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
-              >
-                <ChevronRight size={20} className="text-dark" />
-              </button>
-            </>
-          )}
         </div>
       )}
     </>
@@ -228,50 +228,50 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] bg-white" onClick={() => setSelectedIndex(null)}>
-          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-2 bg-white/90 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => { e.stopPropagation(); downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`); }}
-                className="flex items-center gap-1 text-primary text-xs font-semibold"
-              >
-                <Download size={14} /> Save
-              </button>
-              {favHook && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); favHook.toggle(images[selectedIndex]); }}
-                  className={`text-xs font-semibold ${favHook.isFav(images[selectedIndex]) ? "text-amber-600" : "text-grey"}`}
-                >
-                  <Star size={14} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
-                </button>
-              )}
-            </div>
-            <span className="text-dark text-xs font-bold">{selectedIndex + 1} / {images.length}</span>
-            <button onClick={() => setSelectedIndex(null)} className="w-8 h-8 bg-grey-light rounded-full flex items-center justify-center">
-              <X size={16} className="text-dark" />
-            </button>
-          </div>
-          <div className="w-full h-full pt-10 flex items-start justify-center" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60" onClick={() => setSelectedIndex(null)}>
+          <div className="relative w-full max-w-lg mt-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
               width={600}
               height={900}
-              className="w-full h-auto"
+              className="w-full h-auto block"
             />
+            <div className="absolute top-2 left-0 right-0 z-20 flex items-center justify-between px-3">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`)}
+                  className="flex items-center gap-1 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full"
+                >
+                  <Download size={12} /> Save
+                </button>
+                {favHook && (
+                  <button
+                    onClick={() => favHook.toggle(images[selectedIndex])}
+                    className={`px-2 py-1.5 rounded-full bg-black/50 ${favHook.isFav(images[selectedIndex]) ? "text-amber-400" : "text-white"}`}
+                  >
+                    <Star size={12} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
+                  </button>
+                )}
+              </div>
+              <span className="bg-black/50 text-white text-xs font-bold px-3 py-1.5 rounded-full">{selectedIndex + 1} / {images.length}</span>
+              <button onClick={() => setSelectedIndex(null)} className="w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
+                <X size={14} className="text-white" />
+              </button>
+            </div>
+            <button
+              onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center"
+            >
+              <ChevronLeft size={20} className="text-white" />
+            </button>
+            <button
+              onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center"
+            >
+              <ChevronRight size={20} className="text-white" />
+            </button>
           </div>
-          <button
-            onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null); }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
-          >
-            <ChevronLeft size={20} className="text-dark" />
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
-          >
-            <ChevronRight size={20} className="text-dark" />
-          </button>
         </div>
       )}
     </>
