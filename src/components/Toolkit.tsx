@@ -152,43 +152,45 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
       {/* Fullscreen overlay */}
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center" onClick={() => setFullscreen(false)}>
-          <button onClick={() => setFullscreen(false)} className="absolute top-4 right-4 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center">
-            <X size={18} className="text-dark" />
-          </button>
-          <button
-            onClick={() => downloadImage(images[current], `${title}-${current + 1}.jpg`)}
-            className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white shadow-md text-primary px-3 py-2 rounded-xl text-sm font-semibold"
-          >
-            <Download size={16} /> Save
-          </button>
-          <span className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white shadow-md text-dark text-sm font-bold px-4 py-2 rounded-xl">
-            {current + 1} / {images.length}
-          </span>
+        <div className="fixed inset-0 z-[60] bg-white" onClick={() => setFullscreen(false)}>
+          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-2 bg-white/90 backdrop-blur-sm">
+            <button
+              onClick={(e) => { e.stopPropagation(); downloadImage(images[current], `${title}-${current + 1}.jpg`); }}
+              className="flex items-center gap-1 text-primary text-xs font-semibold"
+            >
+              <Download size={14} /> Save
+            </button>
+            <span className="text-dark text-xs font-bold">{current + 1} / {images.length}</span>
+            <button onClick={() => setFullscreen(false)} className="w-8 h-8 bg-grey-light rounded-full flex items-center justify-center">
+              <X size={16} className="text-dark" />
+            </button>
+          </div>
+          <div className="w-full h-full pt-10 flex items-start justify-center" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={images[current]}
+              alt={`${title} ${current + 1}`}
+              width={600}
+              height={900}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
           {images.length > 1 && (
             <>
               <button
-                onClick={prev}
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-grey-light transition-colors"
+                onClick={(e) => { e.stopPropagation(); prev(); }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
               >
-                <ChevronLeft size={22} className="text-dark" />
+                <ChevronLeft size={20} className="text-dark" />
               </button>
               <button
-                onClick={next}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-grey-light transition-colors"
+                onClick={(e) => { e.stopPropagation(); next(); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
               >
-                <ChevronRight size={22} className="text-dark" />
+                <ChevronRight size={20} className="text-dark" />
               </button>
             </>
           )}
-          <Image
-            src={images[current]}
-            alt={`${title} ${current + 1}`}
-            width={600}
-            height={900}
-            className="max-h-[85vh] w-auto h-auto rounded-xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
         </div>
       )}
     </>
@@ -226,51 +228,50 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center animate-fade-in" onClick={() => setSelectedIndex(null)}>
-          <button onClick={() => setSelectedIndex(null)} className="absolute top-4 right-4 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center">
-            <X size={18} className="text-dark" />
-          </button>
-          <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-            <button
-              onClick={() => downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`)}
-              className="flex items-center gap-2 bg-white shadow-md text-primary px-3 py-2 rounded-xl text-sm font-semibold"
-            >
-              <Download size={16} /> Save
-            </button>
-            {favHook && (
+        <div className="fixed inset-0 z-[60] bg-white" onClick={() => setSelectedIndex(null)}>
+          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-3 py-2 bg-white/90 backdrop-blur-sm">
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => favHook.toggle(images[selectedIndex])}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold shadow-md ${
-                  favHook.isFav(images[selectedIndex]) ? "bg-amber-100 text-amber-700" : "bg-white text-grey-dark"
-                }`}
+                onClick={(e) => { e.stopPropagation(); downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`); }}
+                className="flex items-center gap-1 text-primary text-xs font-semibold"
               >
-                <Star size={16} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
+                <Download size={14} /> Save
               </button>
-            )}
+              {favHook && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); favHook.toggle(images[selectedIndex]); }}
+                  className={`text-xs font-semibold ${favHook.isFav(images[selectedIndex]) ? "text-amber-600" : "text-grey"}`}
+                >
+                  <Star size={14} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
+                </button>
+              )}
+            </div>
+            <span className="text-dark text-xs font-bold">{selectedIndex + 1} / {images.length}</span>
+            <button onClick={() => setSelectedIndex(null)} className="w-8 h-8 bg-grey-light rounded-full flex items-center justify-center">
+              <X size={16} className="text-dark" />
+            </button>
           </div>
-          <span className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white shadow-md text-dark text-sm font-bold px-4 py-2 rounded-xl">
-            {selectedIndex + 1} / {images.length}
-          </span>
+          <div className="w-full h-full pt-10 flex items-start justify-center" onClick={(e) => e.stopPropagation()}>
+            <Image
+              src={images[selectedIndex]}
+              alt={`${title} Card ${selectedIndex + 1}`}
+              width={600}
+              height={900}
+              className="w-full h-auto"
+            />
+          </div>
           <button
-            onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-grey-light transition-colors"
+            onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null); }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
           >
-            <ChevronLeft size={22} className="text-dark" />
+            <ChevronLeft size={20} className="text-dark" />
           </button>
           <button
-            onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-11 h-11 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-grey-light transition-colors"
+            onClick={(e) => { e.stopPropagation(); setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null); }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/90 shadow-lg rounded-full flex items-center justify-center"
           >
-            <ChevronRight size={22} className="text-dark" />
+            <ChevronRight size={20} className="text-dark" />
           </button>
-          <Image
-            src={images[selectedIndex]}
-            alt={`${title} Card ${selectedIndex + 1}`}
-            width={600}
-            height={900}
-            className="max-h-[85vh] w-auto h-auto rounded-xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
         </div>
       )}
     </>
