@@ -25,6 +25,7 @@ import NotificationPrompt from "@/components/NotificationPrompt";
 import InstallPrompt from "@/components/InstallPrompt";
 import NotificationBanner from "@/components/NotificationBanner";
 import UsernameSetup from "@/components/UsernameSetup";
+import Onboarding from "@/components/Onboarding";
 import { useAuth } from "@/lib/auth-context";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Loader2, UserPlus } from "lucide-react";
@@ -37,6 +38,7 @@ export default function Home() {
   const [screen, setScreen] = useState<AppScreen>("landing");
   const [usernameSet, setUsernameSet] = useState(false);
   const [autoOpenChallenge, setAutoOpenChallenge] = useState(false);
+  const [onboardingDone, setOnboardingDone] = useState(true);
   const [pendingPartnerCount, setPendingPartnerCount] = useState(0);
   const [showPartnerToast, setShowPartnerToast] = useState(false);
 
@@ -145,7 +147,21 @@ export default function Home() {
   );
 
   if (needsUsername) {
-    return <UsernameSetup onComplete={() => setUsernameSet(true)} />;
+    return <UsernameSetup onComplete={() => {
+      setUsernameSet(true);
+      // Check if onboarding needed (first-time user)
+      const done = localStorage.getItem("ws-onboarding-done");
+      if (!done) setOnboardingDone(false);
+    }} />;
+  }
+
+  // Show onboarding for first-time users
+  if (!onboardingDone) {
+    return <Onboarding onComplete={() => {
+      localStorage.setItem("ws-onboarding-done", "true");
+      setOnboardingDone(true);
+      setCurrentPage("challenges");
+    }} />;
   }
 
   // Subscription check
