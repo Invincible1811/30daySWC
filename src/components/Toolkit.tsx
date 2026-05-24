@@ -152,7 +152,7 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
       {/* Fullscreen overlay */}
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center" onClick={() => setFullscreen(false)}>
           <button onClick={() => setFullscreen(false)} className="absolute top-4 right-4 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center">
             <X size={18} className="text-dark" />
           </button>
@@ -187,6 +187,7 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
             width={600}
             height={900}
             className="max-h-[85vh] w-auto h-auto rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}
@@ -225,7 +226,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center animate-fade-in">
+        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center animate-fade-in" onClick={() => setSelectedIndex(null)}>
           <button onClick={() => setSelectedIndex(null)} className="absolute top-4 right-4 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center">
             <X size={18} className="text-dark" />
           </button>
@@ -268,6 +269,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
             width={600}
             height={900}
             className="max-h-[85vh] w-auto h-auto rounded-xl shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}
@@ -303,7 +305,7 @@ function GospelToolSection() {
       </div>
 
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center animate-fade-in overflow-y-auto">
+        <div className="fixed inset-0 z-[60] bg-grey-light/50 flex items-center justify-center animate-fade-in overflow-y-auto" onClick={() => setFullscreen(false)}>
           <button onClick={() => setFullscreen(false)} className="fixed top-4 right-4 z-20 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center">
             <X size={18} className="text-dark" />
           </button>
@@ -313,7 +315,7 @@ function GospelToolSection() {
           >
             <Download size={16} /> Save
           </button>
-          <div className="py-4 px-4">
+          <div className="py-4 px-4" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
