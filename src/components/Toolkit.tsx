@@ -23,8 +23,8 @@ type Section = "scriptures" | "locations" | "gospel" | "bingo" | "gifts";
 const sections: { id: Section; label: string; icon: React.ElementType; color: string }[] = [
   { id: "scriptures", label: "Scriptures & Declarations", icon: BookOpen, color: "from-blue-600 to-blue-800" },
   { id: "locations", label: "Conversation Starters", icon: MapPin, color: "from-green-600 to-green-800" },
-  { id: "gospel", label: "Gospel Tool", icon: Heart, color: "from-purple-600 to-purple-800" },
-  { id: "bingo", label: "Kindness Bingo", icon: Sparkles, color: "from-amber-500 to-amber-700" },
+  { id: "gospel", label: "Gospel Scripts/Tools", icon: Heart, color: "from-purple-600 to-purple-800" },
+  { id: "bingo", label: "Acts of Kindness", icon: Sparkles, color: "from-amber-500 to-amber-700" },
   { id: "gifts", label: "Gifts & Giveaways", icon: Gift, color: "from-rose-500 to-rose-700" },
 ];
 
@@ -306,6 +306,63 @@ function GospelToolSection() {
   );
 }
 
+const bingoSquares = [
+  "Buy someone coffee", "Write an encouraging note", "Help carry groceries",
+  "Pray with a stranger", "Give a genuine compliment", "Share a meal",
+  "Visit someone lonely", "Donate clothes", "Hold the door open",
+  "Pay for someone's food", "Send a thank-you text", "Offer to pray for someone",
+  "FREE SPACE", "Give a Bible", "Invite someone to church",
+  "Smile at 10 people", "Clean up litter", "Leave an encouraging tip",
+  "Cook for a neighbor", "Forgive someone", "Volunteer your time",
+  "Give flowers", "Listen without interrupting", "Share your testimony",
+  "Let someone go first",
+];
+
+function BingoBoard() {
+  const [completed, setCompleted] = useState<Set<number>>(() => {
+    if (typeof window === "undefined") return new Set();
+    const saved = localStorage.getItem("ws-bingo-completed");
+    return saved ? new Set(JSON.parse(saved)) : new Set([12]);
+  });
+
+  const toggle = (i: number) => {
+    if (i === 12) return;
+    setCompleted(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      localStorage.setItem("ws-bingo-completed", JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  return (
+    <div className="bg-card rounded-2xl p-4 border border-grey-light">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="font-bold text-dark text-sm">Interactive Bingo</h4>
+        <span className="text-xs text-grey font-medium">{completed.size}/25 completed</span>
+      </div>
+      <div className="grid grid-cols-5 gap-1.5">
+        {bingoSquares.map((sq, i) => (
+          <button
+            key={i}
+            onClick={() => toggle(i)}
+            className={`aspect-square rounded-lg p-1 flex items-center justify-center text-center transition-all duration-200 ${
+              completed.has(i)
+                ? "bg-amber-500 text-white scale-95 shadow-inner"
+                : "bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200/50"
+            }`}
+          >
+            <span className="text-[9px] leading-tight font-medium line-clamp-3">
+              {completed.has(i) && i !== 12 ? "✓" : sq}
+            </span>
+          </button>
+        ))}
+      </div>
+      <p className="text-grey text-[10px] text-center mt-3">Tap a square when you complete the act of kindness!</p>
+    </div>
+  );
+}
+
 export default function Toolkit() {
   const [activeSection, setActiveSection] = useState<Section>("scriptures");
 
@@ -368,9 +425,10 @@ export default function Toolkit() {
         <div className="space-y-4">
           <div className="bg-gradient-to-r from-amber-500 to-amber-700 rounded-2xl p-5 text-white">
             <Sparkles size={32} className="mb-2 opacity-80" />
-            <h3 className="text-lg font-bold">Bonus Acts of Kindness Bingo Challenge</h3>
-            <p className="text-amber-100 text-sm mt-1">Complete acts of kindness and mark them off! A fun way to spread love in your community.</p>
+            <h3 className="text-lg font-bold">Acts of Kindness Bingo Challenge</h3>
+            <p className="text-amber-100 text-sm mt-1">Tap a square when you complete an act of kindness. Do it with friends!</p>
           </div>
+          <BingoBoard />
           <CardGrid images={bingoImages} title="Bingo Challenge" />
         </div>
       )}
