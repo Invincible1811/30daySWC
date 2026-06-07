@@ -118,7 +118,7 @@ export default function AuthPage({ onAuthSuccess }: { onAuthSuccess: () => void 
           <div className="inline-flex items-center justify-center rounded-2xl overflow-hidden" style={{ width: 64, height: 64, marginBottom: 16 }}>
             <img src="/icons/logo.png" alt="30 Day SWC" width={64} height={64} style={{ objectFit: "cover", borderRadius: 16 }} />
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Winning Souls</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Soul-Winning</h1>
           <p style={{ color: "#93C5FD", fontSize: 14, marginTop: 4 }}>30-Day Soul-Winning Challenge</p>
         </div>
 

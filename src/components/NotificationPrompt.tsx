@@ -88,7 +88,7 @@ function scheduleDailyReminder() {
 
   // Show a confirmation notification
   if (Notification.permission === "granted") {
-    new Notification("Winning Souls", {
+    new Notification("Soul-Winning", {
       body: "Notifications enabled! You'll get daily reminders to win souls.",
       icon: "/icons/icon-192.png",
     });

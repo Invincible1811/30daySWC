@@ -93,7 +93,7 @@ export default function ResetPasswordPage() {
           <div className="inline-flex items-center justify-center rounded-2xl" style={{ width: 56, height: 56, background: "rgba(255,255,255,0.1)", marginBottom: 16 }}>
             <Flame size={28} style={{ color: "#FBBF24" }} />
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Winning Souls</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Soul-Winning</h1>
         </div>
 
         <div className="rounded-3xl" style={{ background: "#fff", padding: "32px 28px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>

@@ -5,7 +5,7 @@ import { X, ChevronRight, ChevronLeft } from "lucide-react";
 
 const tourSteps = [
   {
-    title: "Welcome to Winning Souls! 🎉",
+    title: "Welcome to the 30 Day Soul-Winning Challenge! 🎉",
     description: "Let me show you around. This quick tour will help you get the most out of the app.",
     position: "center" as const,
   },
@@ -17,12 +17,12 @@ const tourSteps = [
   },
   {
     title: "Record What God Did ✍️",
-    description: "After stepping out in faith, tap 'Record What God Did' on your challenge card to log souls won, prayers offered, and church invitations.",
+    description: "After stepping out in faith, tap 'Record What God Did' on your challenge card to log souls won to Christ, people prayed for, and church invitations.",
     position: "center" as const,
   },
   {
     title: "Soul-Winning Toolkit 🛠️",
-    description: "Access scripture cards, conversation starters, the Gospel tool, and acts of kindness ideas. Save your favorites for quick access!",
+    description: "Access scripture cards, conversation starters, Gospel tools, and acts of kindness ideas. Save your favorites for quick access!",
     position: "center" as const,
     highlight: "toolkit",
   },
@@ -40,7 +40,7 @@ const tourSteps = [
   },
   {
     title: "You're Ready! 🔥",
-    description: "That's it! Tap your first challenge card to get started. Remember: every soul matters to God, and He's using YOU.",
+    description: "That's it! Tap your first challenge card to get started. Remember: Every soul matters to God, and He's moving through YOU!",
     position: "center" as const,
   },
 ];

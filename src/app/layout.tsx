@@ -18,20 +18,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Winning Souls — 30-Day Soul Winning Challenge",
+  title: "Soul-Winning — 30-Day Soul-Winning Challenge",
   description: "A 30-day evangelism challenge app to win souls, track follow-ups, share testimonies, and connect with a global community of soul winners.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Winning Souls",
+    title: "Soul-Winning",
   },
   icons: {
     icon: "/icons/icon-192.png",
     apple: "/icons/apple-touch-icon.png",
   },
   openGraph: {
-    title: "Winning Souls — 30-Day Soul Winning Challenge",
+    title: "Soul-Winning — 30-Day Soul-Winning Challenge",
     description: "Your complete companion for evangelism. Daily challenges, scripture cards, prayer tools, and a community of soul winners.",
     type: "website",
   },

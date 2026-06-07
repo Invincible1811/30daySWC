@@ -24,7 +24,7 @@ const features = [
   },
   {
     icon: Users,
-    title: "Soul Tracker",
+    title: "Impact Tracker",
     desc: "Log every soul you lead to Christ. Watch your impact grow day by day.",
     bg: "#059669",
   },
@@ -365,7 +365,7 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
                           </div>
                           <div>
                             <p style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>{section.tag}</p>
-                            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Winning Souls</p>
+                            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Soul-Winning</p>
                           </div>
                         </div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -672,13 +672,13 @@ export default function LandingPage({ onEnterApp }: LandingPageProps) {
       <footer style={{ background: "#111827", padding: "40px 24px" }}>
         <div className="text-center" style={{ maxWidth: 600, margin: "0 auto" }}>
           <div className="flex justify-center mb-3"><LogoIcon size={40} /></div>
-          <h3 style={{ color: "#fff", fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Winning Souls</h3>
+          <h3 style={{ color: "#fff", fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Soul-Winning</h3>
           <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginBottom: 16 }}>30-Day Soul-Winning Challenge Companion App</p>
           <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 12 }}>
             <a href="/privacy" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, textDecoration: "none" }}>Privacy Policy</a>
             <a href="/terms" style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, textDecoration: "none" }}>Terms of Service</a>
           </div>
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>&copy; {new Date().getFullYear()} Winning Souls. All rights reserved. Built with love for the Kingdom.</p>
+          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 12 }}>&copy; {new Date().getFullYear()} Soul-Winning. All rights reserved. Built with love for the Kingdom.</p>
         </div>
       </footer>
     </div>

@@ -37,7 +37,7 @@ interface NavigationProps {
 const bottomNavItems: { icon: React.ElementType; label: string; page: Page }[] = [
   { icon: Home, label: "Home", page: "dashboard" },
   { icon: BookOpen, label: "Challenge", page: "challenges" },
-  { icon: UserPlus, label: "Souls", page: "souls" },
+  { icon: UserPlus, label: "Impact", page: "souls" },
   { icon: CalendarDays, label: "Events", page: "events" },
   { icon: MoreHorizontal, label: "More", page: "community" },
 ];
@@ -45,7 +45,7 @@ const bottomNavItems: { icon: React.ElementType; label: string; page: Page }[] =
 const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = [
   { icon: Home, label: "Dashboard", page: "dashboard" },
   { icon: BookOpen, label: "30-Day Challenge", page: "challenges" },
-  { icon: UserPlus, label: "Log Souls", page: "souls" },
+  { icon: UserPlus, label: "Impact Tracker", page: "souls" },
   { icon: HandHeart, label: "Follow Up", page: "followup" },
   { icon: Heart, label: "Prayer Wall", page: "prayer" },
   { icon: MessageCircle, label: "Testimonies", page: "testimonies" },
@@ -76,9 +76,9 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
       <aside className="hidden lg:flex flex-col w-64 bg-dark text-white fixed left-0 top-0 h-full z-40">
         <div className="p-6 border-b border-dark-light">
           <h1 className="text-xl font-bold text-primary-light flex items-center gap-2.5">
-            <LogoIcon size={34} /> Winning Souls
+            <LogoIcon size={34} /> Soul-Winning
           </h1>
-          <p className="text-xs text-grey mt-1">30-Day Soul Winning Challenge</p>
+          <p className="text-xs text-grey mt-1">30-Day Soul-Winning Challenge</p>
         </div>
         <nav className="flex-1 overflow-y-auto py-4">
           {navItems.map(item => {
@@ -143,7 +143,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
           <Menu size={24} />
         </button>
         <h1 className="text-lg font-bold text-primary-light flex items-center gap-2">
-          <LogoIcon size={28} /> Winning Souls
+          <LogoIcon size={28} /> Soul-Winning
         </h1>
         <div className="w-8" />
       </header>
@@ -154,7 +154,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
           <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-72 bg-dark text-white animate-slide-in">
             <div className="p-4 flex items-center justify-between border-b border-dark-light">
-              <h1 className="text-lg font-bold text-primary-light flex items-center gap-2"><LogoIcon size={28} /> Winning Souls</h1>
+              <h1 className="text-lg font-bold text-primary-light flex items-center gap-2"><LogoIcon size={28} /> Soul-Winning</h1>
               <button onClick={() => setSidebarOpen(false)}>
                 <X size={24} className="text-grey" />
               </button>

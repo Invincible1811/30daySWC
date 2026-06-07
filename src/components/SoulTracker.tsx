@@ -36,7 +36,7 @@ export default function SoulTracker() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-dark">Soul Tracker</h2>
+          <h2 className="text-2xl font-bold text-dark">Impact Tracker</h2>
           <p className="text-grey mt-1">Log and track every soul won for the Kingdom</p>
         </div>
         <button

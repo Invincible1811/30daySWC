@@ -1,7 +1,7 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { Heart, MessageCircle, Share2, Plus, X, Send } from "lucide-react";
+import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield } from "lucide-react";
 import { useState } from "react";
 
 export default function Testimonies() {
@@ -11,18 +11,33 @@ export default function Testimonies() {
   const [content, setContent] = useState("");
   const [commentingId, setCommentingId] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [shareAnonymously, setShareAnonymously] = useState(false);
+  const [permissionGiven, setPermissionGiven] = useState(false);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => setPhotoPreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
     addTestimony({
-      author: userName,
+      author: shareAnonymously ? "Anonymous" : userName,
       title,
       content,
       date: new Date().toISOString().split("T")[0],
     });
     setTitle("");
     setContent("");
+    setPhotoPreview(null);
+    setShareAnonymously(false);
+    setPermissionGiven(false);
     setShowForm(false);
   };
 
@@ -38,7 +53,7 @@ export default function Testimonies() {
   };
 
   const handleShare = async (testimony: { title: string; content: string; author: string }) => {
-    const text = `${testimony.title}\n\n${testimony.content}\n\n— ${testimony.author}\n\nShared from Winning Souls App`;
+    const text = `${testimony.title}\n\n${testimony.content}\n\n— ${testimony.author}\n\nShared from Soul-Winning App`;
     if (navigator.share) {
       try {
         await navigator.share({ title: testimony.title, text });
@@ -155,10 +170,41 @@ export default function Testimonies() {
                 value={content}
                 onChange={e => setContent(e.target.value)}
                 placeholder="Share what God has done through your evangelism..."
-                className="w-full px-4 py-3 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary resize-none h-40"
+                className="w-full px-4 py-3 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary resize-none h-32"
                 required
               />
-              <button type="submit" className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors">
+
+              {/* Photo Upload */}
+              <div>
+                <label className="flex items-center gap-2 text-sm text-grey-dark cursor-pointer hover:text-primary transition-colors">
+                  <Camera size={16} />
+                  <span>Add a photo (optional)</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                </label>
+                {photoPreview && (
+                  <div className="mt-2 relative inline-block">
+                    <img src={photoPreview} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
+                    <button type="button" onClick={() => setPhotoPreview(null)} className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white rounded-full flex items-center justify-center">
+                      <X size={10} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Privacy Options */}
+              <div className="bg-grey-light/50 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-bold text-grey-dark flex items-center gap-1.5"><Shield size={12} /> Privacy Options</p>
+                <label className="flex items-center gap-2 text-xs text-grey-dark cursor-pointer">
+                  <input type="checkbox" checked={permissionGiven} onChange={e => setPermissionGiven(e.target.checked)} className="rounded border-grey-light" />
+                  I confirm permission was given to share this testimony publicly
+                </label>
+                <label className="flex items-center gap-2 text-xs text-grey-dark cursor-pointer">
+                  <input type="checkbox" checked={shareAnonymously} onChange={e => setShareAnonymously(e.target.checked)} className="rounded border-grey-light" />
+                  Share anonymously
+                </label>
+              </div>
+
+              <button type="submit" disabled={!permissionGiven} className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 Share Testimony
               </button>
             </form>

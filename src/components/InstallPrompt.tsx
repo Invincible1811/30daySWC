@@ -80,7 +80,7 @@ export default function InstallPrompt() {
               <Download size={20} className="text-primary-light" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold">Install Winning Souls</p>
+              <p className="text-sm font-bold">Install Soul-Winning</p>
               <p className="text-xs text-grey-medium mt-1">Get the full app experience — works offline, no browser needed.</p>
               <button
                 onClick={install}

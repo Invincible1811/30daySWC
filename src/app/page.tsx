@@ -35,17 +35,17 @@ type AppScreen = "landing" | "auth" | "app";
 
 export default function Home() {
   const { user, profile, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>("dashboard");
+  const [currentPage, setCurrentPage] = useState<Page>("challenges");
   const [screen, setScreen] = useState<AppScreen>("landing");
   const [usernameSet, setUsernameSet] = useState(false);
-  const [autoOpenChallenge, setAutoOpenChallenge] = useState(false);
+  const [autoOpenChallenge, setAutoOpenChallenge] = useState(true);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
-    return localStorage.getItem("ws-onboarding-v2") === "true";
+    return localStorage.getItem("ws-onboarding-v3") === "true";
   });
   const [showTour, setShowTour] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("ws-tour-done") !== "true";
+    return localStorage.getItem("ws-tour-v3-done") !== "true";
   });
   const [pendingPartnerCount, setPendingPartnerCount] = useState(0);
   const [showPartnerToast, setShowPartnerToast] = useState(false);
@@ -119,7 +119,12 @@ export default function Home() {
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
       case "members": return <Members />;
-      case "settings": return <SettingsPage onNavigate={handleNavigate} />;
+      case "settings": return <SettingsPage onNavigate={handleNavigate} onReplayOnboarding={() => {
+          localStorage.removeItem("ws-onboarding-v3");
+          localStorage.removeItem("ws-tour-v3-done");
+          setOnboardingDone(false);
+          setShowTour(true);
+        }} />;
       case "profile": return <ProfilePage />;
       case "admin": return <AdminDashboard />;
       case "comingsoon": return <ComingSoon />;
@@ -158,7 +163,7 @@ export default function Home() {
     return <UsernameSetup onComplete={() => {
       setUsernameSet(true);
       // Check if onboarding needed (first-time user)
-      const done = localStorage.getItem("ws-onboarding-v2");
+      const done = localStorage.getItem("ws-onboarding-v3");
       if (!done) setOnboardingDone(false);
     }} />;
   }
@@ -166,7 +171,7 @@ export default function Home() {
   // Show onboarding for first-time users
   if (!onboardingDone) {
     return <Onboarding onComplete={() => {
-      localStorage.setItem("ws-onboarding-v2", "true");
+      localStorage.setItem("ws-onboarding-v3", "true");
       setOnboardingDone(true);
       setCurrentPage("challenges");
     }} />;
@@ -231,7 +236,7 @@ export default function Home() {
       {showTour && onboardingDone && (
         <GuidedTour
           onComplete={() => {
-            localStorage.setItem("ws-tour-done", "true");
+            localStorage.setItem("ws-tour-v3-done", "true");
             setShowTour(false);
           }}
           onNavigate={(page) => setCurrentPage(page as Page)}

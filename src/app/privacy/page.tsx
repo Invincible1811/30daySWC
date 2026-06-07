@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Winning Souls",
+  title: "Privacy Policy — Soul-Winning",
 };
 
 export default function PrivacyPage() {
@@ -9,7 +9,7 @@ export default function PrivacyPage() {
     <div style={{ minHeight: "100vh", background: "#F9FAFB", padding: "40px 24px" }}>
       <div style={{ maxWidth: 700, margin: "0 auto" }}>
         <a href="/" style={{ color: "#1E40AF", fontSize: 14, fontWeight: 600, textDecoration: "none", display: "inline-block", marginBottom: 24 }}>
-          ← Back to Winning Souls
+          ← Back to Soul-Winning
         </a>
         <div style={{ background: "#fff", borderRadius: 20, padding: "40px 32px", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" }}>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: "#111827", marginBottom: 8 }}>Privacy Policy</h1>
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
             <p>For privacy-related questions or data requests, contact the app administrator through the community section or reach out via the app&apos;s support channels.</p>
           </div>
         </div>
-        <p style={{ textAlign: "center", fontSize: 12, color: "#9CA3AF", marginTop: 32 }}>&copy; {new Date().getFullYear()} Winning Souls. All rights reserved.</p>
+        <p style={{ textAlign: "center", fontSize: 12, color: "#9CA3AF", marginTop: 32 }}>&copy; {new Date().getFullYear()} Soul-Winning. All rights reserved.</p>
       </div>
     </div>
   );

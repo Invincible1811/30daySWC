@@ -67,7 +67,7 @@ export default function Paywall() {
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-8">
           <Flame size={40} style={{ color: "#FBBF24", margin: "0 auto 12px" }} />
-          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Winning Souls</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>Soul-Winning</h1>
         </div>
 
         <div className="rounded-3xl" style={{ background: "#fff", padding: "36px 28px", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
@@ -89,7 +89,7 @@ export default function Paywall() {
             <div className="space-y-2.5">
               {[
                 "Full 30-day challenge access",
-                "Soul tracker & follow-up tools",
+                "Impact tracker & follow-up tools",
                 "Community, prayer wall & testimonies",
                 "Evangelism toolkit & scripture cards",
                 "Direct messaging & groups",

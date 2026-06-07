@@ -79,7 +79,7 @@ export default function ConfirmPage() {
                 <CheckCircle2 size={40} style={{ color: "#16A34A" }} />
               </div>
               <h2 style={{ fontSize: 24, fontWeight: 800, color: "#111827", marginBottom: 8 }}>
-                Welcome to Winning Souls! 🎉
+                Welcome to Soul-Winning! 🎉
               </h2>
               <p style={{ color: "#6B7280", fontSize: 15, lineHeight: 1.6, marginBottom: 8 }}>
                 Your email has been confirmed successfully.

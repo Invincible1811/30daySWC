@@ -15,9 +15,10 @@ type Tab = "main" | "profile" | "email" | "password" | "notifications" | "subscr
 
 interface SettingsPageProps {
   onNavigate: (page: Page) => void;
+  onReplayOnboarding?: () => void;
 }
 
-export default function SettingsPage({ onNavigate }: SettingsPageProps) {
+export default function SettingsPage({ onNavigate, onReplayOnboarding }: SettingsPageProps) {
   const { user, profile, signOut, refreshProfile } = useAuth();
   const { status: subStatus, daysLeft } = useSubscriptionStatus();
   const [tab, setTab] = useState<Tab>("main");
@@ -52,6 +53,7 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
   // Notifications
   const [pushEnabled, setPushEnabled] = useState(false);
   const [emailNotifs, setEmailNotifs] = useState(true);
+  const [activityPublic, setActivityPublic] = useState(true);
 
   // Delete account
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -426,6 +428,16 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
                 <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform ${emailNotifs ? "translate-x-5" : "translate-x-0.5"}`} />
               </button>
             </div>
+            <div className="border-t border-grey-light" />
+            <div className="flex items-center justify-between py-3.5">
+              <div>
+                <p className="text-sm font-medium text-dark">Share my activity with the community</p>
+                <p className="text-xs text-grey">Let others see when you complete days or share testimonies</p>
+              </div>
+              <button onClick={() => setActivityPublic(!activityPublic)} className={`w-12 h-7 rounded-full transition-colors relative ${activityPublic ? "bg-primary" : "bg-grey-light"}`}>
+                <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform ${activityPublic ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -488,6 +500,10 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
               <Crown size={16} /> Subscribe Now — $8/month
             </button>
           )}
+
+          {subStatus === "active" && (
+            <CancelSubscription />
+          )}
         </div>
       </div>
     );
@@ -536,9 +552,9 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
           <div className="text-sm text-grey-dark space-y-4 leading-relaxed">
             <p><strong>Last Updated:</strong> April 2026</p>
             <h3 className="font-bold text-dark text-base">1. Acceptance of Terms</h3>
-            <p>By using Winning Souls, you agree to these Terms of Service. If you do not agree, please do not use the app.</p>
+            <p>By using Soul-Winning, you agree to these Terms of Service. If you do not agree, please do not use the app.</p>
             <h3 className="font-bold text-dark text-base">2. Description of Service</h3>
-            <p>Winning Souls is a 30-day evangelism challenge companion app with daily challenges, soul tracking, community features, and evangelism tools.</p>
+            <p>Soul-Winning is a 30-day evangelism challenge companion app with daily challenges, impact tracking, community features, and evangelism tools.</p>
             <h3 className="font-bold text-dark text-base">3. User Accounts</h3>
             <p>You are responsible for maintaining the security of your account. You must provide accurate information and may not impersonate others.</p>
             <h3 className="font-bold text-dark text-base">4. Subscription &amp; Payments</h3>
@@ -546,7 +562,7 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
             <h3 className="font-bold text-dark text-base">5. Acceptable Use</h3>
             <p>Use the app for its intended purpose. Treat others with respect. Do not post offensive content or attempt to disrupt the service.</p>
             <h3 className="font-bold text-dark text-base">6. Content Ownership</h3>
-            <p>You retain ownership of content you post. By posting, you grant Winning Souls a non-exclusive license to display it within the app.</p>
+            <p>You retain ownership of content you post. By posting, you grant Soul-Winning a non-exclusive license to display it within the app.</p>
             <h3 className="font-bold text-dark text-base">7. Termination</h3>
             <p>We may suspend accounts that violate terms. You may delete your account at any time from Settings.</p>
             <h3 className="font-bold text-dark text-base">8. Disclaimer</h3>
@@ -731,7 +747,7 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-grey-light flex items-center justify-center"><Info size={18} className="text-grey-dark" /></div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-dark">Winning Souls</p>
+              <p className="text-sm font-medium text-dark">Soul-Winning</p>
               <p className="text-xs text-grey">Version 1.0 • 30-Day Soul-Winning Challenge</p>
             </div>
           </div>
@@ -746,6 +762,13 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
         </div>
       </div>
 
+      {/* Replay Onboarding */}
+      {onReplayOnboarding && (
+        <button onClick={onReplayOnboarding} className="w-full bg-primary/10 text-primary py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 hover:bg-primary/20 transition-colors">
+          <RefreshCw size={18} /> Replay Welcome Tour
+        </button>
+      )}
+
       {/* Sign Out */}
       <button onClick={signOut} className="w-full bg-grey-light text-dark py-3.5 rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 hover:bg-grey-light/80 transition-colors">
         <LogOut size={18} /> Sign Out
@@ -757,8 +780,89 @@ export default function SettingsPage({ onNavigate }: SettingsPageProps) {
       </button>
 
       <p className="text-center text-xs text-grey pb-4">
-        &copy; {new Date().getFullYear()} Winning Souls. All rights reserved.
+        &copy; {new Date().getFullYear()} Soul-Winning. All rights reserved.
       </p>
+    </div>
+  );
+}
+
+function CancelSubscription() {
+  const [showCancel, setShowCancel] = useState(false);
+  const [reason, setReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+
+  const handleCancel = async () => {
+    if (!reason.trim()) return;
+    setCancelling(true);
+    try {
+      const res = await fetch("/api/cancel-subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      if (res.ok) {
+        setCancelled(true);
+        setTimeout(() => window.location.reload(), 2000);
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } catch {
+      alert("Something went wrong. Please try again.");
+    }
+    setCancelling(false);
+  };
+
+  if (cancelled) {
+    return (
+      <div className="mt-4 bg-grey-light rounded-xl p-4 text-center">
+        <p className="text-sm font-medium text-grey-dark">Your subscription has been cancelled. You will lose access at the end of your billing period.</p>
+      </div>
+    );
+  }
+
+  if (!showCancel) {
+    return (
+      <button
+        onClick={() => setShowCancel(true)}
+        className="w-full mt-4 border border-danger/30 text-danger py-3 rounded-xl font-medium text-sm hover:bg-danger/5 transition-colors"
+      >
+        Cancel Subscription
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 bg-danger/5 border border-danger/20 rounded-xl p-4 space-y-3">
+      <p className="text-sm font-semibold text-dark">Are you sure you want to cancel?</p>
+      <p className="text-xs text-grey-dark">You will lose access to the app once cancelled. Please tell us why you&apos;re leaving:</p>
+      <select
+        value={reason}
+        onChange={e => setReason(e.target.value)}
+        className="w-full px-3 py-2.5 rounded-lg border border-grey-light text-sm focus:outline-none focus:border-danger"
+      >
+        <option value="">Select a reason...</option>
+        <option value="too_expensive">Too expensive</option>
+        <option value="not_using">Not using the app enough</option>
+        <option value="completed_challenge">Completed the challenge</option>
+        <option value="technical_issues">Technical issues</option>
+        <option value="other">Other</option>
+      </select>
+      <div className="flex gap-2">
+        <button
+          onClick={() => setShowCancel(false)}
+          className="flex-1 py-2.5 rounded-lg border border-grey-light text-sm font-medium text-grey-dark hover:bg-grey-light transition-colors"
+        >
+          Keep Subscription
+        </button>
+        <button
+          onClick={handleCancel}
+          disabled={!reason || cancelling}
+          className="flex-1 py-2.5 rounded-lg bg-danger text-white text-sm font-semibold disabled:opacity-50 hover:bg-red-600 transition-colors"
+        >
+          {cancelling ? "Cancelling..." : "Confirm Cancel"}
+        </button>
+      </div>
     </div>
   );
 }

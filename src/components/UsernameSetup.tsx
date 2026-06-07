@@ -92,7 +92,7 @@ export default function UsernameSetup({ onComplete }: { onComplete: () => void }
           <div className="inline-flex items-center justify-center rounded-2xl" style={{ width: 56, height: 56, background: "rgba(255,255,255,0.1)", marginBottom: 16 }}>
             <Flame size={28} style={{ color: "#FBBF24" }} />
           </div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>Welcome to Winning Souls!</h1>
+          <h1 style={{ fontSize: 24, fontWeight: 900, color: "#fff" }}>Welcome to Soul-Winning!</h1>
           <p style={{ color: "#93C5FD", fontSize: 14, marginTop: 8 }}>Choose a username to get started</p>
         </div>
 

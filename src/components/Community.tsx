@@ -2,8 +2,9 @@
 
 import { useApp } from "@/lib/store";
 import { challengeCards } from "@/lib/data";
-import { Heart, MessageCircle, MapPin, Globe, TrendingUp, Users, Award, CalendarDays, Send, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { Heart, MessageCircle, MapPin, Globe, TrendingUp, Users, Award, CalendarDays, Send, Plus, X, Trophy, Flame } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export default function Community() {
   const { communityPosts, likeCommunityPost, addCommunityPost, globalSoulCount, dailyShares, likeDailyShare, addCommentToDailyShare, userName } = useApp();
@@ -13,6 +14,23 @@ export default function Community() {
   const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
   const [showCreate, setShowCreate] = useState(false);
   const [newPost, setNewPost] = useState({ content: "", type: "testimony" as "testimony" | "report" | "encouragement" | "milestone", location: "" });
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState<{ username: string; full_name: string; avatar_url: string; bio: string; church: string; current_day: number; completed_days: number[] } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  const openProfile = async (authorName: string) => {
+    if (!isSupabaseConfigured) return;
+    setSelectedProfile(authorName);
+    setProfileLoading(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("username, full_name, avatar_url, bio, church, current_day, completed_days")
+      .or(`username.eq.${authorName},full_name.eq.${authorName}`)
+      .limit(1)
+      .single();
+    setProfileData(data);
+    setProfileLoading(false);
+  };
 
   const filtered = filter === "all" ? communityPosts : communityPosts.filter(p => p.type === filter);
 
@@ -203,11 +221,11 @@ export default function Community() {
             <div className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  <button onClick={() => openProfile(post.author)} className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold hover:ring-2 hover:ring-primary/30 transition-all">
                     {post.author.charAt(0)}
-                  </div>
+                  </button>
                   <div>
-                    <p className="font-semibold text-dark text-sm">{post.author}</p>
+                    <button onClick={() => openProfile(post.author)} className="font-semibold text-dark text-sm hover:text-primary transition-colors text-left">{post.author}</button>
                     <p className="text-xs text-grey flex items-center gap-1">
                       <MapPin size={10} /> {post.location} • {post.date}
                     </p>
@@ -408,6 +426,56 @@ export default function Community() {
           <p className="text-grey text-sm">No activity yet. Every step of faith matters.</p>
         </div>
       </div>
+
+      {/* User Profile Modal */}
+      {selectedProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => { setSelectedProfile(null); setProfileData(null); }}>
+          <div className="bg-white rounded-[20px] max-w-sm w-full shadow-2xl animate-pop-in" onClick={e => e.stopPropagation()}>
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-dark">Profile</h3>
+                <button onClick={() => { setSelectedProfile(null); setProfileData(null); }} className="w-8 h-8 rounded-full bg-grey-light flex items-center justify-center text-grey-dark hover:bg-grey-medium/30">
+                  <X size={16} />
+                </button>
+              </div>
+              {profileLoading ? (
+                <div className="text-center py-8">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
+                </div>
+              ) : profileData ? (
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xl font-bold mx-auto mb-3 overflow-hidden">
+                    {profileData.avatar_url ? (
+                      <img src={profileData.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (profileData.full_name || profileData.username || "?")[0]
+                    )}
+                  </div>
+                  <h4 className="font-bold text-dark text-lg">{profileData.full_name || profileData.username}</h4>
+                  {profileData.church && <p className="text-xs text-grey mt-0.5">{profileData.church}</p>}
+                  {profileData.bio && <p className="text-sm text-grey-dark mt-2">{profileData.bio}</p>}
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="bg-primary/5 rounded-xl p-3">
+                      <Trophy size={18} className="text-warning mx-auto mb-1" />
+                      <p className="text-lg font-bold text-dark">{profileData.completed_days?.length || 0}</p>
+                      <p className="text-xs text-grey">Days Done</p>
+                    </div>
+                    <div className="bg-success/5 rounded-xl p-3">
+                      <Flame size={18} className="text-danger mx-auto mb-1" />
+                      <p className="text-lg font-bold text-dark">Day {profileData.current_day || 1}</p>
+                      <p className="text-xs text-grey">Current Day</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-grey text-sm">Profile not found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

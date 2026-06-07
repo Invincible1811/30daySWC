@@ -133,7 +133,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
       <h3>Group Activity</h3><p>${selected.groupActivity}</p>
       <h3>Reflections</h3><ul>${selected.reflections.map((r: string) => `<li>${r}</li>`).join('')}</ul>
       <h3>Praying for the Sick</h3><p>${selected.prayingForSick}</p>
-      <p style="text-align:center;margin-top:40px;color:#999;">Winning Souls - 30 Day Soul Winning Challenge</p>
+      <p style="text-align:center;margin-top:40px;color:#999;">Soul-Winning - 30 Day Soul-Winning Challenge</p>
       </body></html>
     `);
     printWindow.document.close();
@@ -142,7 +142,7 @@ export default function ChallengeCards({ autoOpenToday = false }: ChallengeCards
 
   const handleShare = async () => {
     if (!selected) return;
-    const text = `Day ${selected.day}: ${selected.title}\nTheme: ${selected.theme}\n\n📋 Challenge: ${selected.challenge}\n\n📖 ${selected.keyScripture}\n\n� ${selected.encouragement}\n\n📍 Locations: ${selected.locationSuggestions}\n\n— Winning Souls App #30DaySWC`;
+    const text = `Day ${selected.day}: ${selected.title}\nTheme: ${selected.theme}\n\n📋 Challenge: ${selected.challenge}\n\n📖 ${selected.keyScripture}\n\n� ${selected.encouragement}\n\n📍 Locations: ${selected.locationSuggestions}\n\n— Soul-Winning App #30DaySWC`;
     if (navigator.share) {
       try {
         await navigator.share({ title: `Day ${selected.day}: ${selected.title}`, text });

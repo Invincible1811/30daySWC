@@ -83,7 +83,7 @@ export default function ShareInvite({ variant = "button" }: ShareInviteProps) {
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Winning Souls", text: shareText, url: shareUrl });
+        await navigator.share({ title: "Soul-Winning", text: shareText, url: shareUrl });
       } catch {
         // User cancelled
       }

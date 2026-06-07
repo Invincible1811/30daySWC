@@ -49,7 +49,7 @@ export default function Events() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-dark">Evangelism Events</h2>
+          <h2 className="text-2xl font-bold text-dark">Outreach Events</h2>
           <p className="text-grey mt-1">Stay informed about upcoming outreach activities</p>
         </div>
         <button
@@ -98,70 +98,104 @@ export default function Events() {
       </div>
 
       {/* Events List */}
-      <div className="space-y-3">
-        <h3 className="font-semibold text-dark">Upcoming Events</h3>
-        {events.map(event => {
-          const colors = eventTypeColors[event.type] || eventTypeColors.outreach;
-          return (
-            <div key={event.id} className="bg-card rounded-xl p-4 shadow-sm border border-grey-light">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center shrink-0`}>
-                    <CalendarDays size={22} className={colors.text} />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-dark">{event.title}</h4>
-                    <p className="text-sm text-grey-dark mt-0.5">{event.description}</p>
-                    <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-grey">
-                      <span className="flex items-center gap-1"><CalendarDays size={12} /> {event.date}</span>
-                      <span className="flex items-center gap-1"><Clock size={12} /> {event.time}</span>
-                      <span className="flex items-center gap-1"><MapPin size={12} /> {event.location}</span>
-                      <span className="flex items-center gap-1"><Users size={12} /> {event.attendees}</span>
-                    </div>
-                    {event.address && (
-                      <div className="mt-3 bg-grey-light/50 rounded-xl p-3">
-                        <p className="text-xs font-semibold text-grey-dark mb-1">📍 Full Address:</p>
-                        <p className="text-sm text-dark">{event.address}</p>
-                        {event.locationNotes && (
-                          <p className="text-xs text-grey mt-1">Note: {event.locationNotes}</p>
-                        )}
-                        <a
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}&travelmode=transit`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1.5 bg-primary text-white text-xs font-semibold px-3.5 py-2 rounded-lg hover:bg-primary-dark transition-colors shadow-sm"
-                        >
-                          <Navigation size={13} /> Get Directions <ExternalLink size={11} />
-                        </a>
+      {(() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const upcoming = events.filter(e => new Date(e.date) >= now);
+        const past = events.filter(e => new Date(e.date) < now);
+        return (
+          <>
+            <div className="space-y-3">
+              <h3 className="font-semibold text-dark">Upcoming Events</h3>
+              {upcoming.map(event => {
+                const colors = eventTypeColors[event.type] || eventTypeColors.outreach;
+                return (
+                  <div key={event.id} className="bg-card rounded-xl p-4 shadow-sm border border-primary/20">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center shrink-0`}>
+                          <CalendarDays size={22} className={colors.text} />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-dark">{event.title}</h4>
+                          <p className="text-sm text-grey-dark mt-0.5">{event.description}</p>
+                          <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-grey">
+                            <span className="flex items-center gap-1"><CalendarDays size={12} /> {event.date}</span>
+                            <span className="flex items-center gap-1"><Clock size={12} /> {event.time}</span>
+                            <span className="flex items-center gap-1"><MapPin size={12} /> {event.location}</span>
+                            <span className="flex items-center gap-1"><Users size={12} /> {event.attendees}</span>
+                          </div>
+                          {event.address && (
+                            <div className="mt-3 bg-grey-light/50 rounded-xl p-3">
+                              <p className="text-xs font-semibold text-grey-dark mb-1">📍 Full Address:</p>
+                              <p className="text-sm text-dark">{event.address}</p>
+                              {event.locationNotes && (
+                                <p className="text-xs text-grey mt-1">Note: {event.locationNotes}</p>
+                              )}
+                              <a
+                                href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(event.address)}&travelmode=transit`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 inline-flex items-center gap-1.5 bg-primary text-white text-xs font-semibold px-3.5 py-2 rounded-lg hover:bg-primary-dark transition-colors shadow-sm"
+                              >
+                                <Navigation size={13} /> Get Directions <ExternalLink size={11} />
+                              </a>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
+                      <button
+                        onClick={() => rsvpEvent(event.id)}
+                        className="bg-primary text-white text-xs px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors shrink-0"
+                      >
+                        RSVP
+                      </button>
+                    </div>
                   </div>
+                );
+              })}
+              {upcoming.length === 0 && (
+                <div className="text-center py-12">
+                  <CalendarDays size={48} className="text-grey-medium mx-auto mb-3" />
+                  <p className="text-grey font-medium">No upcoming events</p>
+                  <p className="text-grey text-sm mt-1">Create an outreach event to get started</p>
                 </div>
-                <button
-                  onClick={() => rsvpEvent(event.id)}
-                  className="bg-primary text-white text-xs px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors shrink-0"
-                >
-                  RSVP
-                </button>
-              </div>
+              )}
             </div>
-          );
-        })}
-        {events.length === 0 && (
-          <div className="text-center py-12">
-            <CalendarDays size={48} className="text-grey-medium mx-auto mb-3" />
-            <p className="text-grey font-medium">No upcoming events</p>
-            <p className="text-grey text-sm mt-1">Create an evangelism event to get started</p>
-          </div>
-        )}
-      </div>
+
+            {past.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-semibold text-grey">Past Events</h3>
+                {past.map(event => (
+                  <div key={event.id} className="bg-grey-light/50 rounded-xl p-4 border border-grey-light opacity-70">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 bg-grey-light rounded-xl flex items-center justify-center shrink-0">
+                        <CalendarDays size={22} className="text-grey" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-grey-dark">{event.title}</h4>
+                        <p className="text-sm text-grey mt-0.5">{event.description}</p>
+                        <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-grey">
+                          <span className="flex items-center gap-1"><CalendarDays size={12} /> {event.date}</span>
+                          <span className="flex items-center gap-1"><Clock size={12} /> {event.time}</span>
+                          <span className="flex items-center gap-1"><MapPin size={12} /> {event.location}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        );
+      })()}
 
       {/* Add Event Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white rounded-2xl max-w-md w-full animate-pop-in shadow-2xl">
             <div className="p-5 border-b border-grey-light flex items-center justify-between">
-              <h3 className="text-lg font-bold text-dark">Create Evangelism Event</h3>
+              <h3 className="text-lg font-bold text-dark">Create Outreach Event</h3>
               <button onClick={() => setShowForm(false)} className="text-grey hover:text-dark"><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-3">

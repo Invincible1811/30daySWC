@@ -31,7 +31,7 @@ interface Stats {
 }
 
 export default function AdminDashboard() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const isFullAdmin = profile?.role === "admin";
   const isLeaderOnly = profile?.role === "leader";
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -75,10 +75,22 @@ export default function AdminDashboard() {
   };
 
   const deleteUser = async (userId: string) => {
-    if (!confirm("Are you sure? This will delete this user and all their data.")) return;
-    await supabase.from("profiles").delete().eq("id", userId);
-    setUsers(prev => prev.filter(u => u.id !== userId));
-    setStats(prev => ({ ...prev, totalUsers: prev.totalUsers - 1 }));
+    if (!confirm("Are you sure? This will permanently delete this user from the app. They will need to register again to use the app.")) return;
+    try {
+      const res = await fetch("/api/admin/delete-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, adminId: user?.id }),
+      });
+      if (res.ok) {
+        setUsers(prev => prev.filter(u => u.id !== userId));
+        setStats(prev => ({ ...prev, totalUsers: prev.totalUsers - 1 }));
+      } else {
+        alert("Failed to delete user. Please try again.");
+      }
+    } catch {
+      alert("Failed to delete user. Please try again.");
+    }
   };
 
   const statCards = [
@@ -343,7 +355,7 @@ export default function AdminDashboard() {
                 setNotifError("");
                 const { error } = await supabase.from("notifications").insert({
                   title: "App Update Available",
-                  body: "A new version of Winning Souls is available. Please refresh or reopen the app to get the latest features!",
+                  body: "A new version of Soul-Winning is available. Please refresh or reopen the app to get the latest features!",
                   type: "update",
                 });
                 if (error) setNotifError(error.message);
@@ -413,6 +425,48 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Notify Emails Section (admin only) */}
+      {tab === "notifications" && isFullAdmin && (
+        <NotifyEmailsList />
+      )}
+    </div>
+  );
+}
+
+function NotifyEmailsList() {
+  const [emails, setEmails] = useState<{ email: string; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    (async () => {
+      const { data } = await supabase.from("notify_emails").select("email, created_at").order("created_at", { ascending: false });
+      if (data) setEmails(data);
+      setLoading(false);
+    })();
+  }, []);
+
+  return (
+    <div className="bg-card rounded-2xl p-6 shadow-sm border border-grey-light mt-4">
+      <h3 className="font-bold text-dark mb-3 flex items-center gap-2">
+        <Bell size={18} className="text-primary" /> Scholarship Notify List
+      </h3>
+      <p className="text-xs text-grey mb-4">{emails.length} people registered to be notified</p>
+      {loading ? (
+        <div className="text-center py-4"><Loader2 size={20} className="animate-spin text-primary mx-auto" /></div>
+      ) : emails.length === 0 ? (
+        <p className="text-sm text-grey text-center py-4">No emails registered yet.</p>
+      ) : (
+        <div className="max-h-64 overflow-y-auto space-y-2">
+          {emails.map((e, idx) => (
+            <div key={idx} className="flex items-center justify-between py-2 px-3 bg-grey-light/50 rounded-lg">
+              <span className="text-sm text-dark">{e.email}</span>
+              <span className="text-xs text-grey">{new Date(e.created_at).toLocaleDateString()}</span>
+            </div>
+          ))}
         </div>
       )}
     </div>
