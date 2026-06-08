@@ -462,7 +462,7 @@ export default function SettingsPage({ onNavigate, onReplayOnboarding }: Setting
                 {subStatus === "active" ? "Active" : subStatus === "trial" ? "Free Trial" : "Expired"}
               </span>
             </div>
-            <p className="text-2xl font-bold">{subStatus === "active" ? "$8" : "$0"}<span className="text-sm font-normal opacity-70">/month</span></p>
+            <p className="text-2xl font-bold">{subStatus === "active" ? "$2" : "$0"}<span className="text-sm font-normal opacity-70"> CAD/month</span></p>
             {subStatus === "trial" && (
               <p className="text-sm opacity-80 mt-2">{daysLeft} day{daysLeft !== 1 ? "s" : ""} remaining in trial</p>
             )}
@@ -481,7 +481,7 @@ export default function SettingsPage({ onNavigate, onReplayOnboarding }: Setting
             )}
             <div className="flex justify-between py-2 border-b border-grey-light">
               <span className="text-sm text-grey-dark">Price after trial</span>
-              <span className="text-sm font-medium text-dark">$8/month</span>
+              <span className="text-sm font-medium text-dark">$2 CAD/month</span>
             </div>
           </div>
 
@@ -497,7 +497,7 @@ export default function SettingsPage({ onNavigate, onReplayOnboarding }: Setting
               }}
               className="w-full bg-primary text-white py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2"
             >
-              <Crown size={16} /> Subscribe Now — $8/month
+              <Crown size={16} /> Subscribe Now — $2 CAD/month
             </button>
           )}
 
