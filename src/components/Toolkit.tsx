@@ -229,22 +229,18 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
 
       {selectedIndex !== null && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
-          <div className="bg-white rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
-            {/* Card image — fixed height container, image fits inside */}
-            <div className="relative w-full" style={{ height: "calc(80vh - 80px)" }}>
-              <Image
-                key={selectedIndex}
-                src={images[selectedIndex]}
-                alt={`${title} Card ${selectedIndex + 1}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 448px) 100vw, 448px"
-                priority
-              />
-            </div>
+          <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
+            {/* Card image — no extra space, image IS the modal */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              key={selectedIndex}
+              src={images[selectedIndex]}
+              alt={`${title} Card ${selectedIndex + 1}`}
+              className="w-full max-h-[80vh] object-cover rounded-t-[24px] block"
+            />
 
             {/* Controls bar */}
-            <div className="p-4 flex items-center justify-between border-t border-grey-light/50">
+            <div className="p-4 flex items-center justify-between bg-white rounded-b-[24px]">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
