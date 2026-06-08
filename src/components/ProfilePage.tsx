@@ -54,31 +54,59 @@ export default function ProfilePage() {
 
   const progress = Math.round((completedDays.length / 30) * 100);
 
+  const compressImage = (file: File, maxSize: number = 300): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement("img");
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let w = img.width, h = img.height;
+          if (w > h) { h = (h / w) * maxSize; w = maxSize; }
+          else { w = (w / h) * maxSize; h = maxSize; }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        img.onerror = reject;
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !isSupabaseConfigured) return;
     setUploadingAvatar(true);
     try {
+      // Try Supabase Storage first
       const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
       const path = `${user.id}/avatar.${ext}`;
-      // Remove old file first (ignore errors)
       await supabase.storage.from("avatars").remove([path]);
-      // Upload new file
       const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
         upsert: true,
         contentType: file.type,
       });
-      if (uploadError) {
-        console.error("Avatar upload error:", uploadError);
+      if (!uploadError) {
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+        const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
+        await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", user.id);
+        await refreshProfile();
         setUploadingAvatar(false);
         return;
       }
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
-      const avatarUrl = urlData.publicUrl + "?t=" + Date.now();
-      await supabase.from("profiles").update({ avatar_url: avatarUrl }).eq("id", user.id);
+      // Fallback: compress image and store as data URL
+      console.warn("Storage upload failed, using compressed fallback:", uploadError.message);
+      const compressed = await compressImage(file);
+      await supabase.from("profiles").update({ avatar_url: compressed }).eq("id", user.id);
       await refreshProfile();
     } catch (err) {
       console.error("Avatar upload failed:", err);
+      alert("Failed to upload profile picture. Please try again.");
     }
     setUploadingAvatar(false);
   };

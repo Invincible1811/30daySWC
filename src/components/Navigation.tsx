@@ -222,6 +222,7 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
           return (
             <button
               key={item.label}
+              data-tour={item.page}
               onClick={() => {
                 if (isMore) {
                   setMoreOpen(!moreOpen);

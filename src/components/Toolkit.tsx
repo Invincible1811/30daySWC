@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   BookOpen, MapPin, Heart, Gift, Sparkles, Star,
@@ -199,13 +199,6 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (selectedIndex !== null && overlayRef.current) {
-      overlayRef.current.scrollTo(0, 0);
-    }
-  }, [selectedIndex]);
 
   return (
     <>
@@ -235,50 +228,79 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div ref={overlayRef} className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 overflow-y-auto" onClick={() => setSelectedIndex(null)}>
-          <div className="relative w-full max-w-lg mt-0" onClick={(e) => e.stopPropagation()}>
-            <Image
-              src={images[selectedIndex]}
-              alt={`${title} Card ${selectedIndex + 1}`}
-              width={600}
-              height={900}
-              className="w-full h-auto block"
-            />
-            <div className="absolute top-2 left-0 right-0 z-20 flex items-center justify-between px-3">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`)}
-                  className="flex items-center gap-1 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full"
-                >
-                  <Download size={12} /> Save
-                </button>
-                {favHook && (
-                  <button
-                    onClick={() => favHook.toggle(images[selectedIndex])}
-                    className={`px-2 py-1.5 rounded-full bg-black/50 ${favHook.isFav(images[selectedIndex]) ? "text-amber-400" : "text-white"}`}
-                  >
-                    <Star size={12} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
-                  </button>
-                )}
-              </div>
-              <span className="bg-black/50 text-white text-xs font-bold px-3 py-1.5 rounded-full">{selectedIndex + 1} / {images.length}</span>
-              <button onClick={() => setSelectedIndex(null)} className="w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
-                <X size={14} className="text-white" />
+        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex flex-col" onClick={() => setSelectedIndex(null)}>
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 py-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`)}
+                className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-full transition-colors"
+              >
+                <Download size={13} /> Save
               </button>
+              {favHook && (
+                <button
+                  onClick={() => favHook.toggle(images[selectedIndex])}
+                  className={`px-2.5 py-2 rounded-full bg-white/15 hover:bg-white/25 transition-colors ${favHook.isFav(images[selectedIndex]) ? "text-amber-400" : "text-white"}`}
+                >
+                  <Star size={13} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
+                </button>
+              )}
             </div>
-            <button
-              onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center"
-            >
-              <ChevronLeft size={20} className="text-white" />
-            </button>
-            <button
-              onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center"
-            >
-              <ChevronRight size={20} className="text-white" />
+            <span className="bg-white/15 text-white text-xs font-bold px-3 py-2 rounded-full">{selectedIndex + 1} / {images.length}</span>
+            <button onClick={() => setSelectedIndex(null)} className="w-9 h-9 bg-white/15 hover:bg-white/25 rounded-full flex items-center justify-center transition-colors">
+              <X size={16} className="text-white" />
             </button>
           </div>
+
+          {/* Card image — centered, fits viewport */}
+          <div className="flex-1 flex items-center justify-center px-4 pb-4 min-h-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
+              className="hidden sm:flex shrink-0 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-full items-center justify-center transition-colors mr-3"
+            >
+              <ChevronLeft size={22} className="text-white" />
+            </button>
+
+            <div className="relative flex items-center justify-center max-h-full max-w-lg w-full">
+              <Image
+                key={selectedIndex}
+                src={images[selectedIndex]}
+                alt={`${title} Card ${selectedIndex + 1}`}
+                width={600}
+                height={900}
+                className="max-h-[calc(100vh-120px)] w-auto max-w-full object-contain rounded-xl shadow-2xl"
+                style={{ animation: "fadeScale 0.25s ease-out" }}
+              />
+              {/* Mobile swipe arrows */}
+              <button
+                onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
+                className="sm:hidden absolute left-1 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 rounded-full flex items-center justify-center"
+              >
+                <ChevronLeft size={18} className="text-white" />
+              </button>
+              <button
+                onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
+                className="sm:hidden absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/50 rounded-full flex items-center justify-center"
+              >
+                <ChevronRight size={18} className="text-white" />
+              </button>
+            </div>
+
+            <button
+              onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
+              className="hidden sm:flex shrink-0 w-11 h-11 bg-white/10 hover:bg-white/20 rounded-full items-center justify-center transition-colors ml-3"
+            >
+              <ChevronRight size={22} className="text-white" />
+            </button>
+          </div>
+
+          <style jsx>{`
+            @keyframes fadeScale {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+          `}</style>
         </div>
       )}
     </>
@@ -315,26 +337,29 @@ function GospelToolSection({ favHook }: { favHook?: ReturnType<typeof useFavorit
       </div>
 
       {fullscreen && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 overflow-y-auto" onClick={() => setFullscreen(false)}>
-          <div className="relative w-full max-w-lg mt-0" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-sm flex flex-col" onClick={() => setFullscreen(false)}>
+          {/* Sticky top bar */}
+          <div className="flex items-center justify-between px-4 py-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => downloadImage(gospelImage, "Gospel-Soul-Winning-Tool.jpg")}
+              className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3 py-2 rounded-full transition-colors"
+            >
+              <Download size={13} /> Save
+            </button>
+            <span className="bg-white/15 text-white text-xs font-bold px-3 py-2 rounded-full">Gospel Tool</span>
+            <button onClick={() => setFullscreen(false)} className="w-9 h-9 bg-white/15 hover:bg-white/25 rounded-full flex items-center justify-center transition-colors">
+              <X size={16} className="text-white" />
+            </button>
+          </div>
+          {/* Scrollable content */}
+          <div className="flex-1 overflow-y-auto flex justify-center px-4 pb-4" onClick={(e) => e.stopPropagation()}>
             <Image
               src={gospelImage}
               alt="Gospel Soul-Winning Tool"
               width={600}
               height={2400}
-              className="w-full h-auto block"
+              className="w-full max-w-lg h-auto rounded-xl shadow-2xl"
             />
-            <div className="absolute top-2 left-0 right-0 z-20 flex items-center justify-between px-3">
-              <button
-                onClick={() => downloadImage(gospelImage, "Gospel-Soul-Winning-Tool.jpg")}
-                className="flex items-center gap-1 bg-black/50 text-white text-xs font-semibold px-3 py-1.5 rounded-full"
-              >
-                <Download size={12} /> Save
-              </button>
-              <button onClick={() => setFullscreen(false)} className="w-8 h-8 bg-black/50 rounded-full flex items-center justify-center">
-                <X size={14} className="text-white" />
-              </button>
-            </div>
           </div>
         </div>
       )}
