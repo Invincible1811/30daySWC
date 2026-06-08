@@ -228,16 +228,16 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto bg-white">
-          {/* Just the card — full width, no gaps */}
+        <div className="fixed inset-0 z-[60] overflow-hidden flex items-center justify-center" style={{ background: "#0f172a" }}>
+          {/* Card fills the screen — no gaps, no scrolling */}
           <Image
             key={selectedIndex}
             src={images[selectedIndex]}
             alt={`${title} Card ${selectedIndex + 1}`}
-            width={1200}
-            height={1800}
-            className="w-full h-auto block"
+            fill
+            className="object-contain"
             priority
+            sizes="100vw"
           />
 
           {/* Floating controls on top of the card */}
