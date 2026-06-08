@@ -200,6 +200,16 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
+  // Lock body scroll when card is open
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [selectedIndex]);
+
   return (
     <>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -228,7 +238,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" style={{ height: "100dvh" }} onClick={() => setSelectedIndex(null)}>
           <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
             {/* Card image — no extra space, image IS the modal */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -236,7 +246,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
               key={selectedIndex}
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
-              className="w-full max-h-[80vh] object-cover rounded-t-[24px] block"
+              className="w-full max-h-[70dvh] object-cover rounded-t-[24px] block"
             />
 
             {/* Controls bar */}
