@@ -230,16 +230,18 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       {selectedIndex !== null && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
           <div className="bg-white rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
-            {/* Card image — constrained to fit screen */}
-            <Image
-              key={selectedIndex}
-              src={images[selectedIndex]}
-              alt={`${title} Card ${selectedIndex + 1}`}
-              width={600}
-              height={900}
-              className="w-full max-h-[calc(85vh-70px)] object-contain"
-              priority
-            />
+            {/* Card image — fixed height container, image fits inside */}
+            <div className="relative w-full" style={{ height: "calc(80vh - 80px)" }}>
+              <Image
+                key={selectedIndex}
+                src={images[selectedIndex]}
+                alt={`${title} Card ${selectedIndex + 1}`}
+                fill
+                className="object-contain"
+                sizes="(max-width: 448px) 100vw, 448px"
+                priority
+              />
+            </div>
 
             {/* Controls bar */}
             <div className="p-4 flex items-center justify-between border-t border-grey-light/50">
