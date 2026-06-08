@@ -41,11 +41,11 @@ export default function Home() {
   const [autoOpenChallenge, setAutoOpenChallenge] = useState(true);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     if (typeof window === "undefined") return true;
-    return localStorage.getItem("ws-onboarding-v3") === "true";
+    return localStorage.getItem("ws-onboarding-v4") === "true";
   });
   const [showTour, setShowTour] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("ws-tour-v3-done") !== "true";
+    return localStorage.getItem("ws-tour-v4-done") !== "true";
   });
   const [pendingPartnerCount, setPendingPartnerCount] = useState(0);
   const [showPartnerToast, setShowPartnerToast] = useState(false);
@@ -120,8 +120,8 @@ export default function Home() {
       case "leaderboard": return <Leaderboard />;
       case "members": return <Members />;
       case "settings": return <SettingsPage onNavigate={handleNavigate} onReplayOnboarding={() => {
-          localStorage.removeItem("ws-onboarding-v3");
-          localStorage.removeItem("ws-tour-v3-done");
+          localStorage.removeItem("ws-onboarding-v4");
+          localStorage.removeItem("ws-tour-v4-done");
           setOnboardingDone(false);
           setShowTour(true);
         }} />;
@@ -163,7 +163,7 @@ export default function Home() {
     return <UsernameSetup onComplete={() => {
       setUsernameSet(true);
       // Check if onboarding needed (first-time user)
-      const done = localStorage.getItem("ws-onboarding-v3");
+      const done = localStorage.getItem("ws-onboarding-v4");
       if (!done) setOnboardingDone(false);
     }} />;
   }
@@ -171,7 +171,7 @@ export default function Home() {
   // Show onboarding for first-time users
   if (!onboardingDone) {
     return <Onboarding onComplete={() => {
-      localStorage.setItem("ws-onboarding-v3", "true");
+      localStorage.setItem("ws-onboarding-v4", "true");
       setOnboardingDone(true);
       setCurrentPage("challenges");
     }} />;
@@ -236,7 +236,7 @@ export default function Home() {
       {showTour && onboardingDone && (
         <GuidedTour
           onComplete={() => {
-            localStorage.setItem("ws-tour-v3-done", "true");
+            localStorage.setItem("ws-tour-v4-done", "true");
             setShowTour(false);
             setCurrentPage("challenges");
           }}
