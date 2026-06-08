@@ -238,6 +238,7 @@ export default function Home() {
           onComplete={() => {
             localStorage.setItem("ws-tour-v3-done", "true");
             setShowTour(false);
+            setCurrentPage("challenges");
           }}
           onNavigate={(page) => setCurrentPage(page as Page)}
         />

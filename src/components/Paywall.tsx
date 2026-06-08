@@ -79,7 +79,7 @@ export default function Paywall() {
               Your Free Trial Has Ended
             </h2>
             <p style={{ color: "#6B7280", fontSize: 14, lineHeight: 1.6 }}>
-              Continue your soul-winning journey for just $8/month.
+              Continue your soul-winning journey for just $2 CAD/month.
             </p>
           </div>
 
@@ -107,8 +107,8 @@ export default function Paywall() {
           {/* Pricing */}
           <div className="text-center mb-6">
             <div className="flex items-baseline justify-center gap-1">
-              <span style={{ fontSize: 40, fontWeight: 900, color: "#111827" }}>$8</span>
-              <span style={{ fontSize: 16, color: "#6B7280", fontWeight: 500 }}>/month</span>
+              <span style={{ fontSize: 40, fontWeight: 900, color: "#111827" }}>$2</span>
+              <span style={{ fontSize: 16, color: "#6B7280", fontWeight: 500 }}>CAD/month</span>
             </div>
             <p style={{ fontSize: 12, color: "#9CA3AF" }}>Cancel anytime</p>
           </div>

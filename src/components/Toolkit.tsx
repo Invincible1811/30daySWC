@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   BookOpen, MapPin, Heart, Gift, Sparkles, Star,
@@ -199,6 +199,13 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedIndex !== null && overlayRef.current) {
+      overlayRef.current.scrollTo(0, 0);
+    }
+  }, [selectedIndex]);
 
   return (
     <>
@@ -228,7 +235,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60" onClick={() => setSelectedIndex(null)}>
+        <div ref={overlayRef} className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 overflow-y-auto" onClick={() => setSelectedIndex(null)}>
           <div className="relative w-full max-w-lg mt-0" onClick={(e) => e.stopPropagation()}>
             <Image
               src={images[selectedIndex]}
@@ -278,11 +285,13 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
   );
 }
 
-function GospelToolSection() {
+const bonusConversationCards = Array.from({ length: 4 }, (_, i) => `/toolkit/conversation-cards/ConversationStarterCard${String(i + 31).padStart(2, "0")}.jpg`);
+
+function GospelToolSection({ favHook }: { favHook?: ReturnType<typeof useFavorites> }) {
   const [fullscreen, setFullscreen] = useState(false);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="bg-gradient-to-r from-purple-600 to-purple-800 rounded-2xl p-5 text-white">
         <Heart size={32} className="mb-2 opacity-80" />
         <h3 className="text-lg font-bold">Gospel Soul-Winning Tool</h3>
@@ -329,6 +338,14 @@ function GospelToolSection() {
           </div>
         </div>
       )}
+
+      {/* Bonus Conversation Starter Cards */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-5 text-white">
+        <MapPin size={32} className="mb-2 opacity-80" />
+        <h3 className="text-lg font-bold">Bonus Conversation Starters</h3>
+        <p className="text-indigo-200 text-sm mt-1">4 additional conversation starter scripts to help you lead naturally into sharing the Gospel.</p>
+      </div>
+      <CardGrid images={bonusConversationCards} title="Bonus Conversation Starter" favHook={favHook} />
     </div>
   );
 }
@@ -462,7 +479,7 @@ export default function Toolkit() {
       )}
 
       {activeSection === "gospel" && (
-        <GospelToolSection />
+        <GospelToolSection favHook={favHook} />
       )}
 
       {activeSection === "bingo" && (
