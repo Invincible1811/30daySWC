@@ -558,7 +558,7 @@ export default function SettingsPage({ onNavigate, onReplayOnboarding }: Setting
             <h3 className="font-bold text-dark text-base">3. User Accounts</h3>
             <p>You are responsible for maintaining the security of your account. You must provide accurate information and may not impersonate others.</p>
             <h3 className="font-bold text-dark text-base">4. Subscription &amp; Payments</h3>
-            <p>The app offers a free 12-day trial. After the trial, $8/month is required. Subscriptions can be cancelled at any time.</p>
+            <p>The app offers a free 12-day trial. After the trial, $2 CAD/month is required. Subscriptions can be cancelled at any time.</p>
             <h3 className="font-bold text-dark text-base">5. Acceptable Use</h3>
             <p>Use the app for its intended purpose. Treat others with respect. Do not post offensive content or attempt to disrupt the service.</p>
             <h3 className="font-bold text-dark text-base">6. Content Ownership</h3>
@@ -706,7 +706,7 @@ export default function SettingsPage({ onNavigate, onReplayOnboarding }: Setting
           <div className="flex-1 text-left">
             <p className="text-sm font-medium text-dark">Manage Subscription</p>
             <p className="text-xs text-grey">
-              {subStatus === "active" ? "Active — $8/month" : subStatus === "trial" ? `Free Trial — ${daysLeft} days left` : "Expired — Subscribe to continue"}
+              {subStatus === "active" ? "Active — $2 CAD/month" : subStatus === "trial" ? `Free Trial — ${daysLeft} days left` : "Expired — Subscribe to continue"}
             </p>
           </div>
           <ChevronRight size={16} className="text-grey" />

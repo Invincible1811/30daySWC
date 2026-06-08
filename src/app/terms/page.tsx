@@ -26,7 +26,7 @@ export default function TermsPage() {
             <p>You are responsible for maintaining the security of your account credentials. You must provide accurate information when creating an account. You may not impersonate others or create accounts for fraudulent purposes. One account per person.</p>
 
             <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 8, marginTop: 24 }}>4. Subscription &amp; Payments</h2>
-            <p>The app offers a <strong>free 12-day trial</strong> upon registration. After the trial period, a subscription of <strong>$8 per month</strong> is required to continue accessing all features. Subscriptions are billed monthly and can be cancelled at any time. Upon cancellation, access continues until the end of the current billing period. Refunds are handled on a case-by-case basis.</p>
+            <p>The app offers a <strong>free 12-day trial</strong> upon registration. After the trial period, a subscription of <strong>$2 CAD per month</strong> is required to continue accessing all features. Subscriptions are billed monthly and can be cancelled at any time. Upon cancellation, access continues until the end of the current billing period. Refunds are handled on a case-by-case basis.</p>
 
             <h2 style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 8, marginTop: 24 }}>5. Free Trial</h2>
             <p>New users receive 12 days of free, unrestricted access to all app features. No payment information is required during the trial. At the end of the trial, you will be prompted to subscribe to continue using the app.</p>
