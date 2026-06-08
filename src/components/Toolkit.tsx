@@ -228,55 +228,57 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] overflow-hidden flex items-center justify-center" style={{ background: "#0f172a" }}>
-          {/* Card fills the screen — no gaps, no scrolling */}
-          <Image
-            key={selectedIndex}
-            src={images[selectedIndex]}
-            alt={`${title} Card ${selectedIndex + 1}`}
-            fill
-            className="object-contain"
-            priority
-            sizes="100vw"
-          />
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
+          <div className="bg-white rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
+            {/* Card image */}
+            <Image
+              key={selectedIndex}
+              src={images[selectedIndex]}
+              alt={`${title} Card ${selectedIndex + 1}`}
+              width={600}
+              height={900}
+              className="w-full h-auto block"
+              priority
+            />
 
-          {/* Floating controls on top of the card */}
-          <div className="fixed top-3 left-3 right-3 z-10 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`)}
-                className="flex items-center gap-1.5 bg-black/50 hover:bg-black/70 text-white text-xs font-semibold px-3 py-2 rounded-full backdrop-blur-sm transition-colors"
-              >
-                <Download size={13} /> Save
-              </button>
-              {favHook && (
+            {/* Controls bar */}
+            <div className="p-4 flex items-center justify-between border-t border-grey-light/50">
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={() => favHook.toggle(images[selectedIndex])}
-                  className={`px-2.5 py-2 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm transition-colors ${favHook.isFav(images[selectedIndex]) ? "text-amber-400" : "text-white"}`}
+                  onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
+                  className="w-9 h-9 rounded-full bg-grey-light/70 hover:bg-grey-light flex items-center justify-center transition-colors"
                 >
-                  <Star size={13} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
+                  <ChevronLeft size={18} className="text-dark" />
                 </button>
-              )}
+                <button
+                  onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
+                  className="w-9 h-9 rounded-full bg-grey-light/70 hover:bg-grey-light flex items-center justify-center transition-colors"
+                >
+                  <ChevronRight size={18} className="text-dark" />
+                </button>
+                <span className="text-xs font-bold text-grey ml-1">{selectedIndex + 1} / {images.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {favHook && (
+                  <button
+                    onClick={() => favHook.toggle(images[selectedIndex])}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${favHook.isFav(images[selectedIndex]) ? "bg-amber-50 text-amber-500" : "bg-grey-light/70 text-grey-dark hover:bg-grey-light"}`}
+                  >
+                    <Star size={15} fill={favHook.isFav(images[selectedIndex]) ? "currentColor" : "none"} />
+                  </button>
+                )}
+                <button
+                  onClick={() => downloadImage(images[selectedIndex], `${title}-Card-${selectedIndex + 1}.jpg`)}
+                  className="flex items-center gap-1.5 bg-primary text-white text-xs font-semibold px-4 py-2 rounded-full hover:bg-primary-dark transition-colors"
+                >
+                  <Download size={13} /> Save
+                </button>
+                <button onClick={() => setSelectedIndex(null)} className="w-9 h-9 rounded-full bg-grey-light/70 hover:bg-red-50 hover:text-red-500 flex items-center justify-center transition-colors">
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-            <span className="bg-black/50 text-white text-xs font-bold px-3 py-2 rounded-full backdrop-blur-sm">{selectedIndex + 1} / {images.length}</span>
-            <button onClick={() => setSelectedIndex(null)} className="w-9 h-9 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors">
-              <X size={16} className="text-white" />
-            </button>
           </div>
-
-          {/* Nav arrows — fixed on sides */}
-          <button
-            onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
-            className="fixed left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/40 hover:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors"
-          >
-            <ChevronLeft size={20} className="text-white" />
-          </button>
-          <button
-            onClick={() => setSelectedIndex(i => i !== null ? (i === images.length - 1 ? 0 : i + 1) : null)}
-            className="fixed right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-black/40 hover:bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center transition-colors"
-          >
-            <ChevronRight size={20} className="text-white" />
-          </button>
         </div>
       )}
     </>
