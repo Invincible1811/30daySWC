@@ -255,15 +255,16 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
+          <div className="min-h-full flex items-center justify-center p-4">
           <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
-            {/* Card image — no extra space, image IS the modal */}
+            {/* Card image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               key={selectedIndex}
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
-              className="w-full max-h-[70dvh] object-cover rounded-t-[24px] block"
+              className="w-full rounded-t-[24px] block"
             />
 
             {/* Controls bar */}
@@ -303,6 +304,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
                 </button>
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}
