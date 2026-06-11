@@ -138,6 +138,18 @@ export default function Testimonies() {
 
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
+  // Parse media from testimony content
+  const parseMedia = (content: string) => {
+    const videoMatch = content.match(/\[Video Testimony: (.+?)\]/);
+    const audioMatch = content.match(/\[Audio Testimony: (.+?)\]/);
+    const cleanContent = content.replace(/\n*\[(Video|Audio) Testimony: .+?\]/, "").trim();
+    return {
+      cleanContent,
+      videoUrl: videoMatch?.[1] || null,
+      audioUrl: audioMatch?.[1] || null,
+    };
+  };
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -226,7 +238,33 @@ export default function Testimonies() {
                 </div>
               </div>
               <h3 className="font-bold text-dark text-lg mb-2">{t.title}</h3>
-              <p className="text-grey-dark text-sm leading-relaxed">{t.content}</p>
+              {(() => {
+                const { cleanContent, videoUrl, audioUrl } = parseMedia(t.content);
+                return (
+                  <>
+                    <p className="text-grey-dark text-sm leading-relaxed">{cleanContent}</p>
+                    {videoUrl && (
+                      <div className="mt-3 rounded-xl overflow-hidden bg-black">
+                        <video
+                          src={videoUrl}
+                          controls
+                          playsInline
+                          preload="metadata"
+                          className="w-full max-h-64 object-contain"
+                        />
+                      </div>
+                    )}
+                    {audioUrl && (
+                      <div className="mt-3 bg-grey-light/50 rounded-xl p-3 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <Mic size={18} className="text-primary" />
+                        </div>
+                        <audio src={audioUrl} controls preload="metadata" className="w-full" />
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-grey-light">
                 <button
                   onClick={() => likeTestimony(t.id)}
