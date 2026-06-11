@@ -3,7 +3,6 @@
 import { useApp } from "@/lib/store";
 import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield, Video, Mic, Eye, EyeOff, Square, Circle, Loader2, Trash2 } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Testimonies() {
@@ -105,23 +104,24 @@ export default function Testimonies() {
 
   // Upload media to Supabase Storage
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
-    if (!isSupabaseConfigured || !user) {
-      console.warn("Supabase not configured or no user — skipping upload");
+    if (!user) {
+      console.warn("No user — skipping upload");
       return null;
     }
     try {
-      const ext = "webm";
-      const path = `testimonies/${user.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("media").upload(path, blob, {
-        contentType: mode === "video" ? "video/webm" : "audio/webm",
-        upsert: false,
-      });
-      if (error) {
-        console.error("Upload error:", error.message);
+      const formData = new FormData();
+      formData.append("file", blob, `recording.webm`);
+      formData.append("userId", user.id);
+      formData.append("mediaType", mode);
+
+      const res = await fetch("/api/upload-media", { method: "POST", body: formData });
+      const json = await res.json();
+
+      if (!res.ok || !json.url) {
+        console.error("Upload error:", json.error || "Unknown error");
         return null;
       }
-      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
-      return urlData.publicUrl;
+      return json.url;
     } catch (err) {
       console.error("Upload failed:", err);
       return null;
