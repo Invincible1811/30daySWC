@@ -28,9 +28,16 @@ export default function Testimonies() {
   const [uploading, setUploading] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  // Ref callback — reliably attaches the stream as soon as the <video> is in the DOM
+  const videoRefCallback = useCallback((node: HTMLVideoElement | null) => {
+    if (node && streamRef.current) {
+      node.srcObject = streamRef.current;
+      node.play().catch(() => {});
+    }
+  }, []);
 
   // Step 1: Open camera/mic preview (not recording yet)
   const openPreview = useCallback(async (mode: "video" | "audio") => {
@@ -46,22 +53,6 @@ export default function Testimonies() {
       alert("Could not access your camera/microphone. Please check permissions.");
     }
   }, []);
-
-  // Attach stream to video element once it's in the DOM
-  useEffect(() => {
-    if (recordStage === "preview" && recordMode === "video" && videoPreviewRef.current && streamRef.current) {
-      videoPreviewRef.current.srcObject = streamRef.current;
-      videoPreviewRef.current.play().catch(() => {});
-    }
-  }, [recordStage, recordMode]);
-
-  // Also reattach when recording starts (video element stays the same ref)
-  useEffect(() => {
-    if (recordStage === "recording" && recordMode === "video" && videoPreviewRef.current && streamRef.current) {
-      videoPreviewRef.current.srcObject = streamRef.current;
-      videoPreviewRef.current.play().catch(() => {});
-    }
-  }, [recordStage, recordMode]);
 
   // Step 2: User presses Start Recording
   const startRecording = useCallback(() => {
@@ -114,12 +105,21 @@ export default function Testimonies() {
 
   // Upload media to Supabase Storage
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
-    if (!isSupabaseConfigured || !user) return null;
+    if (!isSupabaseConfigured || !user) {
+      console.warn("Supabase not configured or no user — skipping upload");
+      return null;
+    }
     try {
-      const ext = mode === "video" ? "webm" : "webm";
-      const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("media").upload(path, blob, { contentType: blob.type });
-      if (error) { console.error("Upload error:", error); return null; }
+      const ext = "webm";
+      const path = `testimonies/${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("media").upload(path, blob, {
+        contentType: mode === "video" ? "video/webm" : "audio/webm",
+        upsert: false,
+      });
+      if (error) {
+        console.error("Upload error:", error.message);
+        return null;
+      }
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
       return urlData.publicUrl;
     } catch (err) {
@@ -152,20 +152,33 @@ export default function Testimonies() {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
 
-    setUploading(true);
-    let mediaUrl: string | null = null;
+    let finalMediaUrl: string | null = null;
+    let uploadFailed = false;
+
     if (recordedBlob && recordMode !== "none") {
-      mediaUrl = await uploadMedia(recordedBlob, recordMode);
+      setUploading(true);
+      finalMediaUrl = await uploadMedia(recordedBlob, recordMode);
+      setUploading(false);
+
+      if (!finalMediaUrl && recordedUrl) {
+        // Upload failed — use the local blob URL so at least this user sees it
+        finalMediaUrl = recordedUrl;
+        uploadFailed = true;
+      }
     }
-    setUploading(false);
 
     addTestimony({
       author: shareAnonymously ? "Anonymous" : userName,
       title,
       content,
       date: new Date().toISOString().split("T")[0],
-      ...(mediaUrl ? { mediaUrl, mediaType: recordMode as "video" | "audio" } : {}),
+      ...(finalMediaUrl ? { mediaUrl: finalMediaUrl, mediaType: recordMode as "video" | "audio" } : {}),
     });
+
+    if (uploadFailed) {
+      alert("Your testimony was shared! However, the recording could not be uploaded to the cloud. Other users may not see it until the media storage is set up.");
+    }
+
     setTitle("");
     setContent("");
     setPhotoPreview(null);
@@ -362,7 +375,7 @@ export default function Testimonies() {
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                     {recordMode === "video" && (
                       <div className="relative rounded-lg overflow-hidden mb-3 bg-black">
-                        <video ref={videoPreviewRef} muted playsInline className={`w-full h-40 object-cover ${blurVideo ? "blur-xl" : ""}`} />
+                        <video ref={videoRefCallback} muted playsInline className={`w-full h-40 object-cover ${blurVideo ? "blur-xl" : ""}`} />
                         <button type="button" onClick={() => setBlurVideo(!blurVideo)}
                           className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm">
                           {blurVideo ? <><EyeOff size={11} /> Blurred</> : <><Eye size={11} /> Visible</>}
@@ -393,7 +406,7 @@ export default function Testimonies() {
                   <div className="bg-red-50 border border-red-200 rounded-xl p-4">
                     {recordMode === "video" && (
                       <div className="relative rounded-lg overflow-hidden mb-3 bg-black">
-                        <video ref={videoPreviewRef} muted playsInline className={`w-full h-40 object-cover ${blurVideo ? "blur-xl" : ""}`} />
+                        <video ref={videoRefCallback} muted playsInline className={`w-full h-40 object-cover ${blurVideo ? "blur-xl" : ""}`} />
                         <div className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1 animate-pulse">
                           <div className="w-1.5 h-1.5 bg-white rounded-full" /> REC
                         </div>
