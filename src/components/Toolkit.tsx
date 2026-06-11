@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   BookOpen, MapPin, Heart, Gift, Sparkles, Star,
@@ -207,6 +207,25 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
+  // Freeze page when card is open so overlay is just the viewport
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [selectedIndex]);
 
   return (
     <>
@@ -236,15 +255,15 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
-          <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in flex flex-col" style={{ maxHeight: "calc(100vh - 2rem)" }} onClick={(e) => e.stopPropagation()}>
-            {/* Card image — constrained to fit screen */}
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
+          <div className="rounded-[20px] max-w-sm w-full shadow-2xl overflow-hidden animate-pop-in flex flex-col bg-white" style={{ maxHeight: "90vh" }} onClick={(e) => e.stopPropagation()}>
+            {/* Card image — fits tightly within viewport */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               key={selectedIndex}
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
-              className="w-full flex-1 min-h-0 object-contain rounded-t-[24px] block"
+              className="w-full flex-1 min-h-0 object-contain block"
             />
 
             {/* Controls bar */}
