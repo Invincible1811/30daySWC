@@ -28,8 +28,32 @@ import UsernameSetup from "@/components/UsernameSetup";
 import Onboarding from "@/components/Onboarding";
 import GuidedTour from "@/components/GuidedTour";
 import { useAuth } from "@/lib/auth-context";
+import { useApp } from "@/lib/store";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Heart, BookOpen, MessageCircle } from "lucide-react";
+
+function LiveAlertToast() {
+  const { liveAlert, clearLiveAlert } = useApp();
+  if (!liveAlert) return null;
+  const icons: Record<string, React.ReactNode> = {
+    testimony: <BookOpen size={18} className="text-primary" />,
+    prayer: <Heart size={18} className="text-rose-500" />,
+    community: <MessageCircle size={18} className="text-emerald-500" />,
+  };
+  return (
+    <div className="fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 z-[70] animate-slide-up">
+      <div className="bg-white border border-grey-light/60 rounded-2xl shadow-2xl px-5 py-3.5 flex items-center gap-3 max-w-sm">
+        <div className="w-9 h-9 rounded-full bg-grey-light/50 flex items-center justify-center shrink-0">
+          {icons[liveAlert.type] || <BookOpen size={18} className="text-primary" />}
+        </div>
+        <p className="text-sm font-semibold text-dark flex-1">{liveAlert.message}</p>
+        <button onClick={clearLiveAlert} className="text-grey hover:text-dark text-xs font-medium ml-2">
+          ✕
+        </button>
+      </div>
+    </div>
+  );
+}
 
 type AppScreen = "landing" | "auth" | "app";
 
@@ -243,6 +267,7 @@ export default function Home() {
           onNavigate={(page) => setCurrentPage(page as Page)}
         />
       )}
+      <LiveAlertToast />
       <NotificationPrompt />
       <InstallPrompt />
       <NotificationBanner />

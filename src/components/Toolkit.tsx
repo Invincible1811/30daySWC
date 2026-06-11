@@ -27,15 +27,22 @@ function useFavorites() {
   return { favorites, toggle, isFav };
 }
 
-function downloadImage(url: string, name: string) {
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+async function downloadImage(url: string, name: string) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+  } catch {
+    // Fallback: open in new tab so user can long-press to save
+    window.open(url, "_blank");
+  }
 }
 
 type Section = "scriptures" | "locations" | "gospel" | "bingo" | "gifts";

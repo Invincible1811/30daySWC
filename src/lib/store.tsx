@@ -47,6 +47,8 @@ interface AppContextType extends AppState {
   shareDailyRecord: (day: number) => void;
   likeDailyShare: (id: string) => void;
   addCommentToDailyShare: (shareId: string, comment: Omit<Comment, "id">) => void;
+  liveAlert: { message: string; type: string } | null;
+  clearLiveAlert: () => void;
 }
 
 interface Comment {
@@ -107,6 +109,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return defaultState;
   });
   const [mounted, setMounted] = useState(false);
+  const [liveAlert, setLiveAlert] = useState<{ message: string; type: string } | null>(null);
   const hasSynced = useRef(false);
 
   useEffect(() => {
@@ -163,7 +166,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }));
     };
 
-    const unsubscribe = subscribeToRealtime(refreshSharedData);
+    const onNewEvent = (table: string) => {
+      const messages: Record<string, { message: string; type: string }> = {
+        testimonies: { message: "Someone just shared a testimony! ", type: "testimony" },
+        prayers: { message: "A new prayer request was posted ", type: "prayer" },
+        community_posts: { message: "New post in the community! ", type: "community" },
+      };
+      const alert = messages[table];
+      if (alert) {
+        setLiveAlert(alert);
+        setTimeout(() => setLiveAlert(null), 6000);
+      }
+    };
+
+    const unsubscribe = subscribeToRealtime(refreshSharedData, onNewEvent);
     return () => unsubscribe();
   }, [userId]);
 
@@ -416,6 +432,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addCommentToTestimony, addCommentToPrayer,
       addCommunityPost, likeCommunityPost, joinGroup, rsvpEvent,
       saveDailyRecord, shareDailyRecord, likeDailyShare, addCommentToDailyShare,
+      liveAlert, clearLiveAlert: () => setLiveAlert(null),
     }}>
       {children}
     </AppContext.Provider>
