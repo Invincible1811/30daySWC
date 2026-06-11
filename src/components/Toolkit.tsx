@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import {
   BookOpen, MapPin, Heart, Gift, Sparkles, Star,
@@ -207,25 +207,6 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Lock page scroll when card is open (position:fixed forces viewport takeover)
-  useEffect(() => {
-    if (selectedIndex !== null) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
-    }
-  }, [selectedIndex]);
 
   return (
     <>

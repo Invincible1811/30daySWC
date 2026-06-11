@@ -89,9 +89,9 @@ export default function Testimonies() {
     if (timerRef.current) clearInterval(timerRef.current);
   }, []);
 
-  // Cancel / clear everything
-  const clearRecording = useCallback(() => {
-    if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+  // Cancel / clear everything (revoke=true means user cancelled, don't revoke on submit)
+  const clearRecording = useCallback((revoke = true) => {
+    if (revoke && recordedUrl) URL.revokeObjectURL(recordedUrl);
     setRecordedBlob(null);
     setRecordedUrl(null);
     setRecordMode("none");
@@ -184,7 +184,7 @@ export default function Testimonies() {
     setPhotoPreview(null);
     setShareAnonymously(false);
     setPermissionGiven(false);
-    clearRecording();
+    clearRecording(false); // don't revoke — blob URL is used in the feed
     setShowForm(false);
   };
 
@@ -389,7 +389,7 @@ export default function Testimonies() {
                       </div>
                     )}
                     <div className="flex items-center justify-between">
-                      <button type="button" onClick={clearRecording}
+                      <button type="button" onClick={() => clearRecording()}
                         className="text-xs text-grey-dark font-semibold hover:text-dark transition-colors">
                         Cancel
                       </button>
@@ -452,7 +452,7 @@ export default function Testimonies() {
                     )}
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-grey-dark">{recordMode === "video" ? "Video" : "Audio"} • {formatTime(recordingTime)}</span>
-                      <button type="button" onClick={clearRecording}
+                      <button type="button" onClick={() => clearRecording()}
                         className="text-xs text-danger font-semibold flex items-center gap-1 hover:text-red-700 transition-colors">
                         <X size={12} /> Remove
                       </button>
