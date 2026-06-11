@@ -196,12 +196,18 @@ export default function AdminDashboard() {
                   onClick={() => setExpandedUser(expandedUser === u.id ? null : u.id)}
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-grey-light/50 transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                    {(u.full_name || u.username || "?")[0].toUpperCase()}
-                  </div>
+                  {u.avatar_url ? (
+                    <img src={u.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover ring-2 ring-grey-light" />
+                  ) : (
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                      {(u.full_name || u.username || "?")[0].toUpperCase()}
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0 text-left">
                     <p className="text-sm font-medium text-dark truncate">{u.full_name || u.username || "Unnamed"}</p>
-                    <p className="text-xs text-grey-dark">Joined {new Date(u.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-grey-dark">
+                      {u.city || u.country ? `${[u.city, u.country].filter(Boolean).join(", ")} · ` : ""}Joined {new Date(u.created_at).toLocaleDateString()}
+                    </p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     u.role === "admin" ? "bg-warning/20 text-warning" : u.role === "assistant_admin" ? "bg-purple-100 text-purple-600" : u.role === "leader" ? "bg-amber-100 text-amber-700" : "bg-grey-light text-grey-dark"

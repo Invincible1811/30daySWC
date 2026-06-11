@@ -1,8 +1,8 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield } from "lucide-react";
-import { useState } from "react";
+import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield, Video, Mic, MicOff, Eye, EyeOff, Square, Circle } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
 
 export default function Testimonies() {
   const { testimonies, addTestimony, likeTestimony, addCommentToTestimony, userName } = useApp();
@@ -14,6 +14,86 @@ export default function Testimonies() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [shareAnonymously, setShareAnonymously] = useState(false);
   const [permissionGiven, setPermissionGiven] = useState(false);
+
+  // Recording state
+  const [recordMode, setRecordMode] = useState<"none" | "video" | "audio">("none");
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [recordedUrl, setRecordedUrl] = useState<string | null>(null);
+  const [blurVideo, setBlurVideo] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  const startRecording = useCallback(async (mode: "video" | "audio") => {
+    try {
+      const constraints = mode === "video"
+        ? { video: { facingMode: "user", width: 640, height: 480 }, audio: true }
+        : { audio: true };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+
+      if (mode === "video" && videoPreviewRef.current) {
+        videoPreviewRef.current.srcObject = stream;
+        videoPreviewRef.current.play();
+      }
+
+      const recorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "" });
+      mediaRecorderRef.current = recorder;
+      chunksRef.current = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mode === "video" ? "video/webm" : "audio/webm" });
+        setRecordedBlob(blob);
+        setRecordedUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      };
+
+      recorder.start();
+      setIsRecording(true);
+      setRecordMode(mode);
+      setRecordingTime(0);
+      timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch {
+      alert("Could not access your camera/microphone. Please check permissions.");
+    }
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    mediaRecorderRef.current?.stop();
+    setIsRecording(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+  }, []);
+
+  const clearRecording = useCallback(() => {
+    if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+    setRecordedBlob(null);
+    setRecordedUrl(null);
+    setRecordMode("none");
+    setRecordingTime(0);
+    setBlurVideo(false);
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+  }, [recordedUrl]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      streamRef.current?.getTracks().forEach(t => t.stop());
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+    };
+  }, [recordedUrl]);
+
+  const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +118,7 @@ export default function Testimonies() {
     setPhotoPreview(null);
     setShareAnonymously(false);
     setPermissionGiven(false);
+    clearRecording();
     setShowForm(false);
   };
 
@@ -174,19 +255,87 @@ export default function Testimonies() {
                 required
               />
 
-              {/* Photo Upload */}
-              <div>
-                <label className="flex items-center gap-2 text-sm text-grey-dark cursor-pointer hover:text-primary transition-colors">
-                  <Camera size={16} />
-                  <span>Add a photo (optional)</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-                </label>
+              {/* Media Options */}
+              <div className="space-y-3">
+                <p className="text-xs font-bold text-grey-dark">Add Media (optional)</p>
+                <div className="flex gap-2">
+                  <label className="flex-1 flex items-center justify-center gap-2 text-xs font-semibold text-grey-dark cursor-pointer hover:text-primary bg-grey-light/60 hover:bg-primary/10 rounded-xl py-2.5 transition-colors">
+                    <Camera size={14} /> Photo
+                    <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                  </label>
+                  <button type="button" onClick={() => startRecording("video")} disabled={isRecording || !!recordedBlob}
+                    className="flex-1 flex items-center justify-center gap-2 text-xs font-semibold text-grey-dark hover:text-primary bg-grey-light/60 hover:bg-primary/10 rounded-xl py-2.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    <Video size={14} /> Video
+                  </button>
+                  <button type="button" onClick={() => startRecording("audio")} disabled={isRecording || !!recordedBlob}
+                    className="flex-1 flex items-center justify-center gap-2 text-xs font-semibold text-grey-dark hover:text-primary bg-grey-light/60 hover:bg-primary/10 rounded-xl py-2.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                    <Mic size={14} /> Audio
+                  </button>
+                </div>
+
+                {/* Photo preview */}
                 {photoPreview && (
-                  <div className="mt-2 relative inline-block">
+                  <div className="relative inline-block">
                     <img src={photoPreview} alt="Preview" className="w-20 h-20 object-cover rounded-lg" />
                     <button type="button" onClick={() => setPhotoPreview(null)} className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white rounded-full flex items-center justify-center">
                       <X size={10} />
                     </button>
+                  </div>
+                )}
+
+                {/* Recording in progress */}
+                {isRecording && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    {recordMode === "video" && (
+                      <div className="relative rounded-lg overflow-hidden mb-3 bg-black">
+                        <video ref={videoPreviewRef} muted playsInline className={`w-full h-40 object-cover ${blurVideo ? "blur-xl" : ""}`} />
+                        <button type="button" onClick={() => setBlurVideo(!blurVideo)}
+                          className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                          {blurVideo ? <><EyeOff size={11} /> Blurred</> : <><Eye size={11} /> Visible</>}
+                        </button>
+                      </div>
+                    )}
+                    {recordMode === "audio" && (
+                      <div className="flex items-center justify-center gap-3 mb-3">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                        <Mic size={24} className="text-red-500" />
+                        <span className="text-sm font-bold text-dark">Recording audio...</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-mono font-bold text-red-600 flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                        {formatTime(recordingTime)}
+                      </span>
+                      <button type="button" onClick={stopRecording}
+                        className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">
+                        <Square size={12} fill="white" /> Stop
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recorded preview */}
+                {recordedUrl && !isRecording && (
+                  <div className="bg-grey-light/50 rounded-xl p-3 space-y-2">
+                    {recordMode === "video" ? (
+                      <div className="relative rounded-lg overflow-hidden bg-black">
+                        <video src={recordedUrl} controls playsInline className={`w-full h-40 object-cover ${blurVideo ? "blur-xl" : ""}`} />
+                        <button type="button" onClick={() => setBlurVideo(!blurVideo)}
+                          className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                          {blurVideo ? <><EyeOff size={11} /> Blurred</> : <><Eye size={11} /> Clear</>}
+                        </button>
+                      </div>
+                    ) : (
+                      <audio src={recordedUrl} controls className="w-full" />
+                    )}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-grey-dark">{recordMode === "video" ? "Video" : "Audio"} • {formatTime(recordingTime)}</span>
+                      <button type="button" onClick={clearRecording}
+                        className="text-xs text-danger font-semibold flex items-center gap-1 hover:text-red-700 transition-colors">
+                        <X size={12} /> Remove
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

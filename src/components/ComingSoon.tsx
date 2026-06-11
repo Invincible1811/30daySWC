@@ -1,31 +1,12 @@
 "use client";
 
-import { Award, BookOpen, Trophy, Star, GraduationCap, Clock, CheckCircle2, Heart, HandHeart } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Award, BookOpen, Trophy, Star, GraduationCap, Sparkles, CheckCircle2, Heart, HandHeart, Bell } from "lucide-react";
+import { useState } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export default function ComingSoon() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 45);
-
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
-      setTimeLeft({
-        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-        seconds: Math.floor((distance % (1000 * 60)) / 1000),
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,23 +41,29 @@ export default function ComingSoon() {
         </div>
       </div>
 
-      {/* Countdown */}
-      <div className="bg-card rounded-2xl p-6 shadow-sm border border-grey-light">
-        <h3 className="font-bold text-dark text-center mb-4 flex items-center justify-center gap-2">
-          <Clock className="text-primary" size={20} /> Launch Countdown
-        </h3>
-        <div className="grid grid-cols-4 gap-3 max-w-md mx-auto">
-          {[
-            { value: timeLeft.days, label: "Days" },
-            { value: timeLeft.hours, label: "Hours" },
-            { value: timeLeft.minutes, label: "Minutes" },
-            { value: timeLeft.seconds, label: "Seconds" },
-          ].map(item => (
-            <div key={item.label} className="bg-dark rounded-xl p-3 text-center">
-              <p className="text-2xl lg:text-3xl font-bold text-white">{String(item.value).padStart(2, "0")}</p>
-              <p className="text-xs text-grey-medium mt-1">{item.label}</p>
-            </div>
-          ))}
+      {/* Announcement Teaser */}
+      <div className="bg-card rounded-2xl p-8 shadow-sm border border-grey-light text-center relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute -top-6 -left-6 w-24 h-24 bg-warning/10 rounded-full blur-2xl" />
+          <div className="absolute -bottom-6 -right-6 w-28 h-28 bg-primary/10 rounded-full blur-2xl" />
+        </div>
+        <div className="relative z-10">
+          <div className="w-16 h-16 bg-gradient-to-br from-warning/20 to-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Bell size={28} className="text-primary" />
+          </div>
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-bold px-4 py-1.5 rounded-full mb-3">
+            <Sparkles size={12} /> Stay Tuned
+          </div>
+          <h3 className="text-xl font-extrabold text-dark mb-2">Big Announcement Coming!</h3>
+          <p className="text-grey-dark text-sm max-w-sm mx-auto leading-relaxed">
+            Something exciting is being prepared for the most dedicated soul-winners.
+            Keep winning souls, keep stepping out in faith — the details will be revealed soon!
+          </p>
+          <div className="mt-5 flex items-center justify-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
+            <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
+            <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+          </div>
         </div>
       </div>
 
