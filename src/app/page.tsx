@@ -19,6 +19,7 @@ import Members from "@/components/Members";
 import SettingsPage from "@/components/SettingsPage";
 import Paywall, { useSubscriptionStatus } from "@/components/Paywall";
 import AdminDashboard from "@/components/AdminDashboard";
+import LiveFeed from "@/components/LiveFeed";
 import LandingPage from "@/components/LandingPage";
 import AuthPage from "@/components/AuthPage";
 import NotificationPrompt from "@/components/NotificationPrompt";
@@ -140,6 +141,7 @@ export default function Home() {
       case "events": return <Events />;
       case "groups": return <Groups />;
       case "community": return <Community />;
+      case "livefeed": return <LiveFeed />;
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
       case "members": return <Members />;

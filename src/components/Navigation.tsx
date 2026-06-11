@@ -3,7 +3,7 @@
 import {
   Home, CalendarDays, Users, MoreHorizontal,
   BookOpen, Heart, MessageCircle, Globe, Award,
-  UserPlus, HandHeart, Menu, X, Wrench, LogOut, User, Trophy, LogIn, Shield, Settings
+  UserPlus, HandHeart, Menu, X, Wrench, LogOut, User, Trophy, LogIn, Shield, Settings, Radio
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -22,6 +22,7 @@ export type Page =
   | "toolkit"
   | "comingsoon"
   | "leaderboard"
+  | "livefeed"
   | "profile"
   | "members"
   | "settings"
@@ -44,6 +45,7 @@ const bottomNavItems: { icon: React.ElementType; label: string; page: Page }[] =
 
 const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = [
   { icon: Home, label: "Dashboard", page: "dashboard" },
+  { icon: Radio, label: "Live Feed", page: "livefeed" },
   { icon: BookOpen, label: "30-Day Challenge", page: "challenges" },
   { icon: UserPlus, label: "Impact Tracker", page: "souls" },
   { icon: HandHeart, label: "Follow Up", page: "followup" },
