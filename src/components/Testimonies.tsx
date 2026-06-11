@@ -29,12 +29,16 @@ export default function Testimonies() {
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
+  const animFrameRef = useRef<number>(0);
 
   // Ref callback — reliably attaches the stream as soon as the <video> is in the DOM
   const videoRefCallback = useCallback((node: HTMLVideoElement | null) => {
     if (node && streamRef.current) {
       node.srcObject = streamRef.current;
       node.play().catch(() => {});
+      videoElRef.current = node;
     }
   }, []);
 
@@ -56,8 +60,33 @@ export default function Testimonies() {
   // Step 2: User presses Start Recording
   const startRecording = useCallback(() => {
     if (!streamRef.current) return;
+
+    let recordStream = streamRef.current;
+
+    // If video + blur, pipe through canvas to bake the blur into the recording
+    if (recordMode === "video" && blurVideo && videoElRef.current) {
+      const video = videoElRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvasRef.current = canvas;
+      const ctx = canvas.getContext("2d")!;
+
+      const draw = () => {
+        ctx.filter = "blur(20px)";
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        animFrameRef.current = requestAnimationFrame(draw);
+      };
+      draw();
+
+      const canvasStream = canvas.captureStream(30);
+      // Add audio tracks from the original stream
+      streamRef.current.getAudioTracks().forEach(t => canvasStream.addTrack(t));
+      recordStream = canvasStream;
+    }
+
     const mimeType = MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "";
-    const recorder = new MediaRecorder(streamRef.current, { mimeType });
+    const recorder = new MediaRecorder(recordStream, { mimeType });
     mediaRecorderRef.current = recorder;
     chunksRef.current = [];
 
@@ -66,6 +95,7 @@ export default function Testimonies() {
     };
 
     recorder.onstop = () => {
+      cancelAnimationFrame(animFrameRef.current);
       const type = recordMode === "video" ? "video/webm" : "audio/webm";
       const blob = new Blob(chunksRef.current, { type });
       setRecordedBlob(blob);
@@ -79,7 +109,7 @@ export default function Testimonies() {
     setRecordStage("recording");
     setRecordingTime(0);
     timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
-  }, [recordMode]);
+  }, [recordMode, blurVideo]);
 
   // Step 3: Stop recording
   const stopRecording = useCallback(() => {
