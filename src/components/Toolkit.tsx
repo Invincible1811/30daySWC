@@ -207,20 +207,14 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Lock body scroll when card is open (mobile Safari compatible)
+  // Lock page scroll when card is open
   useEffect(() => {
     if (selectedIndex !== null) {
       const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
+      document.documentElement.style.overflow = "hidden";
       document.body.style.overflow = "hidden";
       return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
+        document.documentElement.style.overflow = "";
         document.body.style.overflow = "";
         window.scrollTo(0, scrollY);
       };
@@ -255,8 +249,8 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
-          <div className="min-h-full flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[60] overflow-y-auto overscroll-contain bg-black/60 backdrop-blur-sm" style={{ WebkitOverflowScrolling: "touch" }} onClick={() => setSelectedIndex(null)}>
+          <div className="min-h-full flex items-center justify-center p-4 py-8">
           <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
             {/* Card image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}

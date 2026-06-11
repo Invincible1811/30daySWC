@@ -78,6 +78,8 @@ export interface Testimony {
   date: string;
   likes: number;
   comments: Comment[];
+  mediaUrl?: string;
+  mediaType?: "video" | "audio";
 }
 
 export interface Comment {

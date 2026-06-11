@@ -80,27 +80,32 @@ export async function fetchTestimonies(): Promise<Testimony[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
-  return (data || []).map((t) => ({
-    id: t.id,
-    author: t.author,
-    title: t.title,
-    content: t.content,
-    likes: t.likes,
-    date: t.created_at.split("T")[0],
+  return (data || []).map((t: Record<string, unknown>) => ({
+    id: t.id as string,
+    author: t.author as string,
+    title: t.title as string,
+    content: t.content as string,
+    likes: (t.likes as number) || 0,
+    date: (t.created_at as string).split("T")[0],
     comments: [],
+    mediaUrl: (t.media_url as string) || undefined,
+    mediaType: (t.media_type as "video" | "audio") || undefined,
   }));
 }
 
-export async function insertTestimony(userId: string, testimony: { author: string; title: string; content: string; date: string }): Promise<{ id: string } | null> {
+export async function insertTestimony(userId: string, testimony: { author: string; title: string; content: string; date: string; mediaUrl?: string; mediaType?: string }): Promise<{ id: string } | null> {
   if (!isSupabaseConfigured) return null;
+  const row: Record<string, unknown> = {
+    user_id: userId,
+    author: testimony.author,
+    title: testimony.title,
+    content: testimony.content,
+  };
+  if (testimony.mediaUrl) row.media_url = testimony.mediaUrl;
+  if (testimony.mediaType) row.media_type = testimony.mediaType;
   const { data } = await supabase
     .from("testimonies")
-    .insert({
-      user_id: userId,
-      author: testimony.author,
-      title: testimony.title,
-      content: testimony.content,
-    })
+    .insert(row)
     .select()
     .single();
   return data as { id: string } | null;
