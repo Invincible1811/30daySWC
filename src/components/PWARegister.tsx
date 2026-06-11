@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "3.0.0";
 
 export default function PWARegister() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
