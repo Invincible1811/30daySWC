@@ -30,7 +30,9 @@ interface AppContextType extends AppState {
   updateSoul: (id: string, updates: Partial<Soul>) => void;
   deleteSoul: (id: string) => void;
   addTestimony: (testimony: Omit<Testimony, "id" | "likes" | "comments">) => void;
+  deleteTestimony: (id: string) => void;
   addPrayer: (prayer: Omit<PrayerRequest, "id" | "likes" | "prayerCount" | "comments">) => void;
+  deletePrayer: (id: string) => void;
   addEvent: (event: Omit<Event, "id" | "attendees">) => void;
   completeDay: (day: number) => void;
   setUserName: (name: string) => void;
@@ -242,6 +244,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [userId]);
 
+  const deleteTestimony = useCallback((id: string) => {
+    setState(prev => ({ ...prev, testimonies: prev.testimonies.filter(t => t.id !== id) }));
+    if (isSupabaseConfigured) db.deleteTestimonyDb(id);
+  }, []);
+
   const addPrayer = useCallback((prayer: Omit<PrayerRequest, "id" | "likes" | "prayerCount" | "comments">) => {
     const localId = generateId();
     setState(prev => ({
@@ -259,6 +266,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
     }
   }, [userId]);
+
+  const deletePrayer = useCallback((id: string) => {
+    setState(prev => ({ ...prev, prayers: prev.prayers.filter(p => p.id !== id) }));
+    if (isSupabaseConfigured) db.deletePrayerDb(id);
+  }, []);
 
   const addEvent = useCallback((event: Omit<Event, "id" | "attendees">) => {
     const localId = generateId();
@@ -426,7 +438,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     <AppContext.Provider value={{
       ...state,
       addSoul, updateSoul, deleteSoul,
-      addTestimony, addPrayer, addEvent,
+      addTestimony, deleteTestimony, addPrayer, deletePrayer, addEvent,
       completeDay, setUserName,
       likeTestimony, likePrayer, prayForRequest,
       addCommentToTestimony, addCommentToPrayer,

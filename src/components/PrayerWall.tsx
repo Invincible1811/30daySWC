@@ -1,13 +1,13 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { Heart, MessageCircle, HandHeart, Plus, X, Send } from "lucide-react";
+import { Heart, MessageCircle, HandHeart, Plus, X, Send, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 
 export default function PrayerWall() {
-  const { prayers, addPrayer, likePrayer, prayForRequest, addCommentToPrayer, userName } = useApp();
-  const { profile } = useAuth();
+  const { prayers, addPrayer, deletePrayer, likePrayer, prayForRequest, addCommentToPrayer, userName } = useApp();
+  const { profile, isAdmin } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [content, setContent] = useState("");
   const [commentingId, setCommentingId] = useState<string | null>(null);
@@ -57,18 +57,28 @@ export default function PrayerWall() {
         {prayers.map(prayer => (
           <div key={prayer.id} className="bg-card rounded-2xl shadow-sm border border-grey-light overflow-hidden">
             <div className="p-5">
-              <div className="flex items-center gap-3 mb-3">
-                {prayer.authorAvatar ? (
-                  <img src={prayer.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {prayer.author.charAt(0)}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  {prayer.authorAvatar ? (
+                    <img src={prayer.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      {prayer.author.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-dark text-sm">{prayer.author}</p>
+                    <p className="text-xs text-grey">{prayer.date}</p>
                   </div>
-                )}
-                <div>
-                  <p className="font-semibold text-dark text-sm">{prayer.author}</p>
-                  <p className="text-xs text-grey">{prayer.date}</p>
                 </div>
+                {(isAdmin || prayer.author === userName || prayer.author === profile?.full_name) && (
+                  <button
+                    onClick={() => { if (confirm("Delete this prayer?")) deletePrayer(prayer.id); }}
+                    className="p-2 rounded-full hover:bg-red-50 text-grey hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
               </div>
               <p className="text-grey-dark text-sm leading-relaxed">{prayer.content}</p>
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-grey-light">

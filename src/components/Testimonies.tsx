@@ -1,14 +1,14 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield, Video, Mic, Eye, EyeOff, Square, Circle, Loader2 } from "lucide-react";
+import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield, Video, Mic, Eye, EyeOff, Square, Circle, Loader2, Trash2 } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Testimonies() {
-  const { testimonies, addTestimony, likeTestimony, addCommentToTestimony, userName } = useApp();
-  const { user, profile } = useAuth();
+  const { testimonies, addTestimony, deleteTestimony, likeTestimony, addCommentToTestimony, userName } = useApp();
+  const { user, profile, isAdmin } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -232,18 +232,28 @@ export default function Testimonies() {
         {testimonies.map(t => (
           <div key={t.id} className="bg-card rounded-2xl shadow-sm border border-grey-light overflow-hidden">
             <div className="p-5">
-              <div className="flex items-center gap-3 mb-3">
-                {t.authorAvatar ? (
-                  <img src={t.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
-                    {t.author.charAt(0)}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  {t.authorAvatar ? (
+                    <img src={t.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
+                      {t.author.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-dark text-sm">{t.author}</p>
+                    <p className="text-xs text-grey">{t.date}</p>
                   </div>
-                )}
-                <div>
-                  <p className="font-semibold text-dark text-sm">{t.author}</p>
-                  <p className="text-xs text-grey">{t.date}</p>
                 </div>
+                {(isAdmin || t.author === userName || t.author === profile?.full_name) && (
+                  <button
+                    onClick={() => { if (confirm("Delete this testimony?")) deleteTestimony(t.id); }}
+                    className="p-2 rounded-full hover:bg-red-50 text-grey hover:text-red-500 transition-colors"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                )}
               </div>
               <h3 className="font-bold text-dark text-lg mb-2">{t.title}</h3>
               <p className="text-grey-dark text-sm leading-relaxed">{t.content}</p>

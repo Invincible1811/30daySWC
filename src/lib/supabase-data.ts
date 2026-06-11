@@ -121,6 +121,11 @@ export async function likeTestimonyDb(id: string) {
   }
 }
 
+export async function deleteTestimonyDb(id: string) {
+  if (!isSupabaseConfigured) return;
+  await supabase.from("testimonies").delete().eq("id", id);
+}
+
 // ─── Prayers ──────────────────────────────────────────────
 
 export async function fetchPrayers(): Promise<PrayerRequest[]> {
@@ -164,6 +169,11 @@ export async function likePrayerDb(id: string) {
   if (data) {
     await supabase.from("prayers").update({ likes: ((data as { likes: number }).likes || 0) + 1 }).eq("id", id);
   }
+}
+
+export async function deletePrayerDb(id: string) {
+  if (!isSupabaseConfigured) return;
+  await supabase.from("prayers").delete().eq("id", id);
 }
 
 export async function prayForRequestDb(id: string) {
