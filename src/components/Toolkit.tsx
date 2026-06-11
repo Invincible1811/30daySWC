@@ -217,33 +217,34 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((img, i) => (
-          <button
-            key={i}
-            onClick={() => setSelectedIndex(i)}
-            className="group relative rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/40 shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98]"
-            style={{ animationDelay: `${i * 30}ms` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-2xl" />
-            <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 translate-y-2 group-hover:translate-y-0">
-              <span className="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
-                Card {i + 1}
-              </span>
-            </div>
-            <Image
-              src={img}
-              alt={`${title} Card ${i + 1}`}
-              width={400}
-              height={500}
-              className="w-full h-auto rounded-2xl transition-transform duration-300 group-hover:scale-[1.02]"
-            />
-          </button>
-        ))}
-      </div>
-
-      {selectedIndex !== null && (
-        <div ref={modalRef} className="mt-4 mx-auto max-w-sm w-full rounded-[20px] shadow-2xl overflow-hidden border border-grey-light bg-white">
+      {selectedIndex === null ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((img, i) => (
+            <button
+              key={i}
+              onClick={() => setSelectedIndex(i)}
+              className="group relative rounded-2xl overflow-hidden border-2 border-transparent hover:border-primary/40 shadow-md hover:shadow-2xl transition-all duration-300 hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98]"
+              style={{ animationDelay: `${i * 30}ms` }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 rounded-2xl" />
+              <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-20 translate-y-2 group-hover:translate-y-0">
+                <span className="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                  Card {i + 1}
+                </span>
+              </div>
+              <Image
+                src={img}
+                alt={`${title} Card ${i + 1}`}
+                width={400}
+                height={500}
+                className="w-full h-auto rounded-2xl transition-transform duration-300 group-hover:scale-[1.02]"
+              />
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div ref={modalRef} onClick={() => setSelectedIndex(null)} className="cursor-pointer">
+          <div className="mx-auto max-w-sm w-full rounded-[20px] shadow-2xl overflow-hidden border border-grey-light bg-white" onClick={(e) => e.stopPropagation()}>
             {/* Card image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -254,7 +255,7 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
             />
 
             {/* Controls bar */}
-            <div className="p-4 flex items-center justify-between bg-white rounded-b-[24px]">
+            <div className="p-4 flex items-center justify-between bg-white">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedIndex(i => i !== null ? (i === 0 ? images.length - 1 : i - 1) : null)}
@@ -290,6 +291,8 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
                 </button>
               </div>
             </div>
+          </div>
+          <p className="text-center text-xs text-grey mt-3">Tap anywhere outside the card to go back</p>
         </div>
       )}
     </>
