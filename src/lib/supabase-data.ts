@@ -83,6 +83,7 @@ export async function fetchTestimonies(): Promise<Testimony[]> {
   return (data || []).map((t: Record<string, unknown>) => ({
     id: t.id as string,
     author: t.author as string,
+    authorAvatar: (t.author_avatar as string) || undefined,
     title: t.title as string,
     content: t.content as string,
     likes: (t.likes as number) || 0,
@@ -93,7 +94,7 @@ export async function fetchTestimonies(): Promise<Testimony[]> {
   }));
 }
 
-export async function insertTestimony(userId: string, testimony: { author: string; title: string; content: string; date: string; mediaUrl?: string; mediaType?: string }): Promise<{ id: string } | null> {
+export async function insertTestimony(userId: string, testimony: { author: string; authorAvatar?: string; title: string; content: string; date: string; mediaUrl?: string; mediaType?: string }): Promise<{ id: string } | null> {
   if (!isSupabaseConfigured) return null;
   const row: Record<string, unknown> = {
     user_id: userId,
@@ -101,6 +102,7 @@ export async function insertTestimony(userId: string, testimony: { author: strin
     title: testimony.title,
     content: testimony.content,
   };
+  if (testimony.authorAvatar) row.author_avatar = testimony.authorAvatar;
   if (testimony.mediaUrl) row.media_url = testimony.mediaUrl;
   if (testimony.mediaType) row.media_type = testimony.mediaType;
   const { data } = await supabase
@@ -128,26 +130,29 @@ export async function fetchPrayers(): Promise<PrayerRequest[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
-  return (data || []).map((p) => ({
-    id: p.id,
-    author: p.author,
-    content: p.content,
-    likes: p.likes,
-    prayerCount: p.prayer_count,
-    date: p.created_at.split("T")[0],
+  return (data || []).map((p: Record<string, unknown>) => ({
+    id: p.id as string,
+    author: p.author as string,
+    authorAvatar: (p.author_avatar as string) || undefined,
+    content: p.content as string,
+    likes: (p.likes as number) || 0,
+    prayerCount: (p.prayer_count as number) || 0,
+    date: (p.created_at as string).split("T")[0],
     comments: [],
   }));
 }
 
-export async function insertPrayer(userId: string, prayer: { author: string; content: string; date: string }): Promise<{ id: string } | null> {
+export async function insertPrayer(userId: string, prayer: { author: string; authorAvatar?: string; content: string; date: string }): Promise<{ id: string } | null> {
   if (!isSupabaseConfigured) return null;
+  const row: Record<string, unknown> = {
+    user_id: userId,
+    author: prayer.author,
+    content: prayer.content,
+  };
+  if (prayer.authorAvatar) row.author_avatar = prayer.authorAvatar;
   const { data } = await supabase
     .from("prayers")
-    .insert({
-      user_id: userId,
-      author: prayer.author,
-      content: prayer.content,
-    })
+    .insert(row)
     .select()
     .single();
   return data as { id: string } | null;
@@ -228,14 +233,15 @@ export async function fetchCommunityPosts(): Promise<CommunityPost[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
-  return (data || []).map((p) => ({
-    id: p.id,
-    author: p.author,
-    location: p.location,
-    content: p.content,
-    likes: p.likes,
+  return (data || []).map((p: Record<string, unknown>) => ({
+    id: p.id as string,
+    author: p.author as string,
+    authorAvatar: (p.author_avatar as string) || undefined,
+    location: (p.location as string) || "",
+    content: p.content as string,
+    likes: (p.likes as number) || 0,
     type: p.type as CommunityPost["type"],
-    date: p.created_at.split("T")[0],
+    date: (p.created_at as string).split("T")[0],
     comments: [],
   }));
 }

@@ -5,9 +5,11 @@ import { challengeCards } from "@/lib/data";
 import { Heart, MessageCircle, MapPin, Globe, TrendingUp, Users, Award, CalendarDays, Send, Plus, X, Trophy, Flame } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 export default function Community() {
   const { communityPosts, likeCommunityPost, addCommunityPost, globalSoulCount, dailyShares, likeDailyShare, addCommentToDailyShare, userName } = useApp();
+  const { profile: authProfile } = useAuth();
   const [filter, setFilter] = useState<"all" | "testimony" | "report" | "encouragement" | "milestone">("all");
   const [activeTab, setActiveTab] = useState<"feed" | "daily-shares">("feed");
   const [dayFilter, setDayFilter] = useState<number | null>(null);
@@ -109,6 +111,7 @@ export default function Community() {
                   if (!newPost.content.trim()) return;
                   addCommunityPost({
                     author: userName,
+                    authorAvatar: authProfile?.avatar_url || undefined,
                     location: newPost.location.trim() || "Unknown",
                     content: newPost.content.trim(),
                     date: new Date().toISOString().split("T")[0],
@@ -221,8 +224,14 @@ export default function Community() {
             <div className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <button onClick={() => openProfile(post.author)} className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold hover:ring-2 hover:ring-primary/30 transition-all">
-                    {post.author.charAt(0)}
+                  <button onClick={() => openProfile(post.author)} className="w-10 h-10 rounded-full overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all">
+                    {post.authorAvatar ? (
+                      <img src={post.authorAvatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                        {post.author.charAt(0)}
+                      </div>
+                    )}
                   </button>
                   <div>
                     <button onClick={() => openProfile(post.author)} className="font-semibold text-dark text-sm hover:text-primary transition-colors text-left">{post.author}</button>

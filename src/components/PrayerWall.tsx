@@ -3,9 +3,11 @@
 import { useApp } from "@/lib/store";
 import { Heart, MessageCircle, HandHeart, Plus, X, Send } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function PrayerWall() {
   const { prayers, addPrayer, likePrayer, prayForRequest, addCommentToPrayer, userName } = useApp();
+  const { profile } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [content, setContent] = useState("");
   const [commentingId, setCommentingId] = useState<string | null>(null);
@@ -16,6 +18,7 @@ export default function PrayerWall() {
     if (!content.trim()) return;
     addPrayer({
       author: userName,
+      authorAvatar: profile?.avatar_url || undefined,
       content,
       date: new Date().toISOString().split("T")[0],
     });
@@ -55,9 +58,13 @@ export default function PrayerWall() {
           <div key={prayer.id} className="bg-card rounded-2xl shadow-sm border border-grey-light overflow-hidden">
             <div className="p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                  {prayer.author.charAt(0)}
-                </div>
+                {prayer.authorAvatar ? (
+                  <img src={prayer.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    {prayer.author.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <p className="font-semibold text-dark text-sm">{prayer.author}</p>
                   <p className="text-xs text-grey">{prayer.date}</p>

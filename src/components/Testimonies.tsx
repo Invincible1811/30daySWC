@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 
 export default function Testimonies() {
   const { testimonies, addTestimony, likeTestimony, addCommentToTestimony, userName } = useApp();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -169,6 +169,7 @@ export default function Testimonies() {
 
     addTestimony({
       author: shareAnonymously ? "Anonymous" : userName,
+      authorAvatar: shareAnonymously ? undefined : (profile?.avatar_url || undefined),
       title,
       content,
       date: new Date().toISOString().split("T")[0],
@@ -232,9 +233,13 @@ export default function Testimonies() {
           <div key={t.id} className="bg-card rounded-2xl shadow-sm border border-grey-light overflow-hidden">
             <div className="p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
-                  {t.author.charAt(0)}
-                </div>
+                {t.authorAvatar ? (
+                  <img src={t.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
+                    {t.author.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <p className="font-semibold text-dark text-sm">{t.author}</p>
                   <p className="text-xs text-grey">{t.date}</p>

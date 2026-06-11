@@ -73,6 +73,7 @@ export interface Soul {
 export interface Testimony {
   id: string;
   author: string;
+  authorAvatar?: string;
   title: string;
   content: string;
   date: string;
@@ -92,6 +93,7 @@ export interface Comment {
 export interface PrayerRequest {
   id: string;
   author: string;
+  authorAvatar?: string;
   content: string;
   date: string;
   likes: number;
@@ -124,6 +126,7 @@ export interface Group {
 export interface CommunityPost {
   id: string;
   author: string;
+  authorAvatar?: string;
   location: string;
   content: string;
   date: string;
