@@ -2,7 +2,6 @@
 
 import { Award, BookOpen, Trophy, Star, GraduationCap, Sparkles, CheckCircle2, Heart, HandHeart, Bell } from "lucide-react";
 import { useState } from "react";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export default function ComingSoon() {
   const [email, setEmail] = useState("");
@@ -11,9 +10,13 @@ export default function ComingSoon() {
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    if (isSupabaseConfigured) {
-      await supabase.from("notify_emails").upsert({ email: email.trim().toLowerCase() }, { onConflict: "email" });
-    }
+    try {
+      await fetch("/api/notify-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+    } catch { /* still show success to user */ }
     setSubscribed(true);
     setEmail("");
   };
