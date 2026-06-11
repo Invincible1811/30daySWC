@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   BookOpen, MapPin, Heart, Gift, Sparkles, Star,
@@ -206,24 +206,12 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Freeze page when card is open so overlay is just the viewport
+  // Scroll modal into view when opened
   useEffect(() => {
-    if (selectedIndex !== null) {
-      const scrollY = window.scrollY;
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = "0";
-      document.body.style.right = "0";
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
+    if (selectedIndex !== null && modalRef.current) {
+      modalRef.current.scrollIntoView({ behavior: "instant", block: "center" });
     }
   }, [selectedIndex]);
 
@@ -255,15 +243,14 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 bg-black/70 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
-          <div className="rounded-[20px] max-w-sm w-full shadow-2xl overflow-hidden animate-pop-in flex flex-col bg-white" style={{ maxHeight: "90vh" }} onClick={(e) => e.stopPropagation()}>
-            {/* Card image — fits tightly within viewport */}
+        <div ref={modalRef} className="mt-4 mx-auto max-w-sm w-full rounded-[20px] shadow-2xl overflow-hidden border border-grey-light bg-white">
+            {/* Card image */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               key={selectedIndex}
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
-              className="w-full flex-1 min-h-0 object-contain block"
+              className="w-full block"
             />
 
             {/* Controls bar */}
@@ -303,7 +290,6 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
                 </button>
               </div>
             </div>
-          </div>
         </div>
       )}
     </>
