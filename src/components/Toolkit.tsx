@@ -207,14 +207,20 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
 function CardGrid({ images, title, favHook }: { images: string[]; title: string; favHook?: ReturnType<typeof useFavorites> }) {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  // Lock page scroll when card is open
+  // Lock page scroll when card is open (position:fixed forces viewport takeover)
   useEffect(() => {
     if (selectedIndex !== null) {
       const scrollY = window.scrollY;
-      document.documentElement.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
       document.body.style.overflow = "hidden";
       return () => {
-        document.documentElement.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
         document.body.style.overflow = "";
         window.scrollTo(0, scrollY);
       };
@@ -249,16 +255,15 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
       </div>
 
       {selectedIndex !== null && (
-        <div className="fixed inset-0 z-[60] overflow-y-auto overscroll-contain bg-black/60 backdrop-blur-sm" style={{ WebkitOverflowScrolling: "touch" }} onClick={() => setSelectedIndex(null)}>
-          <div className="min-h-full flex items-center justify-center p-4 py-8">
-          <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in" onClick={(e) => e.stopPropagation()}>
-            {/* Card image */}
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedIndex(null)}>
+          <div className="rounded-[24px] max-w-md w-full shadow-2xl overflow-hidden animate-pop-in flex flex-col" style={{ maxHeight: "calc(100vh - 2rem)" }} onClick={(e) => e.stopPropagation()}>
+            {/* Card image — constrained to fit screen */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               key={selectedIndex}
               src={images[selectedIndex]}
               alt={`${title} Card ${selectedIndex + 1}`}
-              className="w-full rounded-t-[24px] block"
+              className="w-full flex-1 min-h-0 object-contain rounded-t-[24px] block"
             />
 
             {/* Controls bar */}
@@ -298,7 +303,6 @@ function CardGrid({ images, title, favHook }: { images: string[]; title: string;
                 </button>
               </div>
             </div>
-          </div>
           </div>
         </div>
       )}
