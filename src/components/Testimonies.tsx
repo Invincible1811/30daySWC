@@ -141,7 +141,7 @@ export default function Testimonies() {
     setRecordStage("recording");
     setRecordingTime(0);
     setLimitReached(false);
-    const maxSeconds = recordMode === "video" ? 180 : 600; // 3min video, 10min audio
+    const maxSeconds = recordMode === "video" ? 120 : 600; // 2min video, 10min audio
     timerRef.current = setInterval(() => {
       setRecordingTime(t => {
         if (t + 1 >= maxSeconds) {
@@ -581,7 +581,7 @@ export default function Testimonies() {
                 {/* Limit reached banner */}
                 {limitReached && recordStage === "done" && (
                   <div className="bg-amber-50 border border-amber-300 rounded-xl px-4 py-2.5 flex items-center gap-2 text-amber-800 text-xs font-semibold">
-                    ⏱ {recordMode === "video" ? "3-minute" : "10-minute"} limit reached — recording stopped automatically.
+                    ⏱ {recordMode === "video" ? "2-minute" : "10-minute"} limit reached — recording stopped automatically.
                   </div>
                 )}
 
