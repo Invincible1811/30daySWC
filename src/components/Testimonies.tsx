@@ -1,6 +1,7 @@
 "use client";
 
 import { useApp } from "@/lib/store";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield, Video, Mic, Eye, EyeOff, Square, Circle, Loader2, Trash2 } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -169,33 +170,47 @@ export default function Testimonies() {
     if (timerRef.current) clearInterval(timerRef.current);
   }, [recordedUrl]);
 
-  // Upload media to Supabase Storage (single request — chunked store breaks on serverless cold starts)
+  // Upload media directly to Supabase Storage from the browser (no serverless timeout/size limits)
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
-    if (!user) {
-      console.warn("No user — skipping upload");
+    if (!user || !isSupabaseConfigured || !supabase) {
+      console.warn("No user or Supabase not configured — skipping upload");
       return null;
     }
     try {
       setUploadProgress(10);
 
-      const formData = new FormData();
-      formData.append("file", blob, `recording.webm`);
-      formData.append("userId", user.id);
-      formData.append("mediaType", mode);
-      formData.append("chunkIndex", "0");
-      formData.append("totalChunks", "1");
+      // Ensure bucket exists (anon key needs insert policy set in Supabase dashboard)
+      const path = `testimonies/${user.id}/${Date.now()}.webm`;
+      const contentType = mode === "video" ? "video/webm" : "audio/webm";
 
-      setUploadProgress(30);
-      const res = await fetch("/api/upload-media", { method: "POST", body: formData });
-      setUploadProgress(90);
-      const json = await res.json();
+      setUploadProgress(20);
 
-      if (!res.ok) {
-        console.error("Upload error:", json.error || "Unknown error");
-        return null;
+      const { error } = await supabase.storage
+        .from("media")
+        .upload(path, blob, { contentType, upsert: false });
+
+      if (error) {
+        // RLS may be blocking anon upload — fall back to server-side API route
+        console.warn("Direct upload blocked, falling back to API route:", error.message);
+        setUploadProgress(30);
+        const formData = new FormData();
+        formData.append("file", blob, "recording.webm");
+        formData.append("userId", user.id);
+        formData.append("mediaType", mode);
+        formData.append("chunkIndex", "0");
+        formData.append("totalChunks", "1");
+        const res = await fetch("/api/upload-media", { method: "POST", body: formData });
+        setUploadProgress(90);
+        if (!res.ok) { console.error("API fallback upload failed"); return null; }
+        const json = await res.json();
+        setUploadProgress(100);
+        return json.url ?? null;
       }
+
+      setUploadProgress(90);
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
       setUploadProgress(100);
-      return json.url ?? null;
+      return urlData.publicUrl ?? null;
     } catch (err) {
       console.error("Upload failed:", err);
       return null;
