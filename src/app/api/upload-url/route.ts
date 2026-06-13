@@ -4,8 +4,23 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+export async function GET() {
+  // Debug endpoint — lets us verify env vars are set on Vercel
+  return NextResponse.json({
+    hasUrl: !!supabaseUrl,
+    hasServiceKey: !!supabaseServiceKey,
+    urlPrefix: supabaseUrl?.slice(0, 30) || "MISSING",
+  });
+}
+
 export async function POST(request: Request) {
   try {
+    // Guard: fail fast with clear message if env vars missing
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("MISSING ENV VARS — NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set on Vercel");
+      return NextResponse.json({ error: "Server misconfigured: missing Supabase credentials" }, { status: 500 });
+    }
+
     // mimeType is the actual browser-reported type (e.g. video/mp4 on iOS, video/webm on Android)
     const { userId, mediaType, mimeType: clientMime } = await request.json();
 

@@ -196,11 +196,14 @@ export default function Testimonies() {
       });
 
       if (!urlRes.ok) {
-        console.error("Failed to get upload URL:", await urlRes.text());
+        const errText = await urlRes.text();
+        console.error(`[upload] /api/upload-url failed (${urlRes.status}):`, errText);
         return null;
       }
 
-      const { signedUrl, publicUrl } = await urlRes.json();
+      const urlJson = await urlRes.json();
+      console.log("[upload] got signed URL, uploading directly to Supabase...");
+      const { signedUrl, publicUrl } = urlJson;
       setUploadProgress(20);
 
       // Tick progress from 20→90 while upload is in flight (fetch has no progress events)
@@ -222,10 +225,12 @@ export default function Testimonies() {
       clearInterval(ticker);
 
       if (!uploadRes.ok) {
-        console.error("Direct upload to Supabase failed:", uploadRes.status, await uploadRes.text());
+        const body = await uploadRes.text();
+        console.error(`[upload] PUT to Supabase failed (${uploadRes.status}):`, body);
         return null;
       }
 
+      console.log("[upload] SUCCESS — public URL:", publicUrl);
       setUploadProgress(100);
       return publicUrl ?? null;
     } catch (err) {
