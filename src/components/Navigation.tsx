@@ -33,6 +33,8 @@ interface NavigationProps {
   onNavigate: (page: Page) => void;
   onShowAuth?: () => void;
   challengeBadge?: number;
+  feedBadge?: number;
+  onClearFeedBadge?: () => void;
 }
 
 const bottomNavItems: { icon: React.ElementType; label: string; page: Page }[] = [
@@ -61,7 +63,7 @@ const moreMenuItems: { icon: React.ElementType; label: string; page: Page }[] = 
   { icon: Settings, label: "Settings", page: "settings" },
 ];
 
-export default function Navigation({ currentPage, onNavigate, onShowAuth, challengeBadge = 0 }: NavigationProps) {
+export default function Navigation({ currentPage, onNavigate, onShowAuth, challengeBadge = 0, feedBadge = 0, onClearFeedBadge }: NavigationProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, profile, signOut, isAdmin } = useAuth();
@@ -100,6 +102,9 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
                   <Icon size={20} />
                   {item.page === "challenges" && challengeBadge > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{challengeBadge}</span>
+                  )}
+                  {item.page === "livefeed" && feedBadge > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-bounce">{feedBadge > 9 ? "9+" : feedBadge}</span>
                   )}
                 </div>
                 {item.label}

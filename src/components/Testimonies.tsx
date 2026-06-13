@@ -25,6 +25,8 @@ export default function Testimonies() {
   const [blurVideo, setBlurVideo] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [limitReached, setLimitReached] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,7 +132,20 @@ export default function Testimonies() {
     recorder.start();
     setRecordStage("recording");
     setRecordingTime(0);
-    timerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    setLimitReached(false);
+    const maxSeconds = recordMode === "video" ? 180 : 600; // 3min video, 10min audio
+    timerRef.current = setInterval(() => {
+      setRecordingTime(t => {
+        if (t + 1 >= maxSeconds) {
+          // Auto-stop at limit
+          mediaRecorderRef.current?.stop();
+          if (timerRef.current) clearInterval(timerRef.current);
+          setRecordStage("done");
+          setLimitReached(true);
+        }
+        return t + 1;
+      });
+    }, 1000);
   }, [recordMode, blurVideo]);
 
   // Step 3: Stop recording
@@ -164,6 +179,7 @@ export default function Testimonies() {
       const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB chunks
       const totalChunks = Math.ceil(blob.size / CHUNK_SIZE);
       const uploadId = `${user.id}-${Date.now()}`;
+      setUploadProgress(0);
 
       for (let i = 0; i < totalChunks; i++) {
         const start = i * CHUNK_SIZE;
@@ -186,6 +202,8 @@ export default function Testimonies() {
           console.error("Upload chunk error:", json.error || "Unknown error");
           return null;
         }
+        // Update progress
+        setUploadProgress(Math.round(((i + 1) / totalChunks) * 100));
         // Last chunk returns the final URL
         if (i === totalChunks - 1 && json.url) {
           return json.url;
@@ -227,8 +245,10 @@ export default function Testimonies() {
 
     if (recordedBlob && recordMode !== "none") {
       setUploading(true);
+      setUploadProgress(0);
       finalMediaUrl = await uploadMedia(recordedBlob, recordMode);
       setUploading(false);
+      setUploadProgress(0);
 
       if (!finalMediaUrl && recordedUrl) {
         // Upload failed — use the local blob URL so at least this user sees it
@@ -508,16 +528,37 @@ export default function Testimonies() {
                         <span className="text-sm font-bold text-dark">Recording audio...</span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-mono font-bold text-red-600 flex items-center gap-2">
-                        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                        {formatTime(recordingTime)}
-                      </span>
+                    {/* Time progress bar */}
+                    <div className="mb-2">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-mono font-bold text-red-600 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                          {formatTime(recordingTime)}
+                        </span>
+                        <span className="text-xs text-grey-dark">
+                          {recordMode === "video" ? "max 3:00" : "max 10:00"}
+                        </span>
+                      </div>
+                      <div className="w-full h-1.5 bg-red-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-red-500 rounded-full transition-all duration-1000"
+                          style={{ width: `${Math.min((recordingTime / (recordMode === "video" ? 180 : 600)) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end">
                       <button type="button" onClick={stopRecording}
                         className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">
                         <Square size={12} fill="white" /> Stop
                       </button>
                     </div>
+                  </div>
+                )}
+
+                {/* Limit reached banner */}
+                {limitReached && recordStage === "done" && (
+                  <div className="bg-amber-50 border border-amber-300 rounded-xl px-4 py-2.5 flex items-center gap-2 text-amber-800 text-xs font-semibold">
+                    ⏱ {recordMode === "video" ? "3-minute" : "10-minute"} limit reached — recording stopped automatically.
                   </div>
                 )}
 
@@ -559,8 +600,16 @@ export default function Testimonies() {
                 </label>
               </div>
 
-              <button type="submit" disabled={!permissionGiven || uploading} className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                {uploading ? <><Loader2 size={16} className="animate-spin" /> Uploading...</> : "Share Testimony"}
+              <button type="submit" disabled={!permissionGiven || uploading} className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 relative overflow-hidden">
+                {uploading && uploadProgress > 0 && (
+                  <span className="absolute inset-0 bg-primary-dark/40 rounded-xl" style={{ width: `${uploadProgress}%`, transition: "width 0.3s ease" }} />
+                )}
+                <span className="relative z-10 flex items-center gap-2">
+                  {uploading
+                    ? <><Loader2 size={16} className="animate-spin" /> {uploadProgress > 0 ? `Uploading ${uploadProgress}%...` : "Preparing..."}</>
+                    : "Share Testimony"
+                  }
+                </span>
               </button>
             </form>
           </div>

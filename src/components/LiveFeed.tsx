@@ -1,7 +1,8 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { Heart, MessageCircle, BookOpen, HandHeart, Globe, Clock } from "lucide-react";
+import { Heart, BookOpen, HandHeart, Globe, Clock, MessageCircle } from "lucide-react";
+import { useEffect } from "react";
 
 interface FeedItem {
   id: string;
@@ -15,7 +16,11 @@ interface FeedItem {
 }
 
 export default function LiveFeed() {
-  const { testimonies, prayers, communityPosts } = useApp();
+  const { testimonies, prayers, communityPosts, clearFeedBadge } = useApp();
+
+  useEffect(() => {
+    clearFeedBadge();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Merge all posts into one timeline sorted by date (newest first)
   const feedItems: FeedItem[] = [

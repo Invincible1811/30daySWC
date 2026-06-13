@@ -60,6 +60,7 @@ type AppScreen = "landing" | "auth" | "app";
 
 export default function Home() {
   const { user, profile, loading } = useAuth();
+  const { newFeedCount, clearFeedBadge } = useApp();
   const [currentPage, setCurrentPage] = useState<Page>("challenges");
   const [screen, setScreen] = useState<AppScreen>("landing");
   const [usernameSet, setUsernameSet] = useState(false);
@@ -215,7 +216,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {!isDashboard && (
-        <Navigation currentPage={currentPage} onNavigate={handleNavigate} onShowAuth={handleShowAuth} challengeBadge={pendingPartnerCount} />
+        <Navigation currentPage={currentPage} onNavigate={handleNavigate} onShowAuth={handleShowAuth} challengeBadge={pendingPartnerCount} feedBadge={newFeedCount} onClearFeedBadge={clearFeedBadge} />
       )}
       {/* Trial banner */}
       {subStatus === "trial" && daysLeft <= 5 && (

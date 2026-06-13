@@ -51,6 +51,8 @@ interface AppContextType extends AppState {
   addCommentToDailyShare: (shareId: string, comment: Omit<Comment, "id">) => void;
   liveAlert: { message: string; type: string } | null;
   clearLiveAlert: () => void;
+  newFeedCount: number;
+  clearFeedBadge: () => void;
 }
 
 interface Comment {
@@ -112,6 +114,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   });
   const [mounted, setMounted] = useState(false);
   const [liveAlert, setLiveAlert] = useState<{ message: string; type: string } | null>(null);
+  const [newFeedCount, setNewFeedCount] = useState(0);
   const hasSynced = useRef(false);
 
   useEffect(() => {
@@ -177,6 +180,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const alert = messages[table];
       if (alert) {
         setLiveAlert(alert);
+        setNewFeedCount(c => c + 1);
         setTimeout(() => setLiveAlert(null), 6000);
       }
     };
@@ -445,6 +449,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addCommunityPost, likeCommunityPost, joinGroup, rsvpEvent,
       saveDailyRecord, shareDailyRecord, likeDailyShare, addCommentToDailyShare,
       liveAlert, clearLiveAlert: () => setLiveAlert(null),
+      newFeedCount, clearFeedBadge: () => setNewFeedCount(0),
     }}>
       {children}
     </AppContext.Provider>
