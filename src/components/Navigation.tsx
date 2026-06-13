@@ -107,7 +107,12 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-bounce">{feedBadge > 9 ? "9+" : feedBadge}</span>
                   )}
                 </div>
-                {item.label}
+                <span className={item.page === "livefeed" && feedBadge > 0 ? "animate-pulse text-green-400 font-bold" : ""}>
+                  {item.label}
+                  {item.page === "livefeed" && feedBadge > 0 && (
+                    <span className="ml-1.5 text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-black uppercase tracking-wide">LIVE</span>
+                  )}
+                </span>
               </button>
             );
           })}
@@ -180,8 +185,20 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
                         : "text-grey-medium hover:bg-dark-light hover:text-white"
                     }`}
                   >
-                    <Icon size={20} />
-                    {item.label}
+                    <div className="relative">
+                      <Icon size={20} />
+                      {item.page === "livefeed" && feedBadge > 0 && (
+                        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                          <span className="w-3.5 h-3.5 bg-green-400 rounded-full animate-ping absolute" />
+                        </span>
+                      )}
+                    </div>
+                    <span className={item.page === "livefeed" && feedBadge > 0 ? "animate-pulse text-green-400 font-bold" : ""}>
+                      {item.label}
+                      {item.page === "livefeed" && feedBadge > 0 && (
+                        <span className="ml-1.5 text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-black uppercase tracking-wide">LIVE</span>
+                      )}
+                    </span>
                   </button>
                 );
               })}
@@ -267,8 +284,20 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
                   currentPage === item.page ? "bg-primary/10 text-primary" : "text-dark hover:bg-grey-light"
                 }`}
               >
-                <Icon size={18} />
-                {item.label}
+                <div className="relative">
+                  <Icon size={18} />
+                  {item.page === "livefeed" && feedBadge > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full">
+                      <span className="w-3 h-3 bg-green-400 rounded-full animate-ping absolute" />
+                    </span>
+                  )}
+                </div>
+                <span className={item.page === "livefeed" && feedBadge > 0 ? "animate-pulse text-green-600 font-bold" : ""}>
+                  {item.label}
+                  {item.page === "livefeed" && feedBadge > 0 && (
+                    <span className="ml-1.5 text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-black uppercase">LIVE</span>
+                  )}
+                </span>
               </button>
             );
           })}

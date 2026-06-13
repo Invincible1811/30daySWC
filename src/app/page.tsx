@@ -142,7 +142,7 @@ export default function Home() {
       case "events": return <Events />;
       case "groups": return <Groups />;
       case "community": return <Community />;
-      case "livefeed": return <LiveFeed />;
+      case "livefeed": return <LiveFeed onNavigate={handleNavigate} />;
       case "toolkit": return <Toolkit />;
       case "leaderboard": return <Leaderboard />;
       case "members": return <Members />;

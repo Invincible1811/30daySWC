@@ -15,7 +15,11 @@ interface FeedItem {
   likes: number;
 }
 
-export default function LiveFeed() {
+interface LiveFeedProps {
+  onNavigate?: (page: "testimonies" | "prayer" | "community") => void;
+}
+
+export default function LiveFeed({ onNavigate }: LiveFeedProps) {
   const { testimonies, prayers, communityPosts, clearFeedBadge } = useApp();
 
   useEffect(() => {
@@ -70,6 +74,12 @@ export default function LiveFeed() {
       case "community": return "Community Post";
       default: return "Post";
     }
+  };
+
+  const typeDestination = (type: string): "testimonies" | "prayer" | "community" => {
+    if (type === "testimony") return "testimonies";
+    if (type === "prayer") return "prayer";
+    return "community";
   };
 
   const typeGlow = (type: string) => {
@@ -135,13 +145,15 @@ export default function LiveFeed() {
           {feedItems.map((item, idx) => {
             const glow = typeGlow(item.type);
             return (
-              <div
+              <button
                 key={`${item.type}-${item.id}`}
-                className="rounded-xl p-4 transition-all hover:scale-[1.01]"
+                onClick={() => onNavigate?.(typeDestination(item.type))}
+                className="w-full rounded-xl p-4 transition-all hover:scale-[1.01] text-left"
                 style={{
                   background: `linear-gradient(135deg, #0d1533 0%, #111827 100%)`,
                   border: `1px solid ${glow.border}40`,
                   boxShadow: `0 0 20px ${glow.glow}, inset 0 1px 0 rgba(255,255,255,0.03)`,
+                  cursor: onNavigate ? "pointer" : "default",
                 }}
               >
                 <div className="flex items-start gap-3">
@@ -174,7 +186,14 @@ export default function LiveFeed() {
                     </div>
                   </div>
                 </div>
-              </div>
+                {onNavigate && (
+                  <div className="mt-2 flex justify-end">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ color: glow.badge, background: `${glow.border}15` }}>
+                      View → {typeLabel(item.type)}s
+                    </span>
+                  </div>
+                )}
+              </button>
             );
           })}
         </div>
