@@ -590,13 +590,13 @@ export default function Testimonies() {
                           {formatTime(recordingTime)}
                         </span>
                         <span className="text-xs text-grey-dark">
-                          {recordMode === "video" ? "max 3:00" : "max 10:00"}
+                          {recordMode === "video" ? "max 2:00" : "max 10:00"}
                         </span>
                       </div>
                       <div className="w-full h-1.5 bg-red-100 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-red-500 rounded-full transition-all duration-1000"
-                          style={{ width: `${Math.min((recordingTime / (recordMode === "video" ? 180 : 600)) * 100, 100)}%` }}
+                          style={{ width: `${Math.min((recordingTime / (recordMode === "video" ? 120 : 600)) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
