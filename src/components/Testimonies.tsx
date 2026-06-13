@@ -310,7 +310,7 @@ export default function Testimonies() {
       title,
       content,
       date: new Date().toISOString().split("T")[0],
-      ...(finalMediaUrl ? { mediaUrl: finalMediaUrl, mediaType: recordMode as "video" | "audio" } : {}),
+      ...(finalMediaUrl ? { mediaUrl: finalMediaUrl, mediaType: recordMode as "video" | "audio", blurred: blurVideo } : {}),
     });
 
     if (uploadFailed) {
@@ -395,14 +395,19 @@ export default function Testimonies() {
               <h3 className="font-bold text-dark text-lg mb-2">{t.title}</h3>
               <p className="text-grey-dark text-sm leading-relaxed">{t.content}</p>
               {t.mediaUrl && t.mediaType === "video" && (
-                <div className="mt-3 rounded-xl overflow-hidden bg-black">
+                <div className="mt-3 rounded-xl overflow-hidden bg-black relative">
                   <video
                     src={t.mediaUrl}
                     controls
                     playsInline
                     preload="metadata"
-                    className="w-full max-h-64 object-contain"
+                    className={`w-full max-h-64 object-contain ${t.blurred ? "blur-xl" : ""}`}
                   />
+                  {t.blurred && (
+                    <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm pointer-events-none">
+                      <EyeOff size={11} /> Blurred
+                    </div>
+                  )}
                 </div>
               )}
               {t.mediaUrl && t.mediaType === "audio" && (

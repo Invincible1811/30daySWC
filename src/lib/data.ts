@@ -81,6 +81,7 @@ export interface Testimony {
   comments: Comment[];
   mediaUrl?: string;
   mediaType?: "video" | "audio";
+  blurred?: boolean;
 }
 
 export interface Comment {
