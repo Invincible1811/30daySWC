@@ -92,10 +92,11 @@ export async function fetchTestimonies(): Promise<Testimony[]> {
     mediaUrl: (t.media_url as string) || undefined,
     mediaType: (t.media_type as "video" | "audio") || undefined,
     blurred: (t.blurred as boolean) || false,
+    mediaDuration: (t.media_duration as number) || undefined,
   }));
 }
 
-export async function insertTestimony(userId: string, testimony: { author: string; authorAvatar?: string; title: string; content: string; date: string; mediaUrl?: string; mediaType?: string; blurred?: boolean }): Promise<{ id: string } | null> {
+export async function insertTestimony(userId: string, testimony: { author: string; authorAvatar?: string; title: string; content: string; date: string; mediaUrl?: string; mediaType?: string; blurred?: boolean; mediaDuration?: number }): Promise<{ id: string } | null> {
   if (!isSupabaseConfigured) return null;
   const row: Record<string, unknown> = {
     user_id: userId,
@@ -107,6 +108,7 @@ export async function insertTestimony(userId: string, testimony: { author: strin
   if (testimony.mediaUrl) row.media_url = testimony.mediaUrl;
   if (testimony.mediaType) row.media_type = testimony.mediaType;
   if (testimony.blurred) row.blurred = true;
+  if (testimony.mediaDuration) row.media_duration = testimony.mediaDuration;
   const { data } = await supabase
     .from("testimonies")
     .insert(row)

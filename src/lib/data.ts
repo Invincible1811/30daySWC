@@ -82,6 +82,7 @@ export interface Testimony {
   mediaUrl?: string;
   mediaType?: "video" | "audio";
   blurred?: boolean;
+  mediaDuration?: number;
 }
 
 export interface Comment {

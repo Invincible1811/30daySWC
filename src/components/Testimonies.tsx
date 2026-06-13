@@ -141,7 +141,7 @@ export default function Testimonies() {
     setRecordStage("recording");
     setRecordingTime(0);
     setLimitReached(false);
-    const maxSeconds = recordMode === "video" ? 120 : 600; // 2min video, 10min audio
+    const maxSeconds = recordMode === "video" ? 120 : 420; // 2min video, 7min audio
     timerRef.current = setInterval(() => {
       setRecordingTime(t => {
         if (t + 1 >= maxSeconds) {
@@ -310,7 +310,7 @@ export default function Testimonies() {
       title,
       content,
       date: new Date().toISOString().split("T")[0],
-      ...(finalMediaUrl ? { mediaUrl: finalMediaUrl, mediaType: recordMode as "video" | "audio", blurred: blurVideo } : {}),
+      ...(finalMediaUrl ? { mediaUrl: finalMediaUrl, mediaType: recordMode as "video" | "audio", blurred: blurVideo, mediaDuration: recordingTime } : {}),
     });
 
     if (uploadFailed) {
@@ -408,6 +408,11 @@ export default function Testimonies() {
                       <EyeOff size={11} /> Blurred
                     </div>
                   )}
+                  {t.mediaDuration && (
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-mono font-bold px-2 py-1 rounded pointer-events-none">
+                      {formatTime(t.mediaDuration)}
+                    </div>
+                  )}
                 </div>
               )}
               {t.mediaUrl && t.mediaType === "audio" && (
@@ -416,6 +421,9 @@ export default function Testimonies() {
                     <Mic size={18} className="text-primary" />
                   </div>
                   <audio src={t.mediaUrl} controls preload="metadata" className="w-full" />
+                  {t.mediaDuration && (
+                    <span className="text-[10px] font-mono text-grey-dark shrink-0">{formatTime(t.mediaDuration)}</span>
+                  )}
                 </div>
               )}
               <div className="flex items-center gap-4 mt-4 pt-3 border-t border-grey-light">
@@ -588,13 +596,13 @@ export default function Testimonies() {
                           {formatTime(recordingTime)}
                         </span>
                         <span className="text-xs text-grey-dark">
-                          {recordMode === "video" ? "max 2:00" : "max 10:00"}
+                          {recordMode === "video" ? "max 2:00" : "max 7:00"}
                         </span>
                       </div>
                       <div className="w-full h-1.5 bg-red-100 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-red-500 rounded-full transition-all duration-1000"
-                          style={{ width: `${Math.min((recordingTime / (recordMode === "video" ? 120 : 600)) * 100, 100)}%` }}
+                          style={{ width: `${Math.min((recordingTime / (recordMode === "video" ? 120 : 420)) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
@@ -610,7 +618,7 @@ export default function Testimonies() {
                 {/* Limit reached banner */}
                 {limitReached && recordStage === "done" && (
                   <div className="bg-amber-50 border border-amber-300 rounded-xl px-4 py-2.5 flex items-center gap-2 text-amber-800 text-xs font-semibold">
-                    ⏱ {recordMode === "video" ? "2-minute" : "10-minute"} limit reached — recording stopped automatically.
+                    ⏱ {recordMode === "video" ? "2-minute" : "7-minute"} limit reached — recording stopped automatically.
                   </div>
                 )}
 
