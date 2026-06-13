@@ -214,19 +214,43 @@ export default function Testimonies() {
       }, 400);
 
       // Step 2: PUT the file directly to Supabase from the browser (no Vercel in the path)
-      // Use the blob's actual type so iOS mp4 uploads with the correct Content-Type
-      const contentType = blob.type || (mode === "video" ? "video/mp4" : "audio/mp4");
-      const uploadRes = await fetch(signedUrl, {
-        method: "PUT",
-        headers: { "Content-Type": contentType },
-        body: blob,
+      if (!blob || blob.size === 0) {
+        console.error("[upload] Blob is empty — nothing to upload");
+        return null;
+      }
+      // Force correct content-type — iOS often leaves blob.type empty
+      const ext = urlJson.path?.endsWith(".mp4") ? "mp4" : "webm";
+      const contentType = blob.type || (ext === "mp4"
+        ? (mode === "video" ? "video/mp4" : "audio/mp4")
+        : (mode === "video" ? "video/webm" : "audio/webm"));
+      console.log(`[upload] blob size=${blob.size} type=${blob.type} using contentType=${contentType}`);
+
+      // Use XHR for the PUT — better iOS PWA blob-body support + real progress events
+      const uploadOk = await new Promise<boolean>((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", signedUrl);
+        xhr.setRequestHeader("Content-Type", contentType);
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const pct = Math.round(20 + (e.loaded / e.total) * 75);
+            setUploadProgress(pct);
+          }
+        };
+        xhr.onload = () => {
+          console.log(`[upload] XHR status: ${xhr.status} response: ${xhr.responseText}`);
+          resolve(xhr.status >= 200 && xhr.status < 300);
+        };
+        xhr.onerror = () => {
+          console.error("[upload] XHR network error");
+          resolve(false);
+        };
+        xhr.send(blob);
       });
 
       clearInterval(ticker);
 
-      if (!uploadRes.ok) {
-        const body = await uploadRes.text();
-        console.error(`[upload] PUT to Supabase failed (${uploadRes.status}):`, body);
+      if (!uploadOk) {
+        console.error("[upload] PUT to Supabase failed");
         return null;
       }
 
