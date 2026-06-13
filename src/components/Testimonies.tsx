@@ -72,17 +72,39 @@ export default function Testimonies() {
       canvasRef.current = canvas;
       const ctx = canvas.getContext("2d")!;
 
+      const supportsFilter = typeof ctx.filter !== "undefined" && ctx.filter !== undefined;
+
       const draw = () => {
-        ctx.filter = "blur(20px)";
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (supportsFilter) {
+          // Desktop / modern browsers
+          ctx.filter = "blur(20px)";
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        } else {
+          // iOS Safari fallback: draw multiple times with shadow blur
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.save();
+          ctx.filter = "none";
+          ctx.shadowBlur = 40;
+          ctx.shadowColor = "rgba(0,0,0,0.5)";
+          // Draw scaled-up and cropped to spread blur pixels
+          for (let i = 0; i < 6; i++) {
+            ctx.globalAlpha = 0.35;
+            ctx.drawImage(video, -8 + i * 3, -8 + i * 3, canvas.width + 16, canvas.height + 16);
+          }
+          ctx.globalAlpha = 1;
+          ctx.restore();
+        }
         animFrameRef.current = requestAnimationFrame(draw);
       };
-      draw();
 
-      const canvasStream = canvas.captureStream(30);
-      // Add audio tracks from the original stream
-      streamRef.current.getAudioTracks().forEach(t => canvasStream.addTrack(t));
-      recordStream = canvasStream;
+      // captureStream is required - if not supported (some iOS), warn and skip canvas
+      if (typeof (canvas as HTMLCanvasElement & { captureStream?: () => MediaStream }).captureStream === "function") {
+        draw();
+        const canvasStream = canvas.captureStream(30);
+        streamRef.current.getAudioTracks().forEach(t => canvasStream.addTrack(t));
+        recordStream = canvasStream;
+      }
+      // else: iOS doesn't support captureStream, blur is CSS-only (preview only)
     }
 
     const mimeType = MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "";
@@ -132,26 +154,44 @@ export default function Testimonies() {
     if (timerRef.current) clearInterval(timerRef.current);
   }, [recordedUrl]);
 
-  // Upload media to Supabase Storage
+  // Upload media to Supabase Storage (chunked for large files)
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
     if (!user) {
       console.warn("No user — skipping upload");
       return null;
     }
     try {
-      const formData = new FormData();
-      formData.append("file", blob, `recording.webm`);
-      formData.append("userId", user.id);
-      formData.append("mediaType", mode);
+      const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB chunks
+      const totalChunks = Math.ceil(blob.size / CHUNK_SIZE);
+      const uploadId = `${user.id}-${Date.now()}`;
 
-      const res = await fetch("/api/upload-media", { method: "POST", body: formData });
-      const json = await res.json();
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * CHUNK_SIZE;
+        const end = Math.min(start + CHUNK_SIZE, blob.size);
+        const chunk = blob.slice(start, end);
 
-      if (!res.ok || !json.url) {
-        console.error("Upload error:", json.error || "Unknown error");
-        return null;
+        const formData = new FormData();
+        formData.append("file", chunk, `recording.webm`);
+        formData.append("userId", user.id);
+        formData.append("mediaType", mode);
+        formData.append("uploadId", uploadId);
+        formData.append("chunkIndex", String(i));
+        formData.append("totalChunks", String(totalChunks));
+        formData.append("totalSize", String(blob.size));
+
+        const res = await fetch("/api/upload-media", { method: "POST", body: formData });
+        const json = await res.json();
+
+        if (!res.ok) {
+          console.error("Upload chunk error:", json.error || "Unknown error");
+          return null;
+        }
+        // Last chunk returns the final URL
+        if (i === totalChunks - 1 && json.url) {
+          return json.url;
+        }
       }
-      return json.url;
+      return null;
     } catch (err) {
       console.error("Upload failed:", err);
       return null;
