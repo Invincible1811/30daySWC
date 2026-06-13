@@ -309,7 +309,7 @@ export default function Testimonies() {
       authorAvatar: shareAnonymously ? undefined : (profile?.avatar_url || undefined),
       title,
       content,
-      date: new Date().toISOString().split("T")[0],
+      date: new Date().toISOString(),
       ...(finalMediaUrl ? { mediaUrl: finalMediaUrl, mediaType: recordMode as "video" | "audio", blurred: blurVideo, mediaDuration: recordingTime } : {}),
     });
 
@@ -385,7 +385,7 @@ export default function Testimonies() {
                   )}
                   <div>
                     <p className="font-bold text-slate-800 text-sm">{t.author}</p>
-                    <p className="text-[11px] text-slate-400 font-medium">{t.date}</p>
+                    <p className="text-[11px] text-slate-400 font-medium">{t.date?.includes("T") ? `${t.date.split("T")[0]} • ${new Date(t.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : t.date}</p>
                   </div>
                 </div>
                 {(isAdmin || t.author === userName || t.author === profile?.full_name) && (
@@ -424,7 +424,7 @@ export default function Testimonies() {
                       </span>
                     )}
                     <span className="bg-black/70 text-white/80 text-[10px] px-2 py-1 rounded">
-                      {t.date}
+                      {t.date?.includes("T") ? `${t.date.split("T")[0]} • ${new Date(t.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : t.date}
                     </span>
                   </div>
                 </div>
@@ -443,7 +443,7 @@ export default function Testimonies() {
                     {t.mediaDuration && (
                       <span className="text-[10px] font-mono text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full font-bold">{formatTime(t.mediaDuration)}</span>
                     )}
-                    <span className="text-[10px] text-slate-400">{t.date}</span>
+                    <span className="text-[10px] text-slate-400">{t.date?.includes("T") ? `${t.date.split("T")[0]} • ${new Date(t.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : t.date}</span>
                   </div>
                 </div>
               )}

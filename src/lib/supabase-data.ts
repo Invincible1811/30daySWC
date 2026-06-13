@@ -87,7 +87,7 @@ export async function fetchTestimonies(): Promise<Testimony[]> {
     title: t.title as string,
     content: t.content as string,
     likes: (t.likes as number) || 0,
-    date: (t.created_at as string).split("T")[0],
+    date: t.created_at as string,
     comments: [],
     mediaUrl: (t.media_url as string) || undefined,
     mediaType: (t.media_type as "video" | "audio") || undefined,
