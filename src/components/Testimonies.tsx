@@ -179,54 +179,59 @@ export default function Testimonies() {
 
   // Upload media via presigned URL: server issues the URL (tiny request), browser uploads directly
   // to Supabase — completely bypasses Vercel's 4.5MB body limit and 10s timeout.
+  const uploadFailReason = useRef<string>("");
+
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
+    uploadFailReason.current = "";
     if (!user) {
-      console.warn("No user — skipping upload");
+      uploadFailReason.current = "No user logged in";
       return null;
     }
     try {
       setUploadProgress(10);
 
+      // Strip codec params: "video/webm;codecs=vp8,opus" → "video/webm"
+      const baseMime = (blob.type || "").split(";")[0].trim();
+
       // Step 1: ask server for a presigned upload URL (sends only userId + mediaType, no file)
-      // Send the actual blob MIME type so the server uses the right file extension (mp4 on iOS)
       const urlRes = await fetch("/api/upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, mediaType: mode, mimeType: blob.type }),
+        body: JSON.stringify({ userId: user.id, mediaType: mode, mimeType: baseMime }),
       });
 
       if (!urlRes.ok) {
         const errText = await urlRes.text();
-        console.error(`[upload] /api/upload-url failed (${urlRes.status}):`, errText);
+        uploadFailReason.current = `Server error (${urlRes.status}): ${errText}`;
         return null;
       }
 
       const urlJson = await urlRes.json();
-      console.log("[upload] got signed URL, uploading directly to Supabase...");
       const { signedUrl, publicUrl } = urlJson;
       setUploadProgress(20);
 
-      // Tick progress from 20→90 while upload is in flight (fetch has no progress events)
+      // Tick progress from 20→90 while upload is in flight
       let ticked = 20;
       const ticker = setInterval(() => {
         ticked = Math.min(ticked + 3, 88);
         setUploadProgress(ticked);
       }, 400);
 
-      // Step 2: PUT the file directly to Supabase from the browser (no Vercel in the path)
+      // Step 2: PUT the file directly to Supabase from the browser
       if (!blob || blob.size === 0) {
-        console.error("[upload] Blob is empty — nothing to upload");
+        clearInterval(ticker);
+        uploadFailReason.current = "Recording is empty (0 bytes)";
         return null;
       }
-      // Force correct content-type — iOS often leaves blob.type empty
+
+      // Use base MIME (without codecs) — Supabase rejects MIME types with codec params
       const ext = urlJson.path?.endsWith(".mp4") ? "mp4" : "webm";
-      const contentType = blob.type || (ext === "mp4"
+      const contentType = baseMime || (ext === "mp4"
         ? (mode === "video" ? "video/mp4" : "audio/mp4")
         : (mode === "video" ? "video/webm" : "audio/webm"));
-      console.log(`[upload] blob size=${blob.size} type=${blob.type} using contentType=${contentType}`);
 
-      // Use XHR for the PUT — better iOS PWA blob-body support + real progress events
-      const xhrStatus = await new Promise<number>((resolve) => {
+      // Use XHR for the PUT — better iOS/mobile blob support + real progress events
+      const xhrResult = await new Promise<{ status: number; body: string }>((resolve) => {
         const xhr = new XMLHttpRequest();
         xhr.open("PUT", signedUrl);
         xhr.setRequestHeader("Content-Type", contentType);
@@ -236,36 +241,24 @@ export default function Testimonies() {
             setUploadProgress(pct);
           }
         };
-        xhr.onload = () => {
-          console.log(`[upload] XHR status: ${xhr.status} response: ${xhr.responseText?.slice(0, 200)}`);
-          resolve(xhr.status);
-        };
-        xhr.onerror = () => {
-          console.error("[upload] XHR network error");
-          resolve(0);
-        };
-        xhr.ontimeout = () => {
-          console.error("[upload] XHR timed out");
-          resolve(0);
-        };
+        xhr.onload = () => resolve({ status: xhr.status, body: xhr.responseText?.slice(0, 300) || "" });
+        xhr.onerror = () => resolve({ status: -1, body: "Network error" });
+        xhr.ontimeout = () => resolve({ status: -2, body: "Timeout" });
         xhr.send(blob);
       });
 
       clearInterval(ticker);
 
-      // Supabase signed upload returns 200. Also accept 0 which some mobile browsers
-      // report for successful cross-origin requests.
-      const uploadOk = xhrStatus === 200 || xhrStatus === 204 || xhrStatus === 0;
-      if (!uploadOk) {
-        console.error(`[upload] PUT to Supabase failed with status ${xhrStatus}`);
-        return null;
+      // Supabase returns 200 on success
+      if (xhrResult.status >= 200 && xhrResult.status < 300) {
+        setUploadProgress(100);
+        return publicUrl ?? null;
       }
 
-      console.log("[upload] SUCCESS — public URL:", publicUrl);
-      setUploadProgress(100);
-      return publicUrl ?? null;
+      uploadFailReason.current = `Supabase returned ${xhrResult.status}: ${xhrResult.body}`;
+      return null;
     } catch (err) {
-      console.error("Upload failed:", err);
+      uploadFailReason.current = `Exception: ${err}`;
       return null;
     }
   }, [user]);
@@ -321,7 +314,7 @@ export default function Testimonies() {
     });
 
     if (uploadFailed) {
-      alert("Your testimony was shared! However, the recording could not be uploaded to the cloud. Other users may not see it until the media storage is set up.");
+      alert(`Upload issue: ${uploadFailReason.current || "Unknown error"}. Your testimony was saved locally but the recording may not be visible to others.`);
     }
 
     setTitle("");
