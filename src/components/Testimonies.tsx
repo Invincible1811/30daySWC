@@ -169,47 +169,33 @@ export default function Testimonies() {
     if (timerRef.current) clearInterval(timerRef.current);
   }, [recordedUrl]);
 
-  // Upload media to Supabase Storage (chunked for large files)
+  // Upload media to Supabase Storage (single request — chunked store breaks on serverless cold starts)
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
     if (!user) {
       console.warn("No user — skipping upload");
       return null;
     }
     try {
-      const CHUNK_SIZE = 8 * 1024 * 1024; // 8MB chunks
-      const totalChunks = Math.ceil(blob.size / CHUNK_SIZE);
-      const uploadId = `${user.id}-${Date.now()}`;
-      setUploadProgress(0);
+      setUploadProgress(10);
 
-      for (let i = 0; i < totalChunks; i++) {
-        const start = i * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, blob.size);
-        const chunk = blob.slice(start, end);
+      const formData = new FormData();
+      formData.append("file", blob, `recording.webm`);
+      formData.append("userId", user.id);
+      formData.append("mediaType", mode);
+      formData.append("chunkIndex", "0");
+      formData.append("totalChunks", "1");
 
-        const formData = new FormData();
-        formData.append("file", chunk, `recording.webm`);
-        formData.append("userId", user.id);
-        formData.append("mediaType", mode);
-        formData.append("uploadId", uploadId);
-        formData.append("chunkIndex", String(i));
-        formData.append("totalChunks", String(totalChunks));
-        formData.append("totalSize", String(blob.size));
+      setUploadProgress(30);
+      const res = await fetch("/api/upload-media", { method: "POST", body: formData });
+      setUploadProgress(90);
+      const json = await res.json();
 
-        const res = await fetch("/api/upload-media", { method: "POST", body: formData });
-        const json = await res.json();
-
-        if (!res.ok) {
-          console.error("Upload chunk error:", json.error || "Unknown error");
-          return null;
-        }
-        // Update progress
-        setUploadProgress(Math.round(((i + 1) / totalChunks) * 100));
-        // Last chunk returns the final URL
-        if (i === totalChunks - 1 && json.url) {
-          return json.url;
-        }
+      if (!res.ok) {
+        console.error("Upload error:", json.error || "Unknown error");
+        return null;
       }
-      return null;
+      setUploadProgress(100);
+      return json.url ?? null;
     } catch (err) {
       console.error("Upload failed:", err);
       return null;
