@@ -1,7 +1,6 @@
 "use client";
 
 import { useApp } from "@/lib/store";
-import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Heart, MessageCircle, Share2, Plus, X, Send, Camera, Shield, Video, Mic, Eye, EyeOff, Square, Circle, Loader2, Trash2 } from "lucide-react";
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
@@ -170,47 +169,46 @@ export default function Testimonies() {
     if (timerRef.current) clearInterval(timerRef.current);
   }, [recordedUrl]);
 
-  // Upload media directly to Supabase Storage from the browser (no serverless timeout/size limits)
+  // Upload media via presigned URL: server issues the URL (tiny request), browser uploads directly
+  // to Supabase — completely bypasses Vercel's 4.5MB body limit and 10s timeout.
   const uploadMedia = useCallback(async (blob: Blob, mode: "video" | "audio"): Promise<string | null> => {
-    if (!user || !isSupabaseConfigured || !supabase) {
-      console.warn("No user or Supabase not configured — skipping upload");
+    if (!user) {
+      console.warn("No user — skipping upload");
       return null;
     }
     try {
       setUploadProgress(10);
 
-      // Ensure bucket exists (anon key needs insert policy set in Supabase dashboard)
-      const path = `testimonies/${user.id}/${Date.now()}.webm`;
-      const contentType = mode === "video" ? "video/webm" : "audio/webm";
+      // Step 1: ask server for a presigned upload URL (sends only userId + mediaType, no file)
+      const urlRes = await fetch("/api/upload-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, mediaType: mode }),
+      });
 
-      setUploadProgress(20);
-
-      const { error } = await supabase.storage
-        .from("media")
-        .upload(path, blob, { contentType, upsert: false });
-
-      if (error) {
-        // RLS may be blocking anon upload — fall back to server-side API route
-        console.warn("Direct upload blocked, falling back to API route:", error.message);
-        setUploadProgress(30);
-        const formData = new FormData();
-        formData.append("file", blob, "recording.webm");
-        formData.append("userId", user.id);
-        formData.append("mediaType", mode);
-        formData.append("chunkIndex", "0");
-        formData.append("totalChunks", "1");
-        const res = await fetch("/api/upload-media", { method: "POST", body: formData });
-        setUploadProgress(90);
-        if (!res.ok) { console.error("API fallback upload failed"); return null; }
-        const json = await res.json();
-        setUploadProgress(100);
-        return json.url ?? null;
+      if (!urlRes.ok) {
+        console.error("Failed to get upload URL:", await urlRes.text());
+        return null;
       }
 
-      setUploadProgress(90);
-      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      const { signedUrl, publicUrl } = await urlRes.json();
+      setUploadProgress(20);
+
+      // Step 2: PUT the file directly to Supabase from the browser (no Vercel in the path)
+      const contentType = mode === "video" ? "video/webm" : "audio/webm";
+      const uploadRes = await fetch(signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": contentType },
+        body: blob,
+      });
+
+      if (!uploadRes.ok) {
+        console.error("Direct upload to Supabase failed:", uploadRes.status, await uploadRes.text());
+        return null;
+      }
+
       setUploadProgress(100);
-      return urlData.publicUrl ?? null;
+      return publicUrl ?? null;
     } catch (err) {
       console.error("Upload failed:", err);
       return null;
