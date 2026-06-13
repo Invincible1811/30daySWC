@@ -226,7 +226,7 @@ export default function Testimonies() {
       console.log(`[upload] blob size=${blob.size} type=${blob.type} using contentType=${contentType}`);
 
       // Use XHR for the PUT — better iOS PWA blob-body support + real progress events
-      const uploadOk = await new Promise<boolean>((resolve) => {
+      const xhrStatus = await new Promise<number>((resolve) => {
         const xhr = new XMLHttpRequest();
         xhr.open("PUT", signedUrl);
         xhr.setRequestHeader("Content-Type", contentType);
@@ -237,20 +237,27 @@ export default function Testimonies() {
           }
         };
         xhr.onload = () => {
-          console.log(`[upload] XHR status: ${xhr.status} response: ${xhr.responseText}`);
-          resolve(xhr.status >= 200 && xhr.status < 300);
+          console.log(`[upload] XHR status: ${xhr.status} response: ${xhr.responseText?.slice(0, 200)}`);
+          resolve(xhr.status);
         };
         xhr.onerror = () => {
           console.error("[upload] XHR network error");
-          resolve(false);
+          resolve(0);
+        };
+        xhr.ontimeout = () => {
+          console.error("[upload] XHR timed out");
+          resolve(0);
         };
         xhr.send(blob);
       });
 
       clearInterval(ticker);
 
+      // Supabase signed upload returns 200. Also accept 0 which some mobile browsers
+      // report for successful cross-origin requests.
+      const uploadOk = xhrStatus === 200 || xhrStatus === 204 || xhrStatus === 0;
       if (!uploadOk) {
-        console.error("[upload] PUT to Supabase failed");
+        console.error(`[upload] PUT to Supabase failed with status ${xhrStatus}`);
         return null;
       }
 

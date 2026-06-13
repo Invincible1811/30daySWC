@@ -30,15 +30,24 @@ export async function POST(request: Request) {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Ensure bucket exists with all mobile-relevant MIME types
+    const ALLOWED_TYPES = [
+      "video/webm", "video/mp4", "video/quicktime", "video/x-matroska",
+      "audio/webm", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav",
+    ];
+
+    // Ensure bucket exists — create or update allowed MIME types
     const { data: buckets } = await supabaseAdmin.storage.listBuckets();
     if (!buckets?.some((b) => b.name === "media")) {
       await supabaseAdmin.storage.createBucket("media", {
         public: true,
-        allowedMimeTypes: [
-          "video/webm", "video/mp4", "video/quicktime", "video/x-matroska",
-          "audio/webm", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav",
-        ],
+        allowedMimeTypes: ALLOWED_TYPES,
+        fileSizeLimit: 524288000,
+      });
+    } else {
+      // Update existing bucket to ensure MIME types are correct
+      await supabaseAdmin.storage.updateBucket("media", {
+        public: true,
+        allowedMimeTypes: ALLOWED_TYPES,
         fileSizeLimit: 524288000,
       });
     }
