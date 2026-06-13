@@ -219,7 +219,7 @@ export default function Home() {
         <Navigation currentPage={currentPage} onNavigate={handleNavigate} onShowAuth={handleShowAuth} challengeBadge={pendingPartnerCount} feedBadge={newFeedCount} onClearFeedBadge={clearFeedBadge} />
       )}
       {/* Trial banner */}
-      {subStatus === "trial" && daysLeft <= 5 && (
+      {subStatus === "trial" && daysLeft <= 7 && (
         <div className={`${isDashboard ? "" : "lg:ml-64"} bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-sm font-medium text-amber-800`}>
           ⏳ Your free trial ends in <strong>{daysLeft} day{daysLeft !== 1 ? "s" : ""}</strong>. Subscribe to keep access.
         </div>

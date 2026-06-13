@@ -76,7 +76,7 @@ export default function Paywall() {
               <Crown size={32} style={{ color: "#D97706" }} />
             </div>
             <h2 style={{ fontSize: 22, fontWeight: 800, color: "#111827", marginBottom: 4 }}>
-              Your Free Trial Has Ended
+              Your 21-Day Free Trial Has Ended
             </h2>
             <p style={{ color: "#6B7280", fontSize: 14, lineHeight: 1.6 }}>
               Continue your soul-winning journey for just $2 CAD/month.
