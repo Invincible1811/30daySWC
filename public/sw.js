@@ -1,4 +1,4 @@
-const CACHE_NAME = "winning-souls-v10";
+const CACHE_NAME = "winning-souls-v11";
 const OFFLINE_URL = "/";
 
 const PRECACHE_URLS = [

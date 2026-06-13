@@ -352,16 +352,17 @@ export default function Testimonies() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 lg:p-8">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 p-6 lg:p-8">
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "24px 24px" }} />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl" />
         <div className="relative flex items-center justify-between">
           <div>
             <h2 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">Testimonies</h2>
-            <p className="text-white/70 mt-1 text-sm">Share and celebrate what God is doing through evangelism</p>
+            <p className="text-slate-400 mt-1 text-sm">Share and celebrate what God is doing through evangelism</p>
           </div>
           <button
             onClick={() => setShowForm(true)}
-            className="bg-white text-indigo-700 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+            className="bg-teal-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-teal-400 transition-all shadow-lg shadow-teal-500/20 hover:shadow-xl hover:scale-105"
           >
             <Plus size={18} /> Share Testimony
           </button>
@@ -371,15 +372,15 @@ export default function Testimonies() {
       {/* Testimonies Feed */}
       <div className="space-y-5">
         {testimonies.map(t => (
-          <div key={t.id} className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
+          <div key={t.id} className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md hover:border-teal-200/50 transition-all">
             <div className="p-5 lg:p-6">
               {/* Author row */}
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   {t.authorAvatar ? (
-                    <img src={t.authorAvatar} alt="" className="w-11 h-11 rounded-full object-cover ring-2 ring-indigo-100" />
+                    <img src={t.authorAvatar} alt="" className="w-11 h-11 rounded-full object-cover ring-2 ring-teal-100" />
                   ) : (
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-slate-700 to-teal-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
                       {t.author.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -432,16 +433,16 @@ export default function Testimonies() {
 
               {/* Audio media */}
               {t.mediaUrl && t.mediaType === "audio" && (
-                <div className="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                <div className="mt-4 bg-gradient-to-r from-slate-50 to-teal-50 rounded-xl p-4 border border-teal-100/60">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-teal-600 flex items-center justify-center shrink-0 shadow-sm">
                       <Mic size={18} className="text-white" />
                     </div>
                     <audio src={t.mediaUrl} controls preload="metadata" className="w-full" />
                   </div>
                   <div className="flex items-center gap-3 mt-2 ml-13">
                     {t.mediaDuration && (
-                      <span className="text-[10px] font-mono text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full font-bold">{formatTime(t.mediaDuration)}</span>
+                      <span className="text-[10px] font-mono text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full font-bold">{formatTime(t.mediaDuration)}</span>
                     )}
                     <span className="text-[10px] text-slate-400">{t.date?.includes("T") ? `${t.date.split("T")[0]} • ${new Date(t.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : t.date}</span>
                   </div>
@@ -458,13 +459,13 @@ export default function Testimonies() {
                 </button>
                 <button
                   onClick={() => setCommentingId(commentingId === t.id ? null : t.id)}
-                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-indigo-500 transition-colors group"
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-teal-500 transition-colors group"
                 >
                   <MessageCircle size={16} className="group-hover:scale-110 transition-transform" /> <span className="font-medium">{t.comments.length}</span>
                 </button>
                 <button
                   onClick={() => handleShare(t)}
-                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-indigo-500 transition-colors group"
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-teal-500 transition-colors group"
                 >
                   <Share2 size={16} className="group-hover:scale-110 transition-transform" /> <span className="font-medium">Share</span>
                 </button>
@@ -489,10 +490,10 @@ export default function Testimonies() {
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                     placeholder="Add a comment..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition-all"
                     onKeyDown={e => e.key === "Enter" && handleComment(t.id)}
                   />
-                  <button onClick={() => handleComment(t.id)} className="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
+                  <button onClick={() => handleComment(t.id)} className="bg-teal-600 text-white p-2.5 rounded-xl hover:bg-teal-700 transition-colors shadow-sm">
                     <Send size={16} />
                   </button>
                 </div>
