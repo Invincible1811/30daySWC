@@ -32,149 +32,161 @@ export default function SoulTracker() {
     setShowForm(false);
   };
 
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-dark">Impact Tracker</h2>
-          <p className="text-grey mt-1">Log and track every soul won for the Kingdom</p>
-        </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-primary-dark transition-colors shadow-lg shadow-primary/20"
-        >
-          <Plus size={18} /> Log Soul
-        </button>
-      </div>
+  const statusStyle = (status: string) => {
+    if (status === "completed") return { bg: "rgba(34,197,94,0.15)", text: "#22C55E", border: "#22C55E40", label: "Completed" };
+    if (status === "in_progress") return { bg: "rgba(245,158,11,0.15)", text: "#F59E0B", border: "#F59E0B40", label: "In Progress" };
+    return { bg: "rgba(239,68,68,0.15)", text: "#EF4444", border: "#EF444440", label: "Pending" };
+  };
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light text-center">
-          <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-2">
-            <UserPlus className="text-primary" size={24} />
+  return (
+    <div className="animate-fade-in space-y-6">
+      {/* Mission Control Header */}
+      <div
+        className="relative rounded-2xl overflow-hidden p-6"
+        style={{ background: "linear-gradient(135deg, #0c0c1e 0%, #0f172a 50%, #1a0a00 100%)", boxShadow: "0 4px 30px rgba(245,158,11,0.1)" }}
+      >
+        {/* Grid lines */}
+        <div className="absolute inset-0 opacity-5"
+          style={{ backgroundImage: "linear-gradient(rgba(245,158,11,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.5) 1px, transparent 1px)", backgroundSize: "40px 40px" }}
+        />
+        <div className="relative z-10 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "rgba(245,158,11,0.2)", border: "1px solid rgba(245,158,11,0.4)" }}>
+                <UserPlus size={16} style={{ color: "#F59E0B" }} />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Impact Tracker</h2>
+            </div>
+            <p className="text-amber-300/50 text-sm">Mission intelligence — every soul counts</p>
           </div>
-          <p className="text-3xl font-bold text-dark">{souls.length}</p>
-          <p className="text-xs text-grey mt-1">My Souls Won</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all hover:scale-105 active:scale-95"
+            style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)", color: "#0c0c1e", boxShadow: "0 4px 15px rgba(245,158,11,0.4)" }}
+          >
+            <Plus size={16} /> Log Soul
+          </button>
         </div>
-        <div className="bg-card rounded-2xl p-5 shadow-sm border border-grey-light text-center">
-          <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Globe className="text-success" size={24} />
+
+        {/* Stat counters */}
+        <div className="grid grid-cols-2 gap-4 mt-5">
+          <div className="rounded-xl p-4 text-center" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.2)" }}>
+            <p className="text-4xl font-black" style={{ color: "#F59E0B" }}>{souls.length}</p>
+            <p className="text-xs text-amber-300/60 mt-1 uppercase tracking-widest">My Souls Won</p>
           </div>
-          <p className="text-3xl font-bold text-dark">{globalSoulCount}</p>
-          <p className="text-xs text-grey mt-1">Global Souls Won</p>
+          <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
+            <p className="text-4xl font-black" style={{ color: "#22C55E" }}>{globalSoulCount}</p>
+            <p className="text-xs text-green-300/60 mt-1 uppercase tracking-widest">Global Impact</p>
+          </div>
         </div>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-grey" />
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "#F59E0B" }} />
         <input
           type="text"
-          placeholder="Search souls by name or location..."
+          placeholder="Search by name or location..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="w-full pl-11 pr-4 py-3 bg-card rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary"
+          className="w-full pl-10 pr-4 py-3 rounded-xl text-sm focus:outline-none text-white placeholder-white/30"
+          style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }}
         />
       </div>
 
-      {/* Souls List */}
-      <div className="space-y-3">
-        {filtered.map(soul => (
-          <div key={soul.id} className="bg-card rounded-xl p-4 shadow-sm border border-grey-light flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
-              {soul.name.charAt(0)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-dark">{soul.name}</p>
-              <p className="text-xs text-grey">{soul.location} • {soul.date}</p>
-              {soul.phone && <p className="text-xs text-grey-dark mt-0.5">📞 {soul.phone}</p>}
-            </div>
-            <span className={`text-xs px-3 py-1 rounded-full font-medium shrink-0 ${
-              soul.followUpStatus === "completed" ? "bg-success/10 text-success" :
-              soul.followUpStatus === "in_progress" ? "bg-warning/10 text-warning" :
-              "bg-danger/10 text-danger"
-            }`}>
-              {soul.followUpStatus === "in_progress" ? "In Progress" : soul.followUpStatus.charAt(0).toUpperCase() + soul.followUpStatus.slice(1)}
-            </span>
+      {/* Soul Records */}
+      <div
+        className="rounded-2xl overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #0c0c1e 0%, #0f172a 100%)", border: "1px solid rgba(245,158,11,0.15)" }}
+      >
+        {filtered.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-4xl mb-3">✝️</div>
+            <p className="text-white/50 font-semibold">No souls logged yet</p>
+            <p className="text-amber-300/30 text-sm mt-1">Start your Kingdom mission today</p>
           </div>
-        ))}
-        {filtered.length === 0 && (
-          <div className="text-center py-12">
-            <UserPlus size={48} className="text-grey-medium mx-auto mb-3" />
-            <p className="text-grey font-medium">No souls found</p>
-            <p className="text-grey text-sm mt-1">Start winning souls and log them here!</p>
+        ) : (
+          <div className="divide-y" style={{ borderColor: "rgba(245,158,11,0.08)" }}>
+            {filtered.map((soul, idx) => {
+              const s = statusStyle(soul.followUpStatus);
+              return (
+                <div key={soul.id} className="flex items-center gap-4 px-4 py-3.5 hover:bg-amber-500/5 transition-colors">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold shrink-0"
+                    style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.3)" }}>
+                    {soul.name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-sm">{soul.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "rgba(245,158,11,0.5)" }}>
+                      {soul.location && `📍 ${soul.location}`}{soul.location && soul.date ? " · " : ""}{soul.date}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0"
+                    style={{ background: s.bg, color: s.text, border: `1px solid ${s.border}` }}>
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* Add Soul Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl max-w-md w-full animate-pop-in shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-primary to-primary-dark p-5 text-white flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="max-w-md w-full rounded-2xl animate-pop-in overflow-hidden shadow-2xl"
+            style={{ background: "#0f172a", border: "1px solid rgba(245,158,11,0.3)", boxShadow: "0 0 40px rgba(245,158,11,0.15)" }}>
+            <div className="p-5 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(245,158,11,0.15)" }}>
               <div>
-                <h3 className="text-lg font-bold">Log a New Soul</h3>
-                <p className="text-blue-200 text-sm">Record this precious decision for Christ</p>
+                <h3 className="text-lg font-bold text-white">Log a New Soul</h3>
+                <p className="text-amber-300/50 text-xs">Record this precious decision for Christ</p>
               </div>
-              <button onClick={() => setShowForm(false)} className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10"
+                style={{ color: "#F59E0B" }}>
                 <X size={18} />
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-5 space-y-3">
-              <div>
-                <label className="text-sm font-medium text-dark block mb-1">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={form.name}
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary"
-                  placeholder="Enter name"
-                />
-              </div>
+              {[
+                { label: "Full Name *", field: "name", type: "text", placeholder: "Enter name", required: true },
+                { label: "Location", field: "location", type: "text", placeholder: "Where were they reached?" },
+              ].map(({ label, field, type, placeholder, required }) => (
+                <div key={field}>
+                  <label className="text-xs font-semibold block mb-1" style={{ color: "#F59E0B" }}>{label}</label>
+                  <input type={type} required={required} value={form[field as keyof typeof form]}
+                    onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                    placeholder={placeholder}
+                    className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none text-white placeholder-white/30"
+                    style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }}
+                  />
+                </div>
+              ))}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-sm font-medium text-dark block mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary"
-                    placeholder="Phone number"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-dark block mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary"
-                    placeholder="Email address"
-                  />
-                </div>
+                {[{ label: "Phone", field: "phone", type: "tel" }, { label: "Email", field: "email", type: "email" }].map(({ label, field, type }) => (
+                  <div key={field}>
+                    <label className="text-xs font-semibold block mb-1" style={{ color: "#F59E0B" }}>{label}</label>
+                    <input type={type} value={form[field as keyof typeof form]}
+                      onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                      placeholder={label}
+                      className="w-full px-3 py-2.5 rounded-xl text-sm focus:outline-none text-white placeholder-white/30"
+                      style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }}
+                    />
+                  </div>
+                ))}
               </div>
               <div>
-                <label className="text-sm font-medium text-dark block mb-1">Location</label>
-                <input
-                  type="text"
-                  value={form.location}
-                  onChange={e => setForm(f => ({ ...f, location: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary"
-                  placeholder="Where were they reached?"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-dark block mb-1">Notes</label>
-                <textarea
-                  value={form.notes}
-                  onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-grey-light text-sm focus:outline-none focus:border-primary resize-none h-20"
+                <label className="text-xs font-semibold block mb-1" style={{ color: "#F59E0B" }}>Notes</label>
+                <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                   placeholder="Any additional notes..."
+                  className="w-full px-4 py-2.5 rounded-xl text-sm focus:outline-none text-white placeholder-white/30 resize-none h-20"
+                  style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }}
                 />
               </div>
-              <button type="submit" className="w-full bg-primary text-white py-3 rounded-xl font-semibold hover:bg-primary-dark transition-colors">
-                Save Soul Record
+              <button type="submit"
+                className="w-full py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90 active:scale-95"
+                style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)", color: "#0c0c1e", boxShadow: "0 4px 15px rgba(245,158,11,0.3)" }}>
+                ✝️ Save Soul Record
               </button>
             </form>
           </div>

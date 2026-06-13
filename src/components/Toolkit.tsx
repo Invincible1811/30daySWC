@@ -47,12 +47,12 @@ async function downloadImage(url: string, name: string) {
 
 type Section = "scriptures" | "locations" | "gospel" | "bingo" | "gifts";
 
-const sections: { id: Section; label: string; icon: React.ElementType; color: string }[] = [
-  { id: "scriptures", label: "Scriptures & Declarations", icon: BookOpen, color: "from-blue-600 to-blue-800" },
-  { id: "locations", label: "Conversation Starters", icon: MapPin, color: "from-green-600 to-green-800" },
-  { id: "gospel", label: "Gospel Scripts/Tools", icon: Heart, color: "from-purple-600 to-purple-800" },
-  { id: "bingo", label: "Acts of Kindness", icon: Sparkles, color: "from-amber-500 to-amber-700" },
-  { id: "gifts", label: "Gifts & Giveaways", icon: Gift, color: "from-rose-500 to-rose-700" },
+const sections: { id: Section; label: string; icon: React.ElementType; color: string; accent: string; glow: string }[] = [
+  { id: "scriptures", label: "Scriptures", icon: BookOpen, color: "from-blue-600 to-blue-800", accent: "#3B82F6", glow: "rgba(59,130,246,0.2)" },
+  { id: "locations", label: "Starters", icon: MapPin, color: "from-green-600 to-green-800", accent: "#22C55E", glow: "rgba(34,197,94,0.2)" },
+  { id: "gospel", label: "Gospel Tool", icon: Heart, color: "from-purple-600 to-purple-800", accent: "#A855F7", glow: "rgba(168,85,247,0.2)" },
+  { id: "bingo", label: "Kindness", icon: Sparkles, color: "from-amber-500 to-amber-700", accent: "#F59E0B", glow: "rgba(245,158,11,0.2)" },
+  { id: "gifts", label: "Gifts", icon: Gift, color: "from-rose-500 to-rose-700", accent: "#F43F5E", glow: "rgba(244,63,94,0.2)" },
 ];
 
 const scriptureCards = Array.from({ length: 30 }, (_, i) => `/toolkit/scripture-cards/sc-${String(i + 1).padStart(2, "0")}.jpg`);
@@ -427,23 +427,45 @@ function BingoBoard() {
 export default function Toolkit() {
   const [activeSection, setActiveSection] = useState<Section>("scriptures");
   const favHook = useFavorites();
-
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-2xl font-bold text-dark">Soul-Winning Toolkit</h2>
-        <p className="text-grey mt-1">Use these as you step out today.</p>
+    <div className="animate-fade-in space-y-5">
+      {/* Workbench Header */}
+      <div
+        className="relative rounded-2xl overflow-hidden p-6"
+        style={{
+          background: "linear-gradient(135deg, #1c1917 0%, #292524 60%, #1c1917 100%)",
+          boxShadow: "0 4px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+        }}
+      >
+        {/* Subtle hex grid texture */}
+        <div className="absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: "linear-gradient(60deg, #fff 1px, transparent 1px), linear-gradient(-60deg, #fff 1px, transparent 1px), linear-gradient(#fff 1px, transparent 1px)", backgroundSize: "20px 35px" }} />
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="text-2xl">🧰</div>
+              <h2 className="text-2xl font-bold text-white">Soul-Winning Toolkit</h2>
+            </div>
+            <p className="text-stone-400/70 text-sm">Your gear for every Kingdom assignment</p>
+          </div>
+          {favHook.favorites.length > 0 && (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl" style={{ background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)" }}>
+              <Star size={13} style={{ color: "#F59E0B" }} fill="#F59E0B" />
+              <span className="text-xs font-bold" style={{ color: "#F59E0B" }}>{favHook.favorites.length} saved</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Favorites Quick Access */}
       {favHook.favorites.length > 0 && (
-        <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200/50">
-          <h4 className="font-bold text-dark text-sm mb-3 flex items-center gap-2">
-            <Star size={14} className="text-amber-500" fill="currentColor" /> My Favorites ({favHook.favorites.length})
+        <div className="rounded-2xl p-4" style={{ background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)" }}>
+          <h4 className="font-bold text-sm mb-3 flex items-center gap-2" style={{ color: "#F59E0B" }}>
+            <Star size={13} fill="currentColor" /> My Favorites ({favHook.favorites.length})
           </h4>
           <div className="flex gap-3 overflow-x-auto pb-2">
             {favHook.favorites.map((img, i) => (
-              <div key={i} className="shrink-0 w-20 h-28 rounded-xl overflow-hidden shadow-md border-2 border-amber-300">
+              <div key={i} className="shrink-0 w-20 h-28 rounded-xl overflow-hidden shadow-md" style={{ border: "2px solid rgba(245,158,11,0.5)" }}>
                 <Image src={img} alt={`Favorite ${i + 1}`} width={80} height={112} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -451,21 +473,24 @@ export default function Toolkit() {
         </div>
       )}
 
-      {/* Section Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
+      {/* Section Tabs — tool icons on a dark rail */}
+      <div
+        className="rounded-2xl p-2 flex gap-2 overflow-x-auto"
+        style={{ background: "#1c1917", border: "1px solid rgba(255,255,255,0.07)" }}
+      >
         {sections.map(sec => {
           const Icon = sec.icon;
+          const isActive = activeSection === sec.id;
           return (
             <button
               key={sec.id}
               onClick={() => setActiveSection(sec.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                activeSection === sec.id
-                  ? "bg-primary text-white shadow-md"
-                  : "bg-card text-grey border border-grey-light hover:border-primary/30"
-              }`}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+              style={isActive
+                ? { background: sec.accent, color: "#fff", boxShadow: `0 4px 12px ${sec.glow}` }
+                : { background: "transparent", color: "rgba(255,255,255,0.4)" }}
             >
-              <Icon size={16} />
+              <Icon size={14} />
               {sec.label}
             </button>
           );
@@ -475,10 +500,10 @@ export default function Toolkit() {
       {/* Section Content */}
       {activeSection === "scriptures" && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-5 text-white">
-            <BookOpen size={32} className="mb-2 opacity-80" />
-            <h3 className="text-lg font-bold">30 Scriptures & Declarations for Miracles and Healing</h3>
-            <p className="text-blue-200 text-sm mt-1">Tap any card to view it full-size. Declare them boldly over the people you meet!</p>
+          <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #1e3a5f, #1d4ed8)", boxShadow: "0 4px 20px rgba(59,130,246,0.2)" }}>
+            <BookOpen size={28} className="mb-2 opacity-80" />
+            <h3 className="text-lg font-bold">30 Scriptures & Declarations</h3>
+            <p className="text-blue-200 text-sm mt-1">Tap any card to view full-size. Declare them boldly!</p>
           </div>
           <CardGrid images={scriptureCards} title="Scripture Card" favHook={favHook} />
         </div>
@@ -486,10 +511,10 @@ export default function Toolkit() {
 
       {activeSection === "locations" && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-green-600 to-green-800 rounded-2xl p-5 text-white">
-            <MapPin size={32} className="mb-2 opacity-80" />
-            <h3 className="text-lg font-bold">30 Location Ideas & Conversation Starters</h3>
-            <p className="text-green-200 text-sm mt-1">Tap any card to view it full-size. Use these ideas to start meaningful conversations!</p>
+          <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #14532d, #16a34a)", boxShadow: "0 4px 20px rgba(34,197,94,0.2)" }}>
+            <MapPin size={28} className="mb-2 opacity-80" />
+            <h3 className="text-lg font-bold">30 Conversation Starters</h3>
+            <p className="text-green-200 text-sm mt-1">Use these ideas to start meaningful conversations.</p>
           </div>
           <CardGrid images={conversationCards} title="Conversation Starter" favHook={favHook} />
         </div>
@@ -501,10 +526,10 @@ export default function Toolkit() {
 
       {activeSection === "bingo" && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-amber-500 to-amber-700 rounded-2xl p-5 text-white">
-            <Sparkles size={32} className="mb-2 opacity-80" />
-            <h3 className="text-lg font-bold">Acts of Kindness Bingo Challenge</h3>
-            <p className="text-amber-100 text-sm mt-1">Tap a square when you complete an act of kindness. Do it with friends!</p>
+          <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #78350f, #d97706)", boxShadow: "0 4px 20px rgba(245,158,11,0.2)" }}>
+            <Sparkles size={28} className="mb-2 opacity-80" />
+            <h3 className="text-lg font-bold">Acts of Kindness Bingo</h3>
+            <p className="text-amber-100 text-sm mt-1">Tap a square when you complete an act of kindness!</p>
           </div>
           <BingoBoard />
           <CardGrid images={bingoImages} title="Bingo Challenge" />
@@ -513,10 +538,10 @@ export default function Toolkit() {
 
       {activeSection === "gifts" && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-indigo-600 to-violet-700 rounded-2xl p-5 text-white">
-            <Gift size={32} className="mb-2 opacity-80" />
-            <h3 className="text-lg font-bold">Gifts & Giveaway Ideas for Outreach</h3>
-            <p className="text-indigo-200 text-sm mt-1">Creative ideas for gifts and giveaways to bless people during your outreach events.</p>
+          <div className="rounded-2xl p-5 text-white" style={{ background: "linear-gradient(135deg, #4c1d95, #7c3aed)", boxShadow: "0 4px 20px rgba(124,58,237,0.2)" }}>
+            <Gift size={28} className="mb-2 opacity-80" />
+            <h3 className="text-lg font-bold">Gifts & Giveaway Ideas</h3>
+            <p className="text-purple-200 text-sm mt-1">Creative ideas to bless people during outreach events.</p>
           </div>
 
           <div className="bg-card rounded-2xl p-4 border border-grey-light flex items-center gap-4 overflow-x-auto">

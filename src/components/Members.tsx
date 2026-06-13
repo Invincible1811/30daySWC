@@ -190,8 +190,8 @@ export default function Members() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center py-20" style={{ background: "#fdf6e3" }}>
+        <div className="animate-spin w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -199,13 +199,13 @@ export default function Members() {
   // Chat view
   if (view === "chat" && selectedUser) {
     return (
-      <div className="animate-fade-in flex flex-col h-[calc(100vh-140px)] lg:h-[calc(100vh-80px)]">
+      <div className="animate-fade-in flex flex-col h-[calc(100vh-140px)] lg:h-[calc(100vh-80px)]" style={{ background: "#fdf6e3" }}>
         {/* Chat header */}
-        <div className="bg-card rounded-t-2xl border border-grey-light p-4 flex items-center gap-3 shrink-0">
-          <button onClick={() => { setView("directory"); setSelectedUser(null); }} className="w-8 h-8 rounded-full bg-grey-light flex items-center justify-center hover:bg-grey-medium/30">
-            <ArrowLeft size={18} className="text-grey-dark" />
+        <div className="rounded-t-2xl p-4 flex items-center gap-3 shrink-0" style={{ background: "#f5e6c8", borderBottom: "2px solid #d4a96a" }}>
+          <button onClick={() => { setView("directory"); setSelectedUser(null); }} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: "rgba(0,0,0,0.08)" }}>
+            <ArrowLeft size={18} style={{ color: "#78350f" }} />
           </button>
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold" style={{ background: "#e2c88e", color: "#78350f", border: "2px solid #d4a96a" }}>
             {selectedUser.avatar_url ? (
               <img src={selectedUser.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover" />
             ) : (
@@ -213,30 +213,29 @@ export default function Members() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-dark text-sm truncate">{selectedUser.full_name || selectedUser.username}</p>
-            <p className="text-xs text-grey">{[selectedUser.city, selectedUser.country].filter(Boolean).join(", ") || "Location unknown"}</p>
+            <p className="font-bold text-sm truncate" style={{ color: "#3b1a00" }}>{selectedUser.full_name || selectedUser.username}</p>
+            <p className="text-xs" style={{ color: "#a16207" }}>{[selectedUser.city, selectedUser.country].filter(Boolean).join(", ") || "Location unknown"}</p>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto bg-grey-light/30 border-x border-grey-light p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ background: "#fef9ee" }}>
           {messages.length === 0 && (
             <div className="text-center py-12">
-              <MessageCircle size={40} className="mx-auto text-grey-medium opacity-30 mb-2" />
-              <p className="text-grey text-sm">No messages yet. Say hello!</p>
+              <MessageCircle size={40} className="mx-auto mb-2" style={{ color: "#d4a96a", opacity: 0.4 }} />
+              <p className="text-sm" style={{ color: "#a16207" }}>No messages yet. Say hello!</p>
             </div>
           )}
           {messages.map((msg) => {
             const isMe = msg.sender_id === user?.id;
             return (
               <div key={msg.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
-                  isMe
-                    ? "bg-primary text-white rounded-br-md"
-                    : "bg-white text-dark border border-grey-light rounded-bl-md"
-                }`}>
+                <div className={`max-w-[75%] rounded-2xl px-4 py-2.5`}
+                  style={isMe
+                    ? { background: "linear-gradient(135deg, #d97706, #b45309)", color: "#fff", borderBottomRightRadius: 4 }
+                    : { background: "#fff", color: "#3b1a00", border: "1px solid #e2c88e", borderBottomLeftRadius: 4 }}>
                   <p className="text-sm leading-relaxed">{msg.content}</p>
-                  <p className={`text-[10px] mt-1 ${isMe ? "text-blue-200" : "text-grey"}`}>{formatTime(msg.created_at)}</p>
+                  <p className="text-[10px] mt-1" style={{ opacity: 0.6 }}>{formatTime(msg.created_at)}</p>
                 </div>
               </div>
             );
@@ -245,18 +244,20 @@ export default function Members() {
         </div>
 
         {/* Input */}
-        <div className="bg-card rounded-b-2xl border border-grey-light p-3 flex items-center gap-2 shrink-0">
+        <div className="rounded-b-2xl p-3 flex items-center gap-2 shrink-0" style={{ background: "#f5e6c8", borderTop: "2px solid #d4a96a" }}>
           <input
             value={newMessage}
             onChange={e => setNewMessage(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
             placeholder="Type a message..."
-            className="flex-1 bg-grey-light/50 rounded-xl px-4 py-2.5 text-sm outline-none text-dark border border-grey-light focus:border-primary"
+            className="flex-1 rounded-xl px-4 py-2.5 text-sm outline-none"
+            style={{ background: "#fff", border: "1px solid #d4a96a", color: "#3b1a00" }}
           />
           <button
             onClick={sendMessage}
             disabled={!newMessage.trim() || sending}
-            className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50"
+            style={{ background: "linear-gradient(135deg, #d97706, #b45309)", color: "#fff" }}
           >
             <Send size={18} />
           </button>
@@ -265,32 +266,58 @@ export default function Members() {
     );
   }
 
+  const CARD_ROTATIONS = [-2, 1.5, -1, 2.5, -1.5, 1, -2.5, 2];
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h2 className="text-2xl font-bold text-dark">Members</h2>
-        <p className="text-grey mt-1">Connect with fellow soul winners</p>
+    <div className="animate-fade-in space-y-5" style={{ background: "#fdf6e3", borderRadius: 24, padding: "0 0 16px 0" }}>
+      {/* Photo Wall Header */}
+      <div
+        className="relative overflow-hidden rounded-2xl p-6"
+        style={{
+          background: "linear-gradient(135deg, #3b1a00 0%, #78350f 50%, #3b1a00 100%)",
+          boxShadow: "0 4px 20px rgba(120,53,15,0.3)",
+        }}
+      >
+        {/* String/wire line decoration */}
+        <div className="absolute top-5 left-0 right-0 h-px" style={{ background: "rgba(255,255,255,0.15)" }} />
+        <div className="absolute top-0 bottom-0 left-8 w-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+        <div className="absolute top-0 bottom-0 right-8 w-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <span className="text-2xl">📸</span>
+              <h2 className="text-2xl font-bold text-white">Members</h2>
+            </div>
+            <p className="text-amber-200/60 text-sm">Connect with fellow soul winners</p>
+          </div>
+          <div className="text-right">
+            <p className="text-3xl font-black text-amber-300">{members.length}</p>
+            <p className="text-amber-200/50 text-xs">worldwide</p>
+          </div>
+        </div>
       </div>
 
-      {/* Tab toggle: Directory vs Messages */}
-      <div className="flex gap-2 bg-grey-light rounded-xl p-1">
+      {/* Tab toggle */}
+      <div className="flex gap-2 mx-0 px-1" style={{ background: "#f0d9a8", borderRadius: 16, padding: 6 }}>
         <button
           onClick={() => setView("directory")}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-            view === "directory" ? "bg-white text-primary shadow-sm" : "text-grey-dark"
-          }`}
+          className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2"
+          style={view === "directory"
+            ? { background: "#3b1a00", color: "#fde68a", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }
+            : { background: "transparent", color: "#a16207" }}
         >
-          <Users size={16} /> Directory
+          <Users size={15} /> Directory
         </button>
         <button
           onClick={() => setView("conversations")}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 relative ${
-            view === "conversations" ? "bg-white text-primary shadow-sm" : "text-grey-dark"
-          }`}
+          className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 relative"
+          style={view === "conversations"
+            ? { background: "#3b1a00", color: "#fde68a", boxShadow: "0 2px 8px rgba(0,0,0,0.2)" }
+            : { background: "transparent", color: "#a16207" }}
         >
-          <MessageCircle size={16} /> Messages
+          <MessageCircle size={15} /> Messages
           {conversations.reduce((sum, c) => sum + c.unread, 0) > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
               {conversations.reduce((sum, c) => sum + c.unread, 0)}
             </span>
           )}
@@ -299,100 +326,109 @@ export default function Members() {
 
       {/* Directory view */}
       {view === "directory" && (
-        <>
+        <div className="space-y-4 px-1">
           {/* Search */}
           <div className="relative">
-            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-grey" />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2" style={{ color: "#a16207" }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search by name, city, or church..."
-              className="w-full pl-11 pr-4 py-3 rounded-xl border border-grey-light text-sm outline-none text-dark focus:border-primary bg-card"
+              className="w-full pl-10 pr-4 py-3 rounded-xl text-sm outline-none"
+              style={{ background: "#fff", border: "2px solid #e2c88e", color: "#3b1a00" }}
             />
           </div>
 
-          {/* Member count */}
-          <p className="text-xs text-grey font-medium">{filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}</p>
+          <p className="text-xs font-semibold" style={{ color: "#a16207" }}>{filteredMembers.length} member{filteredMembers.length !== 1 ? "s" : ""}</p>
 
-          {/* Members list */}
-          <div className="space-y-2">
-            {filteredMembers.map(m => (
-              <div key={m.id} className="bg-card rounded-xl p-4 border border-grey-light shadow-sm flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
-                  {m.avatar_url ? (
-                    <img src={m.avatar_url} alt="" className="w-11 h-11 rounded-full object-cover" />
-                  ) : (
-                    (m.full_name || m.username || "?")[0].toUpperCase()
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-dark text-sm truncate">{m.full_name || m.username || "User"}</p>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    {(m.city || m.country) && (
-                      <span className="text-xs text-grey flex items-center gap-1">
-                        <MapPin size={11} /> {[m.city, m.country].filter(Boolean).join(", ")}
-                      </span>
-                    )}
-                    {m.church && (
-                      <span className="text-xs text-grey flex items-center gap-1">
-                        <Church size={11} /> {m.church}
+          {/* Polaroid grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {filteredMembers.map((m, idx) => (
+              <div
+                key={m.id}
+                className="group flex flex-col items-center transition-all duration-300 hover:scale-105 hover:z-10"
+                style={{ transform: `rotate(${CARD_ROTATIONS[idx % CARD_ROTATIONS.length]}deg)` }}
+              >
+                {/* Polaroid card */}
+                <div className="w-full rounded-sm overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow"
+                  style={{ background: "#fff", border: "1px solid #e5d5b0", padding: "8px 8px 28px 8px" }}>
+                  {/* Photo area */}
+                  <div className="w-full aspect-square rounded-sm overflow-hidden flex items-center justify-center"
+                    style={{ background: "linear-gradient(135deg, #f5e6c8, #e2c88e)" }}>
+                    {m.avatar_url ? (
+                      <img src={m.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-3xl font-black" style={{ color: "#78350f" }}>
+                        {(m.full_name || m.username || "?")[0].toUpperCase()}
                       </span>
                     )}
                   </div>
+                  {/* Polaroid caption */}
+                  <div className="mt-2 text-center" style={{ fontFamily: "Georgia, serif" }}>
+                    <p className="text-xs font-bold truncate" style={{ color: "#3b1a00" }}>{m.full_name || m.username || "Member"}</p>
+                    {(m.city || m.country) && (
+                      <p className="text-[10px] truncate" style={{ color: "#a16207" }}>{[m.city, m.country].filter(Boolean).join(", ")}</p>
+                    )}
+                  </div>
                 </div>
+                {/* Chat button */}
                 {user && m.id !== user.id && (
                   <button
                     onClick={() => openChat(m)}
-                    className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-colors shrink-0"
+                    className="mt-2 flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ background: "#3b1a00", color: "#fde68a" }}
                   >
-                    <MessageCircle size={16} />
+                    <MessageCircle size={12} /> Message
                   </button>
                 )}
               </div>
             ))}
-            {filteredMembers.length === 0 && (
-              <div className="text-center py-12">
-                <Users size={40} className="mx-auto text-grey-medium opacity-30 mb-2" />
-                <p className="text-grey text-sm">No members found</p>
-              </div>
-            )}
           </div>
-        </>
+
+          {filteredMembers.length === 0 && (
+            <div className="text-center py-12">
+              <span className="text-4xl">📭</span>
+              <p className="text-sm mt-2" style={{ color: "#a16207" }}>No members found</p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Conversations view */}
       {view === "conversations" && (
-        <div className="space-y-2">
+        <div className="space-y-2 px-1">
           {conversations.length === 0 && (
             <div className="text-center py-12">
-              <MessageCircle size={40} className="mx-auto text-grey-medium opacity-30 mb-2" />
-              <p className="text-grey text-sm">No conversations yet. Message someone from the directory!</p>
+              <span className="text-4xl">💬</span>
+              <p className="text-sm mt-2" style={{ color: "#a16207" }}>No conversations yet. Message someone!</p>
             </div>
           )}
           {conversations.map(conv => (
             <button
               key={conv.user.id}
               onClick={() => openChat(conv.user)}
-              className="w-full bg-card rounded-xl p-4 border border-grey-light shadow-sm flex items-center gap-3 hover:bg-grey-light/30 transition-colors text-left"
+              className="w-full rounded-2xl p-4 flex items-center gap-3 text-left transition-all hover:scale-[1.01]"
+              style={{ background: "#fff", border: "2px solid #e2c88e", boxShadow: "2px 3px 0 #d4a96a" }}
             >
-              <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0 relative">
+              <div className="w-11 h-11 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold shrink-0 relative"
+                style={{ background: "#f5e6c8", color: "#78350f", border: "2px solid #d4a96a" }}>
                 {conv.user.avatar_url ? (
                   <img src={conv.user.avatar_url} alt="" className="w-11 h-11 rounded-full object-cover" />
                 ) : (
                   (conv.user.full_name || conv.user.username || "?")[0].toUpperCase()
                 )}
                 {conv.unread > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-danger text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                     {conv.unread}
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-dark text-sm truncate">{conv.user.full_name || conv.user.username}</p>
-                  <span className="text-[10px] text-grey shrink-0">{formatTime(conv.lastTime)}</span>
+                  <p className="font-bold text-sm truncate" style={{ color: "#3b1a00" }}>{conv.user.full_name || conv.user.username}</p>
+                  <span className="text-[10px] shrink-0" style={{ color: "#a16207" }}>{formatTime(conv.lastTime)}</span>
                 </div>
-                <p className={`text-xs mt-0.5 truncate ${conv.unread > 0 ? "text-dark font-medium" : "text-grey"}`}>
+                <p className={`text-xs mt-0.5 truncate`} style={{ color: conv.unread > 0 ? "#3b1a00" : "#a16207", fontWeight: conv.unread > 0 ? 600 : 400 }}>
                   {conv.lastMessage}
                 </p>
               </div>
