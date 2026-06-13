@@ -95,22 +95,27 @@ export default function Navigation({ currentPage, onNavigate, onShowAuth, challe
                 className={`w-full flex items-center gap-3 px-6 py-3 text-sm transition-all ${
                   active
                     ? "bg-primary text-white border-r-4 border-primary-light"
-                    : "text-grey-medium hover:bg-dark-light hover:text-white"
+                    : item.page === "livefeed" && feedBadge > 0
+                      ? "text-green-400 bg-green-500/10 hover:bg-green-500/20"
+                      : "text-grey-medium hover:bg-dark-light hover:text-white"
                 }`}
               >
                 <div className="relative">
-                  <Icon size={20} />
+                  <Icon size={20} className={item.page === "livefeed" && feedBadge > 0 ? "animate-pulse text-green-400" : ""} />
                   {item.page === "challenges" && challengeBadge > 0 && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{challengeBadge}</span>
                   )}
                   {item.page === "livefeed" && feedBadge > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-bounce">{feedBadge > 9 ? "9+" : feedBadge}</span>
+                    <>
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full" />
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping" />
+                    </>
                   )}
                 </div>
                 <span className={item.page === "livefeed" && feedBadge > 0 ? "animate-pulse text-green-400 font-bold" : ""}>
                   {item.label}
                   {item.page === "livefeed" && feedBadge > 0 && (
-                    <span className="ml-1.5 text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-black uppercase tracking-wide">LIVE</span>
+                    <span className="ml-1.5 text-[9px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-black uppercase tracking-wide animate-bounce inline-block">LIVE</span>
                   )}
                 </span>
               </button>

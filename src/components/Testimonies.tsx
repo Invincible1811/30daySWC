@@ -351,108 +351,132 @@ export default function Testimonies() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-dark">Testimonies</h2>
-          <p className="text-grey mt-1">Share and celebrate what God is doing through evangelism</p>
+      {/* Hero Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6 lg:p-8">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)", backgroundSize: "20px 20px" }} />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">Testimonies</h2>
+            <p className="text-white/70 mt-1 text-sm">Share and celebrate what God is doing through evangelism</p>
+          </div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-white text-indigo-700 px-5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-indigo-50 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+          >
+            <Plus size={18} /> Share Testimony
+          </button>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-primary text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-primary-dark transition-colors"
-        >
-          <Plus size={18} /> Share Testimony
-        </button>
       </div>
 
       {/* Testimonies Feed */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {testimonies.map(t => (
-          <div key={t.id} className="bg-card rounded-2xl shadow-sm border border-grey-light overflow-hidden">
-            <div className="p-5">
-              <div className="flex items-center justify-between mb-3">
+          <div key={t.id} className="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow">
+            <div className="p-5 lg:p-6">
+              {/* Author row */}
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   {t.authorAvatar ? (
-                    <img src={t.authorAvatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                    <img src={t.authorAvatar} alt="" className="w-11 h-11 rounded-full object-cover ring-2 ring-indigo-100" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
-                      {t.author.charAt(0)}
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                      {t.author.charAt(0).toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <p className="font-semibold text-dark text-sm">{t.author}</p>
-                    <p className="text-xs text-grey">{t.date}</p>
+                    <p className="font-bold text-slate-800 text-sm">{t.author}</p>
+                    <p className="text-[11px] text-slate-400 font-medium">{t.date}</p>
                   </div>
                 </div>
                 {(isAdmin || t.author === userName || t.author === profile?.full_name) && (
                   <button
                     onClick={() => { if (confirm("Delete this testimony?")) deleteTestimony(t.id); }}
-                    className="p-2 rounded-full hover:bg-red-50 text-grey hover:text-red-500 transition-colors"
+                    className="p-2 rounded-full hover:bg-red-50 text-slate-300 hover:text-red-500 transition-colors"
                   >
                     <Trash2 size={15} />
                   </button>
                 )}
               </div>
-              <h3 className="font-bold text-dark text-lg mb-2">{t.title}</h3>
-              <p className="text-grey-dark text-sm leading-relaxed">{t.content}</p>
+
+              {/* Content */}
+              <h3 className="font-bold text-slate-900 text-lg mb-1.5">{t.title}</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">{t.content}</p>
+
+              {/* Video media */}
               {t.mediaUrl && t.mediaType === "video" && (
-                <div className="mt-3 rounded-xl overflow-hidden bg-black relative">
+                <div className="mt-4 rounded-xl overflow-hidden bg-slate-900 relative shadow-inner">
                   <video
                     src={t.mediaUrl}
                     controls
                     playsInline
                     preload="metadata"
-                    className={`w-full max-h-64 object-contain ${t.blurred ? "blur-xl" : ""}`}
+                    className={`w-full max-h-72 object-contain ${t.blurred ? "blur-xl" : ""}`}
                   />
                   {t.blurred && (
                     <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-full flex items-center gap-1 backdrop-blur-sm pointer-events-none">
                       <EyeOff size={11} /> Blurred
                     </div>
                   )}
-                  {t.mediaDuration && (
-                    <div className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-mono font-bold px-2 py-1 rounded pointer-events-none">
-                      {formatTime(t.mediaDuration)}
-                    </div>
-                  )}
-                </div>
-              )}
-              {t.mediaUrl && t.mediaType === "audio" && (
-                <div className="mt-3 bg-grey-light/50 rounded-xl p-3 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Mic size={18} className="text-primary" />
+                  <div className="absolute bottom-2 left-2 flex items-center gap-2 pointer-events-none">
+                    {t.mediaDuration && (
+                      <span className="bg-black/70 text-white text-[10px] font-mono font-bold px-2 py-1 rounded">
+                        {formatTime(t.mediaDuration)}
+                      </span>
+                    )}
+                    <span className="bg-black/70 text-white/80 text-[10px] px-2 py-1 rounded">
+                      {t.date}
+                    </span>
                   </div>
-                  <audio src={t.mediaUrl} controls preload="metadata" className="w-full" />
-                  {t.mediaDuration && (
-                    <span className="text-[10px] font-mono text-grey-dark shrink-0">{formatTime(t.mediaDuration)}</span>
-                  )}
                 </div>
               )}
-              <div className="flex items-center gap-4 mt-4 pt-3 border-t border-grey-light">
+
+              {/* Audio media */}
+              {t.mediaUrl && t.mediaType === "audio" && (
+                <div className="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shrink-0 shadow-sm">
+                      <Mic size={18} className="text-white" />
+                    </div>
+                    <audio src={t.mediaUrl} controls preload="metadata" className="w-full" />
+                  </div>
+                  <div className="flex items-center gap-3 mt-2 ml-13">
+                    {t.mediaDuration && (
+                      <span className="text-[10px] font-mono text-indigo-600 bg-indigo-100 px-2 py-0.5 rounded-full font-bold">{formatTime(t.mediaDuration)}</span>
+                    )}
+                    <span className="text-[10px] text-slate-400">{t.date}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Actions bar */}
+              <div className="flex items-center gap-5 mt-4 pt-3 border-t border-slate-100">
                 <button
                   onClick={() => likeTestimony(t.id)}
-                  className="flex items-center gap-1.5 text-sm text-grey hover:text-danger transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-pink-500 transition-colors group"
                 >
-                  <Heart size={16} /> {t.likes}
+                  <Heart size={16} className="group-hover:scale-110 transition-transform" /> <span className="font-medium">{t.likes}</span>
                 </button>
                 <button
                   onClick={() => setCommentingId(commentingId === t.id ? null : t.id)}
-                  className="flex items-center gap-1.5 text-sm text-grey hover:text-primary transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-indigo-500 transition-colors group"
                 >
-                  <MessageCircle size={16} /> {t.comments.length}
+                  <MessageCircle size={16} className="group-hover:scale-110 transition-transform" /> <span className="font-medium">{t.comments.length}</span>
                 </button>
                 <button
                   onClick={() => handleShare(t)}
-                  className="flex items-center gap-1.5 text-sm text-grey hover:text-primary transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-indigo-500 transition-colors group"
                 >
-                  <Share2 size={16} /> Share
+                  <Share2 size={16} className="group-hover:scale-110 transition-transform" /> <span className="font-medium">Share</span>
                 </button>
               </div>
 
+              {/* Comments */}
               {t.comments.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {t.comments.map(c => (
-                    <div key={c.id} className="bg-grey-light/50 rounded-lg p-3 ml-6">
-                      <p className="text-xs font-medium text-dark">{c.author}</p>
-                      <p className="text-xs text-grey-dark mt-0.5">{c.content}</p>
+                    <div key={c.id} className="bg-slate-50 rounded-lg p-3 ml-6 border border-slate-100">
+                      <p className="text-xs font-semibold text-slate-700">{c.author}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{c.content}</p>
                     </div>
                   ))}
                 </div>
@@ -465,10 +489,10 @@ export default function Testimonies() {
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                     placeholder="Add a comment..."
-                    className="flex-1 px-3 py-2 rounded-lg border border-grey-light text-sm focus:outline-none focus:border-primary"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
                     onKeyDown={e => e.key === "Enter" && handleComment(t.id)}
                   />
-                  <button onClick={() => handleComment(t.id)} className="bg-primary text-white p-2 rounded-lg hover:bg-primary-dark">
+                  <button onClick={() => handleComment(t.id)} className="bg-indigo-600 text-white p-2.5 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm">
                     <Send size={16} />
                   </button>
                 </div>
