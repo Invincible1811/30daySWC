@@ -6,7 +6,8 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: Request) {
   try {
-    const { userId, mediaType } = await request.json();
+    // mimeType is the actual browser-reported type (e.g. video/mp4 on iOS, video/webm on Android)
+    const { userId, mediaType, mimeType: clientMime } = await request.json();
 
     if (!userId || !mediaType) {
       return NextResponse.json({ error: "Missing userId or mediaType" }, { status: 400 });
@@ -14,17 +15,22 @@ export async function POST(request: Request) {
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Ensure bucket exists
+    // Ensure bucket exists with all mobile-relevant MIME types
     const { data: buckets } = await supabaseAdmin.storage.listBuckets();
     if (!buckets?.some((b) => b.name === "media")) {
       await supabaseAdmin.storage.createBucket("media", {
         public: true,
-        allowedMimeTypes: ["video/webm", "audio/webm", "video/mp4", "audio/mp4", "audio/mpeg", "video/quicktime"],
+        allowedMimeTypes: [
+          "video/webm", "video/mp4", "video/quicktime", "video/x-matroska",
+          "audio/webm", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/wav",
+        ],
         fileSizeLimit: 524288000,
       });
     }
 
-    const path = `testimonies/${userId}/${Date.now()}.webm`;
+    // Derive file extension from actual MIME type (iOS records mp4, Android records webm)
+    const ext = clientMime?.includes("mp4") || clientMime?.includes("quicktime") ? "mp4" : "webm";
+    const path = `testimonies/${userId}/${Date.now()}.${ext}`;
 
     // Generate a presigned upload URL valid for 5 minutes
     const { data, error } = await supabaseAdmin.storage

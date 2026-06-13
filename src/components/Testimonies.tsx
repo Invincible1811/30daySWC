@@ -109,8 +109,15 @@ export default function Testimonies() {
       // else: iOS doesn't support captureStream, blur is CSS-only (preview only)
     }
 
-    const mimeType = MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "";
-    const recorder = new MediaRecorder(recordStream, { mimeType });
+    // Pick the best supported MIME type — iOS Safari only supports mp4, Android/Chrome prefer webm
+    const getMimeType = (kind: "video" | "audio") => {
+      const candidates = kind === "video"
+        ? ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4"]
+        : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/mpeg"];
+      return candidates.find(t => MediaRecorder.isTypeSupported(t)) ?? "";
+    };
+    const mimeType = getMimeType(recordMode === "video" ? "video" : "audio");
+    const recorder = new MediaRecorder(recordStream, mimeType ? { mimeType } : {});
     mediaRecorderRef.current = recorder;
     chunksRef.current = [];
 
@@ -120,7 +127,8 @@ export default function Testimonies() {
 
     recorder.onstop = () => {
       cancelAnimationFrame(animFrameRef.current);
-      const type = recordMode === "video" ? "video/webm" : "audio/webm";
+      // Use the actual MIME type the recorder used (critical for iOS which records mp4 not webm)
+      const type = recorder.mimeType || (recordMode === "video" ? "video/mp4" : "audio/mp4");
       const blob = new Blob(chunksRef.current, { type });
       setRecordedBlob(blob);
       setRecordedUrl(URL.createObjectURL(blob));
@@ -180,10 +188,11 @@ export default function Testimonies() {
       setUploadProgress(10);
 
       // Step 1: ask server for a presigned upload URL (sends only userId + mediaType, no file)
+      // Send the actual blob MIME type so the server uses the right file extension (mp4 on iOS)
       const urlRes = await fetch("/api/upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, mediaType: mode }),
+        body: JSON.stringify({ userId: user.id, mediaType: mode, mimeType: blob.type }),
       });
 
       if (!urlRes.ok) {
@@ -194,13 +203,23 @@ export default function Testimonies() {
       const { signedUrl, publicUrl } = await urlRes.json();
       setUploadProgress(20);
 
+      // Tick progress from 20→90 while upload is in flight (fetch has no progress events)
+      let ticked = 20;
+      const ticker = setInterval(() => {
+        ticked = Math.min(ticked + 3, 88);
+        setUploadProgress(ticked);
+      }, 400);
+
       // Step 2: PUT the file directly to Supabase from the browser (no Vercel in the path)
-      const contentType = mode === "video" ? "video/webm" : "audio/webm";
+      // Use the blob's actual type so iOS mp4 uploads with the correct Content-Type
+      const contentType = blob.type || (mode === "video" ? "video/mp4" : "audio/mp4");
       const uploadRes = await fetch(signedUrl, {
         method: "PUT",
         headers: { "Content-Type": contentType },
         body: blob,
       });
+
+      clearInterval(ticker);
 
       if (!uploadRes.ok) {
         console.error("Direct upload to Supabase failed:", uploadRes.status, await uploadRes.text());
