@@ -6,6 +6,7 @@ import PWARegister from "@/components/PWARegister";
 import { AuthProvider } from "@/lib/auth-context";
 import { Analytics } from "@vercel/analytics/react";
 import CookieConsent from "@/components/CookieConsent";
+import MaintenancePage from "@/components/MaintenancePage";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col bg-background">
         <PWARegister />
+        <MaintenancePage />
         <AuthProvider>
           <AppProvider>{children}</AppProvider>
         </AuthProvider>
