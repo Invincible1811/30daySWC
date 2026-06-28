@@ -1,6 +1,6 @@
 "use client";
 
-const MAINTENANCE_END = new Date("2026-06-29T00:00:00Z");
+const MAINTENANCE_END = new Date("2026-07-29T00:00:00Z");
 
 export default function MaintenancePage() {
   const now = new Date();
@@ -50,7 +50,7 @@ export default function MaintenancePage() {
 
         {/* Sub-note */}
         <p className="mt-8 text-xs text-slate-600">
-          Expected back: 29 June 2026
+          Expected back: 29 July 2026
         </p>
       </div>
     </div>
